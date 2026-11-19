@@ -14,7 +14,7 @@ from typing import Any
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
-from relaydeck.connector.fixture import fixture_event, fixture_snapshot
+from relaydeck.devtools.fakes.connector import fixture_event, fixture_snapshot
 from tests.security.helpers import attach, auth, lease, make_client, mint_token
 
 

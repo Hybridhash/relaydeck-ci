@@ -9,7 +9,7 @@ from relaydeck_terminal.terminal import RelayDeckTerminal
 
 from relaydeck.client.features.terminal import agent_session
 from relaydeck.client.features.terminal.warm_watch import watch_only
-from relaydeck.gateway.backend import BackendError
+from relaydeck.gateway.ports import BackendError
 from tests.support.host_harness import run
 from tests.support.terminal.attach_targets import _DeadSession, _routing_source
 from tests.support.terminal.reader_handoff import _actor, _wait

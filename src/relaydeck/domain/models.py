@@ -1,7 +1,5 @@
-"""Immutable domain types.
-
-Pure data: no Flet, no networking, no I/O. All types are frozen
-dataclasses or enums so reducers stay referentially transparent.
+"""Immutable data types shared by inventory reducers and clients, with no UI, networking or I/O
+dependencies.
 """
 
 from __future__ import annotations
@@ -62,24 +60,15 @@ class CommandStatus(str, Enum):
 
 
 def scope_key(host_id: str, bare_id: str) -> str:
-    """Host-scoped internal key for host-local upstream ids.
-
-    ``quote(host) + ":" + quote(bare)``: workspace/tab/pane/agent ids
-    repeat across hosts, so bare ids collide in merged maps. The scoped
-    form keys Inventory maps, Selection.session_key, row keys, and route
-    segments. It never contains ``/`` (quote with safe="" encodes it),
-    so it round-trips as one route segment. Records keep bare ids; the
-    wire keeps bare ids; call sites unscope at the boundary.
+    """Encode a host-local ID as one URL-safe, host-scoped key for maps, selection and routes.
+    Records and wire messages retain bare IDs.
     """
     return f"{quote(host_id, safe='')}:{quote(bare_id, safe='')}"
 
 
 def unscope_key(scoped: str) -> tuple[str, str] | None:
-    """Split a scoped key into (host_id, bare_id), or None if malformed.
-
-    Malformed means: empty input, no literal ``:``, or an empty side.
-    Bare ids cannot contain a literal ``:`` (it is quoted), so a valid
-    key holds exactly one ``:``.
+    """Split a host-scoped key into (host_id, bare_id), returning None for empty or malformed
+    keys.
     """
     host, sep, bare = scoped.partition(":")
     if not sep or not host or not bare or ":" in bare:
@@ -233,9 +222,8 @@ class Selection:
 
 @dataclass(frozen=True)
 class Inventory:
-    # Hosts keyed by bare gateway host id (globally unique). The four
-    # resource maps below are keyed by scope_key(host, bare): host-local
-    # upstream ids repeat across hosts. Records keep bare source ids.
+    # Hosts use globally unique gateway IDs; resource maps use scope_key(host, bare).
+    # Records retain bare source IDs, which may repeat across hosts.
     hosts: dict[str, Host] = field(default_factory=dict)
     workspaces: dict[str, Workspace] = field(default_factory=dict)
     tabs: dict[str, Tab] = field(default_factory=dict)
@@ -253,7 +241,5 @@ class AppState:
     stale: bool = False
     needs_resync: bool = False
     revoked: bool = False
-    # Last verified /v1/hosts grant set (None = never fetched: every
-    # host accepted, legacy behavior). Snapshots/events for ungranted
-    # hosts are rejected so revoked inventory cannot resurrect.
+    # None means grants have not been fetched; otherwise reject ungranted hosts.
     granted_hosts: frozenset[str] | None = None

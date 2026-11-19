@@ -1,9 +1,6 @@
-# CLI catalog for `relaydeck setup --detect`. Versioned data only: no code, no personal paths.
-# This is the ONE file under src/relaydeck allowed to name CLI products (tests/unit/test_no_agent_product_names.py).
-# herdr_detects: the CLI has a Herdr detection manifest (the 22 manifest ids; agy is the antigravity entry).
-# reader_root: the directory a tier-A reader enumerates (what setup writes); default_roots are the CLI's log locations, for detection only.
-# Roots use `~`; the env override names are the CLI's own, never an aggregator's. A tier-A reader_format is one
-# this build reads today. Tiers: A works today (a reader parses the format); B needs a JSON/JSONL reader; C needs a SQLite reader; D reports no reliable tokens; E is not supported yet.
+# Define CLI discovery, launch and reader hints in the sole file under src/relaydeck
+# allowed to name CLI products.
+# Tiers: A reader parses the format; B needs JSON/JSONL; C needs SQLite; D no reliable tokens; E unsupported.
 catalog_version = 1
 
 [[cli]]
@@ -92,6 +89,7 @@ minutes = 10080
 
 [[cli]]
 id = "kiro"
+launch_program = "kiro-cli"
 herdr_detects = true
 display_name = "Kiro"
 aliases = ["kiro-cli"]
@@ -104,9 +102,12 @@ tier = "A"
 evidence = "Session-turn logs read on this Mac; limits via the usage pane; credits meter pending."
 
 [cli.tui]
-launch_new = ["kiro-cli", "chat", "--agent-engine", "v2"]
+launch_new = ["kiro-cli", "chat", "--agent-engine", "v3"]
 refuse = ["(?i)don't have a `?/usage`? command", "(?i)no `?/usage`? (command|tool)"]
-launch_resume = ["kiro-cli", "--resume-id", "{id}"]
+launch_resume = ["kiro-cli", "chat", "--agent-engine", "v3", "--resume-id", "{id}"]
+untrusted = ['Trust this workspace\?']
+trust_store = "~/.kiro/workspace-roots"
+probe_dir = "{state_dir}/kiro-probe"
 quit_text = "/quit"
 quit_marker = 'Session ended\.'
 dismiss = "esc"
@@ -115,6 +116,7 @@ usage_marker = 'Credits \('
 hint_pattern = 'Resume with: kiro-cli --resume-id (?P<id>\S+)'
 id_pattern = "[A-Za-z0-9][A-Za-z0-9_.-]{0,127}"
 session_root = "~/.kiro/sessions/cli"
+session_entry = "{id}.history"
 not_found = []
 binary = "kiro-cli"
 plan_pattern = '\|[ ]*(?P<plan>[A-Z][A-Za-z0-9 ._-]{1,31})[ ]*$'
@@ -154,6 +156,7 @@ herdr_integration = "omp"
 
 [[cli]]
 id = "prime-agent"
+herdr_starts = false
 herdr_detects = false
 display_name = "Prime Agent"
 aliases = []
@@ -231,6 +234,7 @@ herdr_integration = "grok"
 
 [[cli]]
 id = "command-code"
+herdr_starts = false
 herdr_detects = false
 display_name = "Command Code"
 aliases = []
@@ -316,6 +320,7 @@ herdr_integration = "mastracode"
 
 [[cli]]
 id = "cursor"
+launch_program = "cursor-agent"
 herdr_detects = true
 display_name = "Cursor Agent"
 aliases = []
@@ -354,6 +359,7 @@ herdr_integration = "letta"
 
 [[cli]]
 id = "crush"
+herdr_starts = false
 herdr_detects = false
 display_name = "Crush"
 aliases = []
@@ -401,6 +407,7 @@ evidence = "Closed source; paths seen only in aggregator tools."
 
 [[cli]]
 id = "antigravity"
+launch_program = "agy"
 herdr_detects = true
 display_name = "Antigravity"
 aliases = ["agy"]

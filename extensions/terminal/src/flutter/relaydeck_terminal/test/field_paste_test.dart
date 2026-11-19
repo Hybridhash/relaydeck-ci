@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/src/field_paste.dart';
+import 'package:relaydeck_terminal/src/field_paste.dart';
 
 Future<TextEditingController> pump(WidgetTester tester,
     {String text = '',
@@ -49,9 +49,9 @@ void main() {
 
   testWidgets('a selection is replaced, once', (tester) async {
     final changes = <String>[];
-    final controller = await pump(tester, text: 'hello world', changes: changes);
-    controller.selection =
-        const TextSelection(baseOffset: 6, extentOffset: 11);
+    final controller =
+        await pump(tester, text: 'hello world', changes: changes);
+    controller.selection = const TextSelection(baseOffset: 6, extentOffset: 11);
     await tester.pump();
     expect(pasteIntoField(focusedEditable()!, 'there\nagain'), isTrue);
     await tester.pump();

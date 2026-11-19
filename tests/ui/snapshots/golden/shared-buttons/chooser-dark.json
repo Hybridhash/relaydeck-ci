@@ -1,0 +1,211 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "key": "shell-chooser-title",
+       "props": {
+        "color": "#F5F2FF",
+        "value": "Open shell terminal"
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "props": {
+        "color": "#B7AFDA",
+        "value": "Choose a terminal in this workspace."
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "key": "shell-choice-host-a:tab-a",
+       "props": {
+        "content": "Example shell",
+        "height": 48,
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "slot": "controls",
+       "type": "Button"
+      },
+      {
+       "key": "shell-choice-new",
+       "props": {
+        "content": "New terminal",
+        "height": 48,
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "slot": "controls",
+       "type": "Button"
+      },
+      {
+       "key": "shell-choice-cancel",
+       "props": {
+        "content": "Cancel",
+        "height": 48,
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "slot": "controls",
+       "type": "Button"
+      }
+     ],
+     "key": "shell-chooser",
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:ShellChooser"
+  }
+ ]
+}

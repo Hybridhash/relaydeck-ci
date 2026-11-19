@@ -1,8 +1,5 @@
-"""Flet-free contracts for the limits plane.
-
-The limits plane refreshes allowance snapshots on its own worker, outside the
-token-ledger pass. Providers are pure: `fetch` gets everything it needs in the
-context (including a bounded subprocess runner) and keeps no global state.
+"""Shared allowance-provider inputs and results, independent of the token-ledger worker. Fetch
+contexts supply bounded operations and providers retain no global state.
 """
 
 from __future__ import annotations
@@ -46,10 +43,9 @@ class FetchContext:
 
 @dataclass(frozen=True)
 class ProviderResult:
-    """One fetch outcome. `error` set means failure: any snapshots in the same
-    result are ignored. The previous stored reading (last-good) is kept only for a positively
-    identified account and a transient error; an unknown identity or `auth_required` suppresses
-    it."""
+    """One fetch result; an error suppresses all snapshots returned with it. Reuse last-good
+    data only for an identified account and a transient failure.
+    """
 
     snapshots: tuple[LimitSnapshot, ...] = ()
     error: LimitError | None = None
@@ -110,7 +106,7 @@ class TuiRecipe:
     usage_enters: int = 1  # Enters after the usage command (a slash menu may eat the first)
     untrusted: tuple[str, ...] = ()  # a trust question on screen: never answered, the read aborts
     session_entry: str = "{id}.json"  # where a session lives under session_root
-    trust_store: str | None = None  # the tool's own JSON trust file, read only
+    trust_store: str | None = None  # the tool's own trust store (file or folder), read only
     probe_dir: str | None = None  # "{state_dir}/name": an empty folder the read starts in
 
 

@@ -1,0 +1,92 @@
+"""Native sheet selection and legacy selection-event forwarding regressions."""
+
+from __future__ import annotations
+
+import asyncio
+
+from relaydeck.client.features.terminal.selection_sheet import SelectTextSheet
+from relaydeck.client.platform.flet.events import selection_change
+from tests.support.host_harness import render_component, run
+
+
+def test_selection_change_wrapper_passes_offsets() -> None:
+    async def scenario() -> None:
+        seen: list[tuple[int, int]] = []
+
+        async def record(base: int, extent: int) -> None:
+            seen.append((base, extent))
+
+        class _Sel:
+            base_offset = 2
+            extent_offset = 9
+
+        class _Event:
+            selection = _Sel()
+
+        await selection_change(record)(_Event())
+        assert seen == [(2, 9)]
+
+    asyncio.run(scenario())
+
+
+def test_selection_change_wrapper_ignores_selection_less_events() -> None:
+    async def scenario() -> None:
+        called: list[bool] = []
+
+        async def record(base: int, extent: int) -> None:
+            called.append(True)
+
+        class _Plain:
+            pass
+
+        assert await selection_change(record)(_Plain()) is None
+        assert called == []
+
+    asyncio.run(scenario())
+
+
+def test_sheet_forwards_native_selected_text_as_str_offsets() -> None:
+    async def scenario() -> None:
+        seen: list[tuple[int, int]] = []
+        text = "a\U0001f600b"
+        app = await render_component(
+            SelectTextSheet,
+            text=text,
+            anchor=0,
+            focus=3,
+            on_copy=lambda a, f: None,
+            on_close=lambda: None,
+            on_selection_change=lambda a, f: seen.append((a, f)),
+        )
+        await app.set_props_and_fire(
+            "select-text-area",
+            {},
+            "change",
+            "a\U0001f600",
+        )
+        assert seen == [(0, 2)]
+
+    run(scenario())
+
+
+def test_sheet_without_selection_callback_ignores_drags() -> None:
+    async def scenario() -> None:
+        copied: list[tuple[int, int]] = []
+        app = await render_component(
+            SelectTextSheet,
+            text="alpha",
+            anchor=0,
+            focus=5,
+            on_copy=lambda a, f: copied.append((a, f)),
+            on_close=lambda: None,
+        )
+        await app.set_props_and_fire(
+            "select-text-area",
+            {},
+            "change",
+            "alp",
+        )
+        await app.set_props_and_fire("select-text-copy", {}, "click")
+        assert copied == [(0, 5)]
+
+    run(scenario())

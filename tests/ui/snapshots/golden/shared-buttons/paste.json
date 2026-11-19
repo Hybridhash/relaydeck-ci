@@ -1,0 +1,116 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "key": "paste-review-title",
+       "props": {
+        "size": 15,
+        "value": "Review paste",
+        "weight": {
+         "enum": "FontWeight",
+         "value": "bold"
+        }
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "key": "paste-review-counts",
+       "props": {
+        "size": 13,
+        "value": "2 lines · 12 characters"
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "key": "paste-review-source",
+       "props": {
+        "size": 13,
+        "value": "Last copied in RelayDeck; clipboard unavailable",
+        "visible": false
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "key": "paste-review-preview",
+           "props": {
+            "font_family": "monospace",
+            "selectable": true,
+            "value": "Example\ntext"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "scroll": {
+           "enum": "ScrollMode",
+           "value": "auto"
+          }
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "key": "paste-review-preview-frame",
+       "props": {
+        "height": 176,
+        "padding": 12
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "children": [
+        {
+         "key": "paste-review-cancel",
+         "props": {
+          "content": "Cancel",
+          "height": 48
+         },
+         "slot": "controls",
+         "type": "Button"
+        },
+        {
+         "key": "paste-review-confirm",
+         "props": {
+          "content": "Paste",
+          "height": 48
+         },
+         "slot": "controls",
+         "type": "Button"
+        }
+       ],
+       "props": {
+        "alignment": {
+         "enum": "MainAxisAlignment",
+         "value": "end"
+        },
+        "wrap": true
+       },
+       "slot": "controls",
+       "type": "Row"
+      }
+     ],
+     "key": "paste-review-sheet",
+     "props": {
+      "spacing": 8
+     },
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:PasteReviewSheet"
+  }
+ ]
+}

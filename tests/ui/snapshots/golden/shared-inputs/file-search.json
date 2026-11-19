@@ -1,0 +1,48 @@
+{
+ "roots": [
+  {
+   "key": "file-search",
+   "props": {
+    "border": {
+     "ControlState.DEFAULT": {
+      "@": "OutlineInputBorder",
+      "border_radius": 8,
+      "side": {
+       "@": "BorderSide",
+       "color": "#3B3270"
+      }
+     },
+     "ControlState.FOCUSED": {
+      "@": "OutlineInputBorder",
+      "border_radius": 8,
+      "side": {
+       "@": "BorderSide",
+       "color": "#A98BFF",
+       "width": 2
+      }
+     }
+    },
+    "color": "#F5F2FF",
+    "content_padding": {
+     "@": "Padding",
+     "left": 12,
+     "right": 12
+    },
+    "cursor_color": "#A98BFF",
+    "expand": true,
+    "fill_color": "#1F1840",
+    "filled": true,
+    "height": 48,
+    "hint_style": {
+     "@": "TextStyle",
+     "color": "#B7AFDA"
+    },
+    "hint_text": "Search files",
+    "text_size": 14,
+    "value": "Example"
+   },
+   "slot": "root",
+   "type": "TextField"
+  }
+ ]
+}

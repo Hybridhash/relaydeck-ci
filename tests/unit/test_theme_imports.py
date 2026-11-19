@@ -9,8 +9,10 @@ import pytest
 @pytest.mark.parametrize(
     "first",
     [
-        "relaydeck.client.theme",
-        "relaydeck.client.components.design_system",
+        "relaydeck.client.design_system.theme",
+        "relaydeck.client.design_system.tokens",
+        "relaydeck.client.design_system.fonts",
+        "relaydeck.client.design_system.primitives",
     ],
 )
 def test_fresh_theme_application_import_and_public_exports(first: str) -> None:
@@ -20,16 +22,21 @@ def test_fresh_theme_application_import_and_public_exports(first: str) -> None:
             "-c",
             f"""
 import {first}
-import relaydeck.client.theme as theme
-import relaydeck.client.app
-import relaydeck.client.components as components
-from relaydeck.client.components.design_system import tokens
+import relaydeck.client.design_system.theme as theme
+import relaydeck.client.app.root
+import relaydeck.client.design_system as design_system
+from relaydeck.client.design_system import fonts, tokens
 assert theme.MIN_TOUCH == tokens.MIN_TOUCH == 48
-for name in components.__all__:
-    assert getattr(components, name) is not None
-assert components.HostContextHeader is components.HostContextHeader
+assert theme.TEXT_FONT_FALLBACK[0] == fonts.FAMILY_SYMBOLS
+# The package initializer exports nothing: only imported submodules appear on it.
+exported = [
+    name
+    for name, value in vars(design_system).items()
+    if not name.startswith('__') and not hasattr(value, '__file__')
+]
+assert exported == [], exported
 try:
-    components.nonexistent_component
+    design_system.nonexistent_component
 except AttributeError:
     pass
 else:

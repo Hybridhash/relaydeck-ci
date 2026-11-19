@@ -21,7 +21,7 @@ from relaydeck.client.features.terminal.retention import (
     RetentionFullError,
     TerminalRegistry,
 )
-from relaydeck.client.features.terminal.screen import deliver_output
+from relaydeck.client.widgets.terminal.screen import deliver_output
 
 
 class _StubSurface:

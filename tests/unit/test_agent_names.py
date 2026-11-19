@@ -8,20 +8,22 @@ from typing import Any, cast
 
 import pytest
 
-from relaydeck.client.adapters.server_commands import ServerCommandStore
-from relaydeck.client.features.inventory.rename import rename_command
-from relaydeck.client.features.inventory.selectors import agent_names, metadata_rows
-from relaydeck.client.features.sync.controller import snapshot_from_wire
-from relaydeck.client.pending_commands import MemoryCommandStore, PendingCommands, RecoveryError
-from relaydeck.connector.fixture import FixtureAdapter
+from relaydeck.client.app.state.sync import snapshot_from_wire
+from relaydeck.client.features.commands.recovery import PendingCommands
+from relaydeck.client.features.rename.rename import rename_command
+from relaydeck.client.models.inventory_selectors import agent_names, metadata_rows
+from relaydeck.client.platform.storage.memory_store import MemoryCommandStore
+from relaydeck.client.ports.commands import RecoveryError
+from relaydeck.companion.app.hosted_web.storage import ServerCommandStore
 from relaydeck.connector.herdr import HerdrAdapter, HerdrError
 from relaydeck.connector.journal import ConnectorDispatch
 from relaydeck.connector.source import HerdrSource
 from relaydeck.contracts.launch import agent_name_error as name_error
+from relaydeck.devtools.fakes.connector import FixtureAdapter
 from relaydeck.domain import reducers
 from relaydeck.domain.models import AppState, scope_key
-from relaydeck.gateway.policy import authorize_command
-from relaydeck.journal import CommandJournal
+from relaydeck.gateway.features.commands.policy import authorize_command
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.support.creation.command_journal import NOW, _dispatch_msg
 from tests.support.creation.create_readiness import _message
 from tests.support.creation.pending_command_records import command as prompt_command
@@ -110,7 +112,7 @@ def test_rename_pending_restores_uncertainty_without_payload_and_settles_success
             assert restored.records[("home-mac", command["command_id"])]["target"] == {
                 "agent_id": "term-1"
             }
-            with pytest.raises(RecoveryError, match="unresolved"):
+            with pytest.raises(RecoveryError, match="confirmed yet"):
                 await restored.begin(command)
             explicit = rename_command("home-mac", "epoch-7", "term-1", "other-name")
             await restored.begin(explicit)
@@ -141,7 +143,7 @@ def test_rename_exception_keeps_other_unresolved_target_guards(kind: str) -> Non
         body = prompt_command() if kind == "agent.prompt" else _creation(kind == "agent.start")
         await commands.begin(body)
         await commands.observe("home-mac", body["command_id"], record(body, "unknown"))
-        with pytest.raises(RecoveryError, match="unresolved"):
+        with pytest.raises(RecoveryError, match="confirmed yet"):
             await commands.begin({**body, "command_id": "new-operation-123"})
         assert len(commands.records) == 1
 

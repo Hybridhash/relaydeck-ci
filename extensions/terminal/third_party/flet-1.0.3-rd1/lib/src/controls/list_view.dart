@@ -57,6 +57,13 @@ class _ListViewControlState extends State<ListViewControl> {
     var firstItemPrototype =
         widget.control.getBool("first_item_prototype", false)!;
     var controls = widget.control.children("controls");
+    // RelayDeck: a caller that knows the main-axis extent of every child sends
+    // "item_extents" (one per child). Each child is then placed at the sum of
+    // the extents before it, so a window of children that slides never inherits
+    // the offset a child at that index had before; the children are laid out
+    // unbounded along the main axis so each can report its natural size.
+    final itemExtents = _placedExtents(
+        widget.control.get("item_extents"), controls.length);
     var prototypeItem = widget.control.buildWidget("prototype_item") ??
         (firstItemPrototype && controls.isNotEmpty
             ? ControlWidget(control: controls.first)
@@ -135,25 +142,24 @@ class _ListViewControlState extends State<ListViewControl> {
                                   height: spacing, thickness: dividerThickness);
                     },
                   )
-                : ListView.builder(
+                : ListView.custom(
                     controller: _controller,
                     clipBehavior: clipBehavior,
-                    semanticChildCount: semanticChildCount,
+                    semanticChildCount: semanticChildCount ?? controls.length,
                     reverse: reverse,
                     cacheExtent: cacheExtent,
                     scrollDirection: scrollDirection,
                     shrinkWrap: shrinkWrap,
                     padding: padding,
-                    itemCount: controls.length,
-                    itemExtent: itemExtent,
-                    itemBuilder: (context, index) {
-                      return ControlWidget(
-                        key: ValueKey(controls[index].getKey("key")?.value ??
-                            controls[index].id),
-                        control: controls[index],
-                      );
-                    },
-                    prototypeItem: prototypeItem,
+                    itemExtent: itemExtents == null ? itemExtent : null,
+                    itemExtentBuilder: itemExtents == null
+                        ? null
+                        : (index, dimensions) => index < itemExtents.length
+                            ? itemExtents[index]
+                            : null,
+                    prototypeItem: itemExtents == null ? prototypeItem : null,
+                    childrenDelegate: _childrenDelegate(controls,
+                        horizontal: horizontal, itemExtents: itemExtents),
                   );
 
         if (horizontal &&
@@ -184,4 +190,67 @@ class _ListViewControlState extends State<ListViewControl> {
 
     return LayoutControl(control: widget.control, child: listView);
   }
+}
+
+/// The children of the on-demand list: the delegate `ListView.builder` makes,
+/// or, when every child has an extent, one that also reports the list's whole
+/// extent as the sum of them. Flutter otherwise estimates that extent from the
+/// children it has laid out, so a list whose far children are much taller (a
+/// windowed list's trailing space) ends short until they are built, and a
+/// fling or a scrollbar stops early.
+SliverChildBuilderDelegate _childrenDelegate(List<Control> controls,
+    {required bool horizontal, required List<double>? itemExtents}) {
+  Widget build(BuildContext context, int index) {
+    Widget item = ControlWidget(
+      key: ValueKey(controls[index].getKey("key")?.value ?? controls[index].id),
+      control: controls[index],
+    );
+    if (itemExtents != null) {
+      item = OverflowBox(
+        alignment: AlignmentDirectional.topStart,
+        minWidth: horizontal ? 0 : null,
+        maxWidth: horizontal ? double.infinity : null,
+        minHeight: horizontal ? null : 0,
+        maxHeight: horizontal ? null : double.infinity,
+        child: item,
+      );
+    }
+    return item;
+  }
+
+  if (itemExtents == null) {
+    return SliverChildBuilderDelegate(build, childCount: controls.length);
+  }
+  return _PlacedChildren(build,
+      count: controls.length,
+      extent: itemExtents.fold(0.0, (sum, extent) => sum + extent));
+}
+
+/// A builder delegate whose scroll extent is known: the sum of the extents.
+class _PlacedChildren extends SliverChildBuilderDelegate {
+  _PlacedChildren(super.builder, {required int count, required this.extent})
+      : super(childCount: count);
+
+  final double extent;
+
+  @override
+  double? estimateMaxScrollOffset(int firstIndex, int lastIndex,
+          double leadingScrollOffset, double trailingScrollOffset) =>
+      extent;
+}
+
+/// The extents sent for the children, or null when there is not one per child.
+List<double>? _placedExtents(dynamic value, int count) {
+  if (value is! List || value.length != count || count == 0) {
+    return null;
+  }
+  final extents = <double>[];
+  for (final item in value) {
+    final extent = parseDouble(item);
+    if (extent == null || !extent.isFinite || extent < 0) {
+      return null;
+    }
+    extents.add(extent);
+  }
+  return extents;
 }

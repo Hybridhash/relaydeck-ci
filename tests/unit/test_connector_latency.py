@@ -21,6 +21,7 @@ from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.connector.link import (
     OUTPUT_COALESCE_MAX_S,
     OUTPUT_COALESCE_S,
+    OUTPUT_FIRST_BYTE_S,
     ConnectorLink,
     LinkConfig,
 )
@@ -65,24 +66,29 @@ def _batches_close_only_at_quiet_or_cap(
     reads: list[tuple[float, int]], flushed: list[float], sizes: list[int]
 ) -> None:
     """A repaint ships as one batch unless its pieces fell silent for the quiet gap or kept
-    arriving past the cap. Reads are stamped before they wake the forwarder and batches at its
+    arriving past the cap; a batch that starts after the output was idle for the cap may close
+    at the first-byte delay. Reads are stamped before they wake the forwarder and batches at its
     close decision; a piece read after that decision joins the batch late and is not part of
     the gap. The slack covers the loop's timer resolution only."""
     ends = list(itertools.accumulate(size for _, size in reads))
     end = 0
+    previous: float | None = None
     for flush, size in zip(flushed[:-1], sizes[:-1], strict=True):
         start, end = end, end + size
         pieces = [at for (at, _), total in zip(reads, ends, strict=True) if start < total <= end]
         assert pieces, (reads, sizes)
         window = [at for at in pieces if at <= flush]
+        idle = previous is None or (bool(window) and window[0] - previous >= OUTPUT_COALESCE_MAX_S)
+        previous = flush
         if not window:
             continue
         quiet = flush - window[-1]
         held = flush - window[0]
-        assert quiet >= OUTPUT_COALESCE_S - 0.001 or held >= OUTPUT_COALESCE_MAX_S - 0.001, (
-            quiet,
-            held,
-        )
+        assert (
+            quiet >= OUTPUT_COALESCE_S - 0.001
+            or held >= OUTPUT_COALESCE_MAX_S - 0.001
+            or (idle and held >= OUTPUT_FIRST_BYTE_S - 0.001)
+        ), (quiet, held, idle)
 
 
 @pytest.mark.parametrize("slow_metadata", [False, True])
@@ -169,10 +175,16 @@ def test_real_pty_repaint_forwarded_without_idle_staircase(
             decided.append(time.monotonic())
             await push_updates(port)
 
-        link._push_terminal_updates = push_decided
+        monkeypatch.setattr(link, "_push_terminal_updates", push_decided)
         metadata_started = asyncio.Event()
         metadata_release = asyncio.Event()
         if slow_metadata:
+            metadata_ready = asyncio.Event()
+            metadata_ready.set()
+
+            async def wait_metadata() -> None:
+                await metadata_ready.wait()
+                metadata_ready.clear()
 
             async def collect(_timeout: float) -> list[dict[str, Any]]:
                 return [{"event_id": "metadata-probe"}]
@@ -184,9 +196,10 @@ def test_real_pty_repaint_forwarded_without_idle_staircase(
             async def snapshot(port: Any) -> None:
                 await port.send_text(json.dumps({"kind": "snapshot"}))
 
-            source.collect_live = collect  # type: ignore[method-assign]
+            monkeypatch.setattr(source, "collect_live", collect)
+            source.wait_metadata_ready = wait_metadata  # type: ignore[method-assign]
             source.refresh = refresh  # type: ignore[method-assign]
-            link._push_snapshot = snapshot  # type: ignore[method-assign]
+            monkeypatch.setattr(link, "_push_snapshot", snapshot)
         task = asyncio.create_task(link._serve(transport, stop))
         if slow_metadata:
             await asyncio.wait_for(metadata_started.wait(), 1)
@@ -263,7 +276,7 @@ def test_upstream_eof_cancels_readiness_and_output_tasks(tmp_path: Path) -> None
             )
             assert link._source_stale
             assert not any(
-                t.get_coro().__qualname__.endswith(
+                getattr(t.get_coro(), "__qualname__", "").endswith(
                     ("_collect_pty", "_forward_pty", "_serve_messages", "wait_changed")
                 )
                 for t in asyncio.all_tasks()
@@ -361,7 +374,10 @@ def test_real_pty_readiness_cleans_up_and_never_reads_an_unmapped_terminal(
             waiter.cancel()
             await asyncio.gather(waiter, return_exceptions=True)
             assert added == removed == [master, master]
-            assert not any("wait_changed" in t.get_coro().__qualname__ for t in asyncio.all_tasks())
+            assert not any(
+                "wait_changed" in getattr(t.get_coro(), "__qualname__", "")
+                for t in asyncio.all_tasks()
+            )
         finally:
             waiter.cancel()
             await asyncio.gather(waiter, return_exceptions=True)

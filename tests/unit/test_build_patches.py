@@ -1,4 +1,4 @@
-"""Q2: patch folders, apply scripts and the build-manifest gate (no builds)."""
+"""Patch folders, apply scripts and the build-manifest gate (no builds)."""
 
 from __future__ import annotations
 
@@ -228,7 +228,7 @@ def test_repair_markers_use_calibrated_counts() -> None:
         '"touchend" ' * 4
         + '"touchcancel" ' * 2
         + '"abort" ' * 3
-        + '"flet_reconnect_merge_rd1" "flet_reconnect_wake_rd1"'
+        + '"flet_reconnect_merge_rd1" "flet_reconnect_wake_rd1" "item_extents"'
     )
     pristine = '"touchend" ' * 3 + '"touchcancel" ' + '"abort"'
     assert module.markers_ok(module.repair_markers(patched))
@@ -246,7 +246,7 @@ def test_check_markers_cli_gates_the_bundle(
         '"touchend" ' * 4
         + '"touchcancel" ' * 2
         + '"abort" ' * 3
-        + '"flet_reconnect_merge_rd1" "flet_reconnect_wake_rd1"'
+        + '"flet_reconnect_merge_rd1" "flet_reconnect_wake_rd1" "item_extents"'
     )
     bad = tmp_path / "bad.js"
     bad.write_text('"touchend" "touchcancel" "abort"')

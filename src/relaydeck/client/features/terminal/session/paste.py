@@ -1,18 +1,5 @@
-"""Reviewed paste shared by AgentSession and ShellSession.
-
-A thin, safety-preserving front for the generation-bound `PasteReviewSession`
-that the session's input-session bundle owns. It adds nothing to the safety
-model and must not weaken it:
-
-- nothing happens unless a live writer is bound (`bound()`), so a paste, a
-  review or a confirm can never reach a retired writer;
-- a multiline/blocked paste only OPENS a verbatim review; text is written only
-  by an explicit `confirm()`, and the review session rejects a confirm whose
-  generation/input token is stale (`STALE_MESSAGE`), so a late or replayed
-  confirm cannot send anything;
-- `from_clipboard()` reads the clipboard once and drops the result if the input
-  token or interaction generation changed meanwhile (`REQUEST_BLOCKED`);
-- nothing is ever queued, retried or replayed here.
+"""Reviewed paste shared by AgentSession and ShellSession. A thin, safety-preserving front for
+the generation-bound `PasteReviewSession` that the session's input-session bundle owns.
 """
 
 from __future__ import annotations
@@ -21,12 +8,12 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from relaydeck.client.adapters.clipboard import ClipboardReadStatus, read_clipboard
 from relaydeck.client.features.terminal.paste_review import (
     REQUEST_BLOCKED,
     STALE_MESSAGE,
     PasteReviewSession,
 )
+from relaydeck.client.platform.flet.clipboard import ClipboardReadStatus, read_clipboard
 
 
 @dataclass(frozen=True)

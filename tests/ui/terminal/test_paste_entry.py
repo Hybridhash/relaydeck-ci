@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from relaydeck.client.features.terminal.paste_review import CONFIRM_KEY
+from relaydeck.client.features.terminal.paste_sheet import CONFIRM_KEY
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
 from tests.support.fakes import FakeClipboard
 from tests.support.host_harness import run
 from tests.support.terminal.direct_typing import _direct

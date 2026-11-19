@@ -1,9 +1,6 @@
-"""Client authentication service.
-
-Owns the RFC 8252 login flow against the gateway: PKCE + state in secure
-storage, system-browser authorize URL, app-link callback completion,
-token refresh with rotation, and logout cleanup. HTTP and browser opening
-are injected seams (httpx + UrlLauncher in production, fakes in tests).
+"""Client authentication service. Owns the RFC 8252 login flow against the gateway: PKCE + state
+in secure storage, system-browser authorize URL, app-link callback completion, token refresh
+with rotation, and logout cleanup.
 """
 
 from __future__ import annotations
@@ -18,11 +15,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, cast
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
-import httpx
-
-from relaydeck.client.adapters.ports import CredentialStore
 from relaydeck.client.features.auth.callback import (
     CallbackError,
     parse_callback,
@@ -31,6 +25,7 @@ from relaydeck.client.features.auth.callback import (
 from relaydeck.contracts import paths
 from relaydeck.contracts.endpoints import is_trusted_endpoint
 from relaydeck.contracts.schemas import AuthorizationRequest, SchemaError, TokenResponse, validate
+from relaydeck.contracts.storage import CredentialStore
 
 VERIFIER_KEY = "oauth_verifier"
 STATE_KEY = "oauth_state"
@@ -41,7 +36,6 @@ EXPIRES_KEY = "access_expires_ms"
 
 class AuthState(str, Enum):
     SIGNED_OUT = "signed_out"
-    BROWSER_OPEN = "browser_open"
     WAITING_CALLBACK = "waiting_callback"
     EXCHANGING = "exchanging"
     SIGNED_IN = "signed_in"
@@ -66,29 +60,6 @@ class GatewayConfig:
 
 class AuthError(RuntimeError):
     pass
-
-
-class HttpxTransport:
-    """Production HTTP seam (httpx, connection-pooled by the app)."""
-
-    def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
-
-    async def post_json(
-        self, url: str, body: dict[str, Any], headers: dict[str, str] | None = None
-    ) -> tuple[int, Any]:
-        try:
-            response = await self._client.post(url, json=body, headers=headers, timeout=30.0)
-        except httpx.HTTPError:
-            return 503, {
-                "code": "host_offline",
-                "message": "Identity response unavailable. Start a new sign-in.",
-            }
-        try:
-            payload: Any = response.json()
-        except ValueError:
-            payload = {}
-        return response.status_code, payload
 
 
 @dataclass
@@ -274,17 +245,9 @@ class AuthService:
             return await self._logout_locked()
 
     async def _logout_locked(self) -> AuthSnapshot:
-        """Revoke the server session, then clear local credentials.
-
-        Local state is always cleared; when the server revoke fails
-        (offline, expired token) the snapshot carries a notice and the
-        server session lingers until its TTL.
-
-        When a push device_ref is known (via the injected
-        `device_ref_provider`), it is sent as `{"device_ref": ...}` so
-        the server revokes the install subscription (unknown/foreign
-        refs are a silent server-side no-op). Without a known ref the
-        body stays `{}` (existing behavior).
+        """Revoke the server session, then clear local credentials. Local state is always
+        cleared; when the server revoke fails (offline, expired token) the snapshot carries a
+        notice and the server session lingers until its TTL.
         """
         self._completed_state_digest = ""
         notice = ""
@@ -388,6 +351,4 @@ class AuthService:
             return True
 
     def _gateway_host(self) -> str:
-        from urllib.parse import urlparse
-
         return (urlparse(self.config.base_url).hostname or "").lower()

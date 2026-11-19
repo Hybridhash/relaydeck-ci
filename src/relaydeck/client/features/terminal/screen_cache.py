@@ -4,7 +4,7 @@ from collections import OrderedDict
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from relaydeck.client.features.shell.ops import AttachmentInfo
+from relaydeck.client.ports.terminal import AttachmentInfo
 
 SCREEN_CACHE_SLOTS = 8
 SCREEN_CACHE_BYTES = 256 * 1024

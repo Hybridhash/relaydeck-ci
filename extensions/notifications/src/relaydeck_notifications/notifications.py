@@ -1,16 +1,5 @@
-"""Python side of the RelayDeck notifications extension service.
-
-Native calls ride `_invoke_method`; native occurrences (token refresh,
-notification tap, app-link open) arrive as control events that the app
-subscribes to in AppRoot wiring. Payloads are guarded by
-`parse_push_payload` before any app callback runs.
-
-No `from __future__ import annotations` in this module: Flet 1.0.3's
-`get_event_field_type` reads raw `__annotations__` and only unwraps
-`ForwardRef`, so a PEP 563 string annotation on an `on_*` handler
-crashes live rendering with `[resolve error] ... tuple index out of
-range` (same shape as the terminal extension's `on_data_channel_open`
-fix). Every annotation here must evaluate at def time (py>=3.13).
+"""Bridge native notification methods and typed events to Flet consumers. Event-handler
+annotations must evaluate at definition time for the pinned framework's reflection.
 """
 
 from dataclasses import dataclass
@@ -27,8 +16,7 @@ class PushTapEvent(ft.Event["RelayDeckNotifications"]):
     notification_id: str = ""
     event_ref: str = ""
     category: str = ""
-    # full hint refs when the forwarder sends them
-    # (older Dart builds send the 3-key subset; both validate).
+    # Optional opaque references; forwarders may provide only the three required hint keys.
     device_ref: str = ""
     host_ref: str = ""
     session_ref: str = ""
@@ -45,9 +33,7 @@ class AppLinkEvent(ft.Event["RelayDeckNotifications"]):
 
 
 def tap_payload_dict(event: PushTapEvent) -> dict[str, str]:
-    """Full hint dict for the guard: required keys plus any
-    opaque refs the forwarder sent (empty refs are omitted so older
-    3-key forwarders validate unchanged)."""
+    """Build required hint keys plus any nonempty optional opaque references from a tap event."""
     data = {
         "notification_id": event.notification_id,
         "event_ref": event.event_ref,

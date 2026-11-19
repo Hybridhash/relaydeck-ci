@@ -11,7 +11,7 @@ TESTS = (
     "tests/unit/terminal_session/test_keys.py"
     "::test_shell_typing_never_routes_to_a_draft_even_without_assert",
     "tests/unit/test_auth_boundary.py::test_callback_without_code_fails_closed_before_any_exchange",
-    "tests/unit/test_usage_hook_install.py"
+    "tests/unit/usage/hooks/test_usage_hook_install.py"
     "::test_upgrade_without_a_receipt_fails_closed_and_writes_nothing",
 )
 

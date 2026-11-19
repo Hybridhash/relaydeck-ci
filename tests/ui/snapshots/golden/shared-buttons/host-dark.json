@@ -1,0 +1,124 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "key": "host-context-icon",
+             "props": {
+              "color": "#B7AFDA",
+              "icon": 67660
+             },
+             "slot": "controls",
+             "type": "Icon"
+            },
+            {
+             "key": "host-context-label",
+             "props": {
+              "color": "#F5F2FF",
+              "expand": true,
+              "max_lines": 1,
+              "overflow": {
+               "enum": "TextOverflow",
+               "value": "ellipsis"
+              },
+              "tooltip": "Example host",
+              "value": "Example host"
+             },
+             "slot": "controls",
+             "type": "Text"
+            }
+           ],
+           "key": "host-context-title",
+           "props": {
+            "spacing": 8
+           },
+           "slot": "controls",
+           "type": "Row"
+          },
+          {
+           "children": [
+            {
+             "key": "host-context-dot",
+             "props": {
+              "bgcolor": "#C8F03C",
+              "border_radius": 3,
+              "height": 6,
+              "width": 6
+             },
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "key": "host-context-status-text",
+             "props": {
+              "color": "#B7AFDA",
+              "value": "Connected"
+             },
+             "slot": "controls",
+             "type": "Text"
+            }
+           ],
+           "key": "host-context-status",
+           "props": {
+            "spacing": 8
+           },
+           "slot": "controls",
+           "type": "Row"
+          },
+          {
+           "key": "host-context-switch",
+           "props": {
+            "content": "Switch",
+            "height": 48,
+            "tooltip": "Switch host"
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          }
+         ],
+         "props": {
+          "spacing": 4
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "key": "host-context-body",
+       "props": {
+        "bgcolor": "#191335",
+        "padding": 12
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "key": "host-context-divider",
+       "props": {
+        "color": "#3B3270",
+        "height": 1
+       },
+       "slot": "controls",
+       "type": "Divider"
+      }
+     ],
+     "key": "host-context",
+     "props": {
+      "spacing": 4
+     },
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:HostContextHeader"
+  }
+ ]
+}

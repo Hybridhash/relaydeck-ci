@@ -43,7 +43,11 @@ HOST_ONLY = (
     "relaydeck.gateway",
     "relaydeck.connector",
     "relaydeck.companion",
+    "relaydeck.devtools",
+    "relaydeck.host",
+    "relaydeck.releases",
     "relaydeck.client.serve",
+    "relaydeck.companion.app.hosted_web.serve",
     "fastapi",
     "uvicorn",
     "PIL",
@@ -93,8 +97,6 @@ def test_native_runtime_import_allowlist_has_hard_server_exclusion() -> None:
     failures = []
     for folder in (SRC / "client", SRC / "contracts", SRC / "domain"):
         for path in folder.rglob("*.py"):
-            if path == SRC / "client" / "serve.py":
-                continue
             for module in _module_names(path):
                 if any(module == prefix or module.startswith(prefix + ".") for prefix in HOST_ONLY):
                     failures.append(f"{path.relative_to(ROOT)}: forbidden {module}")
@@ -134,7 +136,7 @@ def test_packaged_client_imports_without_server_files_extras_or_editable_hooks(
         shutil.copytree(
             SRC / name,
             repo_package / name,
-            ignore=shutil.ignore_patterns("serve.py", "__pycache__", ".DS_Store", ".flet"),
+            ignore=shutil.ignore_patterns("__pycache__", ".DS_Store", ".flet"),
         )
     shutil.copyfile(SRC / "client/main.py", app / "main.py")
     modules = sorted(
@@ -154,7 +156,8 @@ import importlib, importlib.abc, importlib.util, json, pathlib, runpy, sys
 sys.dont_write_bytecode = True
 runtime_paths = {[str(p) for p in paths]!r}
 sys.path = runtime_paths + [p for p in sys.path if p and not p.endswith('site-packages')]
-for name in ('relaydeck.gateway', 'relaydeck.connector', 'relaydeck.companion'):
+for name in ('relaydeck.gateway', 'relaydeck.connector', 'relaydeck.companion',
+             'relaydeck.devtools', 'relaydeck.host', 'relaydeck.releases'):
     assert importlib.util.find_spec(name) is None, name
 class DenyHostOnly(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
@@ -167,7 +170,8 @@ runpy.run_path({str(app / "main.py")!r}, run_name='native_preflight')
 for name, module in list(sys.modules.items()):
     if name.startswith('relaydeck.') and getattr(module, '__file__', None):
         assert pathlib.Path(module.__file__).resolve().is_relative_to({str(app)!r}), name
-server_prefixes = ('relaydeck.gateway', 'relaydeck.connector', 'relaydeck.companion')
+server_prefixes = ('relaydeck.gateway', 'relaydeck.connector', 'relaydeck.companion',
+                   'relaydeck.devtools', 'relaydeck.host', 'relaydeck.releases')
 print(json.dumps({{'server_modules': [n for n in sys.modules if n.startswith(server_prefixes)]}}))
 """
     result = subprocess.run(
@@ -179,25 +183,6 @@ print(json.dumps({{'server_modules': [n for n in sys.modules if n.startswith(ser
     )
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout)["server_modules"] == []
-
-
-@pytest.mark.parametrize(
-    ("old", "new", "names"),
-    [
-        (
-            "relaydeck.connector.pubkey",
-            "relaydeck.contracts.pubkeys",
-            ("openssh_to_raw", "raw_to_openssh", "fingerprint_of_raw", "_ssh_blob"),
-        ),
-    ],
-)
-def test_old_paths_reexport_the_same_contract_objects(
-    old: str, new: str, names: tuple[str, ...]
-) -> None:
-    legacy = importlib.import_module(old)
-    neutral = importlib.import_module(new)
-    for name in names:
-        assert getattr(legacy, name) is getattr(neutral, name)
 
 
 def test_client_cursor_contract_has_no_server_signing_api() -> None:
@@ -226,7 +211,7 @@ def test_legacy_endpoint_trust_is_distinct_from_strict_native_origin() -> None:
 
 
 def test_public_key_contract_preserves_open_ssh_roundtrip_and_fingerprint() -> None:
-    from relaydeck.connector.pubkey import fingerprint_of_openssh
+    from relaydeck.contracts.enrollment import fingerprint_of_openssh
     from relaydeck.contracts.pubkeys import fingerprint_of_raw, openssh_to_raw, raw_to_openssh
 
     raw = bytes(range(32))

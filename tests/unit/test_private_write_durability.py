@@ -37,14 +37,14 @@ def test_failed_credentials_replace_keeps_the_old_file_and_no_temp(
     old = ConnectorCreds("https://gateway.example", "host-1", "old-token")
     save_creds(old, str(target))
 
-    def failing_replace(src: object, dst: object) -> None:
+    def failing_replace(src: object, dst: object, **where: object) -> None:
         raise OSError("disk full")
 
     monkeypatch.setattr(enrollment.os, "replace", failing_replace)
     with pytest.raises(OSError):
         save_creds(ConnectorCreds("https://gateway.example", "host-1", "new"), str(target))
     assert load_creds(str(target)) == old
-    assert not target.with_suffix(".tmp").exists()
+    assert [entry.name for entry in tmp_path.iterdir()] == [target.name]
 
 
 def test_refresh_state_survives_short_writes(

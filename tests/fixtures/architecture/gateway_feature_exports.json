@@ -1,0 +1,101 @@
+{
+  "relaydeck.gateway.features.access.api": [
+    "AuthorizationError",
+    "AuthorizationFlow",
+    "CODE_TTL_MS",
+    "EnrollmentStore",
+    "FLOW_LIMIT",
+    "HostRecord",
+    "HostStore",
+    "IdentityProvider",
+    "OidcProvider",
+    "PairingError",
+    "PairingStore",
+    "REFRESH_TTL_MS",
+    "RedeemRefusal",
+    "Session",
+    "SessionStore",
+    "TICKET_TTL_MS",
+    "TicketGrant",
+    "TicketStore",
+    "drain_revoke_requests",
+    "known_host",
+    "pkce_verify",
+    "redeem",
+    "write_revoke_request"
+  ],
+  "relaydeck.gateway.features.commands.api": [
+    "MAX_EXPIRES_FUTURE_MS",
+    "authorize_command"
+  ],
+  "relaydeck.gateway.features.git_read.api": [
+    "CURSOR_TTL_MS",
+    "file_entry"
+  ],
+  "relaydeck.gateway.features.metadata.api": [
+    "EventLogIndex",
+    "InventoryView",
+    "MAX_METADATA_FOLLOWERS",
+    "MetadataFollower",
+    "MetadataStreams",
+    "build_command_updated",
+    "materialize_agent",
+    "prepare_event"
+  ],
+  "relaydeck.gateway.features.notifications.api": [
+    "EndpointRejected",
+    "FcmProvider",
+    "MAX_DEVICE_ID_CHARS",
+    "NotificationTransitions",
+    "PREF_CATEGORY_TO_UI",
+    "PREF_UI_TO_CATEGORY",
+    "ProviderPort",
+    "PushDenied",
+    "PushStore",
+    "PushWorker",
+    "Status",
+    "VAPID_SUBJECT_DEFAULT",
+    "WebPushProvider",
+    "WebPushStore",
+    "b64u",
+    "load_or_create_topic_key",
+    "load_or_create_vapid",
+    "outbox_counts",
+    "public_key_b64u",
+    "pump",
+    "push_io",
+    "rotate",
+    "valid_vapid_subject"
+  ],
+  "relaydeck.gateway.features.pictures.api": [
+    "DAY_MS",
+    "MAX_BYTES",
+    "PictureError",
+    "PictureStore",
+    "run_picture_cleanup"
+  ],
+  "relaydeck.gateway.features.terminals.api": [
+    "Attachment",
+    "DEFAULT_PTY_COLS",
+    "DEFAULT_PTY_ROWS",
+    "FIRST_REPLAY_MAX_BYTES",
+    "LeaseError",
+    "LeaseRecord",
+    "LeaseStore",
+    "MAX_ATTACHMENT_ID_CHARS",
+    "MAX_LEASE_ID_CHARS",
+    "MAX_TERMINAL_ID_CHARS",
+    "RingStore",
+    "STATUS_OK",
+    "SocketRegistry",
+    "StreamFanout",
+    "TunnelCleanup",
+    "VIEWER_QUEUE_MAX_BYTES"
+  ],
+  "relaydeck.gateway.features.usage_read.api": [
+    "UsagePage",
+    "UsageRefusal",
+    "UsageResult",
+    "UsageService"
+  ]
+}

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import replace
 from typing import Any
 
-from relaydeck.client.features.inventory.components import AppShell
+from relaydeck.client.app.shell.shell import AppShell
 from relaydeck.domain.models import (
     Agent,
     AgentStatus,

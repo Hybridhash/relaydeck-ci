@@ -13,7 +13,13 @@ import pytest
 from relaydeck import cli
 from relaydeck.companion import config_edit, setup
 from relaydeck.companion.config import load_config
-from relaydeck.companion.detect import DetectReport
+from relaydeck.companion.inspection.detect import DetectReport
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.companion.setup_sources import (
     CUM_CLI,
     MESSAGE_READER,
@@ -225,7 +231,7 @@ def test_setup_without_a_terminal_writes_nothing_and_lists_the_pending_choices(
     config, report = setup_home(home)
     before = {path: path.read_bytes() for path in home.rglob("*") if path.is_file()}
     monkeypatch.setattr("sys.stdin.isatty", lambda: False)
-    monkeypatch.setattr(cli, "detect_report", lambda _path: report)
+    monkeypatch.setattr("relaydeck.companion.setup.detect_report", lambda _path: report)
     assert cli.main(["--config", str(config), "setup"]) == 1
     after = {path: path.read_bytes() for path in home.rglob("*") if path.is_file()}
     assert after == before
@@ -240,7 +246,7 @@ def test_yes_without_a_terminal_still_writes_nothing(
     config, report = setup_home(home)
     before = config.read_bytes()
     monkeypatch.setattr("sys.stdin.isatty", lambda: False)
-    monkeypatch.setattr(cli, "detect_report", lambda _path: report)
+    monkeypatch.setattr("relaydeck.companion.setup.detect_report", lambda _path: report)
     assert cli.main(["--config", str(config), "setup", "--yes"]) == 1
     assert config.read_bytes() == before
 

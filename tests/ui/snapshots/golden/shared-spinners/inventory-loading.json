@@ -1,0 +1,34 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "key": "inventory-query",
+       "props": {
+        "label": "Filter sessions"
+       },
+       "slot": "controls",
+       "type": "TextField"
+      },
+      {
+       "key": "inventory-loading",
+       "slot": "controls",
+       "type": "ProgressRing"
+      },
+      {
+       "key": "inventory-error",
+       "slot": "controls",
+       "type": "Text"
+      }
+     ],
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:InventoryPanel"
+  }
+ ]
+}

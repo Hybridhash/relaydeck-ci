@@ -1,9 +1,7 @@
-"""Browser paste: the upload source backed by the paste region, and the region itself.
-
-The browser keeps the clipboard Blob; this module only turns an offer (request id and metadata)
-into an `UploadSource` for the shared operation and asks the region to upload to the grant URL.
-Text pasted while the terminal has focus arrives as a `text` event and goes through the session's
-reviewed paste; the text is never logged.
+"""Browser paste: the upload source backed by the paste region, and the region itself. The
+browser keeps the clipboard Blob; this module only turns an offer (request id and metadata)
+into an `UploadSource` for the shared operation and asks the region to upload to the grant
+URL.
 """
 
 from __future__ import annotations
@@ -20,11 +18,11 @@ from relaydeck_terminal.picture_paste import (
     valid_upload_url,
 )
 
-from relaydeck.client.features.terminal.events import spawn
 from relaydeck.client.features.terminal.picture_operations import (
     SourceMetadata,
     UploadFailed,
 )
+from relaydeck.client.platform.flet.events import spawn
 
 
 class BrowserPictureSource:

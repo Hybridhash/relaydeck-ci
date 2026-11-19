@@ -20,9 +20,8 @@ from typing import Any
 import flet as ft
 from relaydeck_terminal.protocol import ORIGIN_KEY
 
-from relaydeck.client.features.composer.pictures import Picture
-from relaydeck.client.features.terminal.events import click, spawn
-from relaydeck.client.features.terminal.paste_policy import BRACKET_END, BRACKET_START
+from relaydeck.client.design_system.buttons import Button
+from relaydeck.client.design_system.loading_spinner import Spinner
 from relaydeck.client.features.terminal.picture_operations import (
     Activation,
     PictureOperation,
@@ -33,6 +32,9 @@ from relaydeck.client.features.terminal.picture_operations import (
     run_operation,
     start_from_source,
 )
+from relaydeck.client.models.input.paste_policy import BRACKET_END, BRACKET_START
+from relaydeck.client.models.pictures import Picture
+from relaydeck.client.platform.flet.events import click, spawn
 from relaydeck.contracts import paths
 from relaydeck.contracts.schemas import validate
 
@@ -371,9 +373,19 @@ def picture_chips(pictures: tuple[Picture, ...], remove: Callable[[str], Any]) -
             ft.Row(
                 key=f"picture-chip-{p.picture_id}",
                 controls=[
-                    ft.Image(src=p.preview, width=48, height=48, fit=ft.BoxFit.COVER)
+                    ft.Image(
+                        src=p.preview,
+                        width=48,
+                        height=48,
+                        fit=ft.BoxFit.COVER,
+                        semantics_label=f"Attached picture {index}",
+                    )
                     if p.preview
-                    else ft.Icon(ft.Icons.IMAGE_OUTLINED, size=48),
+                    else ft.Icon(
+                        ft.Icons.IMAGE_OUTLINED,
+                        size=48,
+                        semantics_label=f"Attached picture {index}",
+                    ),
                     ft.IconButton(
                         ft.Icons.CLOSE,
                         key=f"picture-remove-{p.picture_id}",
@@ -384,7 +396,7 @@ def picture_chips(pictures: tuple[Picture, ...], remove: Callable[[str], Any]) -
                     ),
                 ],
             )
-            for p in pictures
+            for index, p in enumerate(pictures, start=1)
         ],
     )
 
@@ -466,10 +478,8 @@ def use_picture_attachment(
     identity = (session.host_id, getattr(session, "agent_id", getattr(session, "terminal_id", "")))
 
     def retire_picker(picker: Any) -> None:
-        # Retire a picker whose attempt can never complete through it. A
-        # late native result stays ignored even if dispatch still
-        # resolves the control. Each attempt builds a fresh picker, so
-        # a retired identity is never reused.
+        # Retire an abandoned picker identity so late native results cannot affect its successor.
+        # Each attempt owns a fresh picker.
         if picker is None:
             return
         holder = live_holders.current.pop(id(picker), None)
@@ -768,10 +778,13 @@ def use_picture_attachment(
                     [
                         ft.Row(
                             controls=[
-                                ft.ProgressRing(value=progress, width=20, height=20),
+                                Spinner(value=progress, width=20, height=20),
                                 ft.Text("Uploading picture…"),
-                                ft.TextButton(
-                                    "Cancel", key="picture-upload-cancel", on_click=click(cancel)
+                                Button(
+                                    "Cancel",
+                                    variant="text",
+                                    key="picture-upload-cancel",
+                                    on_click=click(cancel),
                                 ),
                             ]
                         )

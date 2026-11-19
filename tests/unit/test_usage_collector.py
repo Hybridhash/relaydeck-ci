@@ -25,9 +25,20 @@ from tests.support.usage.collector import FakeReader
 from tests.support.usage.store import NOW
 
 
+@pytest.mark.parametrize("safe_logging", [False, True])
 def test_active_idle_restart_budget_and_content_free_logging(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+    safe_logging: bool,
 ) -> None:
+    import logging
+
+    from relaydeck.host.observability.exceptions import install_exception_safety
+
+    monkeypatch.setattr(logging, "_logRecordFactory", logging.LogRecord)
+    if safe_logging:
+        install_exception_safety()
     root = tmp_path / "logs"
     root.mkdir()
     now = [NOW]
@@ -61,9 +72,12 @@ def test_active_idle_restart_budget_and_content_free_logging(
         )
         resumed.run_once(now[0])
         assert reader.cursors[-1].revision == 2
+    assert len(caplog.records) == 3
     for record in caplog.records:
-        line = record.getMessage()
+        line = logging.Formatter("%(message)s").format(record)
+        assert record.levelno == logging.INFO
         assert line.startswith("usage_pass kind=kind-a events=")
+        assert "coverage=complete" in line
         assert (
             str(root) not in line
             and "session-marker" not in line

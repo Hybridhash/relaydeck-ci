@@ -1,75 +1,5 @@
-"""DataChannel packet protocol for the RelayDeck terminal extension.
-
-Python -> Dart (output and commands), first byte is the kind:
-  0x01 WRITE u32be length + raw terminal bytes
-  0x03 INPUT_ENABLED 0x00/0x01 (Composer display-only vs Direct Input)
-  0x06 REQUEST_SELECTION_TEXT (no body)
-  0x07 CLEAR_SELECTION (no body)
-  0x08 RESET (no body; emulator reset after gap/reset)
-  0x09 REQUEST_SNAPSHOT u32be request id (emulator buffer snapshot)
-  0x0A REQUEST_KEYBOARD (no body; open the soft keyboard when input is enabled)
-  0x0B SCROLL_VIEWPORT 1 signed byte: -n/+n = pages up/down (n 1..10),
-       0x7F = jump to bottom (local view scroll only, never the PTY)
-  0x0C RESUME_PROBE u32be nonzero request id (same-engine rebind probe)
-  0x0D RESUME_VERIFIED (no body; the resume positively completed on this
-       binding — Dart releases its transport-loss input fence. Sent last,
-       after the redelivered suffix and the input-truth re-assert, and
-       never on an incomplete outcome.)
-  0x0E RELEASE_KEYBOARD (no body; hide the soft keyboard and disarm touch
-       input; never writes to the PTY)
-  0x0F KEYBOARD_BUTTON 0x00/0x01 (show the native keyboard button in the view)
-  0x10 CANCEL_SCROLL u32be seq (retire widget scroll motion — wheel queue,
-       momentum coast, pending release velocity — then ack the seq with
-       0x8A. Sent before a server-side key/paste write so stale wheel rows
-       already in flight drop instead of landing after the key. Only
-       sent to a viewer that proved it acks: see 0x8A seq 0.)
-
-Dart -> Python:
-  0x81 INPUT origin u8 + u32be length + bytes from the emulator:
-       origin 1 = committed text (IME / soft keyboard)
-       origin 2 = encoded key event (hardware keys via xterm2)
-       origin 3 = mouse report (SGR wheel in TUI mouse mode)
-       origin 4 = swipe gesture (alt buffer, no mouse reporting): exactly
-       2 bytes, direction u8 (0 = up toward older output, 1 = down
-       toward latest) + line count u8 (1..255). Never PTY bytes: Python
-       translates to bounded PageUp/PageDown and drops anything
-       malformed or out of mode. Never raw arrows.
-  0x82 SIZE_REPORT u16be cols + u16be rows (measured view size)
-  0x83 SELECTION_TEXT u32be length + utf-8 text (reply to request)
-  0x84 SNAPSHOT_CHUNK u32be length + u32be request id + u32be total
-       bytes + u32be offset + bytes (chunked reply to 0x09; reassemble
-       by id, complete when coverage reaches total)
-  0x85 MODE_REPORT 0x00/0x01 (live xterm2 `bracketedPasteMode`, sent
-       after every WRITE and RESET: paste framing follows engine truth,
-       never a Python-side re-parse of the output bytes)
-  0x86 VIEW_REPORT 1 byte bitfield: bit0 alt buffer, bit1 at bottom,
-       bit2 mouse reporting on (sent on change only, once per frame)
-  0x87 RESUME_REPORT u32be req + u64be instance + u32be resets + u64be
-       applied (reply to 0x0C; req 0 is the unsolicited mount hello)
-  0x8A SCROLL_CANCELLED u32be seq (the widget retired its scroll motion
-       for the 0x10 with that seq; wheel reports after the matching ack
-       belong to a fresh gesture. Seq 0, sent unsolicited at mount, is
-       the capability advertisement and releases nothing.)
-  0x89 KEYBOARD_TRACE event u8 + flags u8 + visual viewport height u16be
-       (touch only; fixed keyboard metadata, 0xFFFF = unavailable)
-  0x8B PAGE_METRICS reset u8 + page scroll i16be + visual viewport offset
-       i16be + visual viewport height u16be + window height u16be (touch web
-       only; reset 1 = the page had scrolled and was pinned back to the top)
-  0xFF ACK u64be cumulative applied output bytes (backpressure)
-
-Snapshot trust boundary: the declared total/offset arrive from the
-Dart side and are NOT bounded by the frame-size check above, so the
-receiver validates them against MAX_SNAPSHOT_TOTAL /
-MAX_SNAPSHOT_INFLIGHT_BYTES BEFORE allocating any reassembly buffer
-and fails the waiter with a visible error on violation. Engines keep
-maxLines x cols within MAX_SNAPSHOT_TOTAL; larger truths are rejected,
-never silently truncated.
-
-Input direction rationale: physical keys are
-encoded Dart-side by xterm2 and cross to Python as opaque INPUT bytes;
-Python tools buttons and reviewed paste are encoded Python-side
-and travel to the PTY through the gateway lease path, never
-through Dart. There is intentionally no Python->Dart key packet.
+"""Encode and parse bounded terminal DataChannel packets. Packet layouts, recovery fences and
+allocation limits are documented in docs/architecture/terminal-extension.md.
 """
 
 from __future__ import annotations
@@ -186,6 +116,17 @@ def decode_page_metrics(payload: bytes) -> tuple[int, int, int, int, int]:
     if reset not in (0, 1):
         raise ValueError("bad page metrics reset flag")
     return reset, scroll, offset, height, window
+
+
+PAGE_METRIC_UNAVAILABLE = 0xFFFF
+
+
+def page_bottom_inset(offset: int, height: int, window: int) -> int:
+    """Css px between the visual viewport's bottom edge and the window's: the keyboard and
+    its accessory bar on mobile Safari. Zero when either size is unavailable."""
+    if height >= PAGE_METRIC_UNAVAILABLE or window >= PAGE_METRIC_UNAVAILABLE:
+        return 0
+    return max(0, window - max(0, offset) - height)
 
 
 def encode_reset() -> bytes:
@@ -354,11 +295,8 @@ def encode_ack(applied: int) -> bytes:
     return struct.pack(">BQ", ACK, applied)
 
 
-# Resume probe: after session reuse, verify continuity before rebinding the retained engine.
-# The report echoes a nonzero request id with the Dart native instance id, applied-reset count
-# and applied output bytes; id 0 is the mount hello that records the baseline. A resume with
-# no baseline fails closed unless the terminal is provably zero-traffic. The report is
-# fixed-size and length-checked exactly, so no declared length drives allocation.
+# Verify native identity, reset count and output continuity before releasing the input fence.
+# Fixed-size reports cannot drive allocation; an absent baseline requires zero-traffic proof.
 RESUME_REPORT_LEN = 24
 
 
@@ -505,12 +443,8 @@ def decode_packets(buffer: bytearray) -> list[DecodedPacket]:
 
 
 class IncrementalTextDecoder:
-    """UTF-8 decoder that buffers split multibyte/escape sequences.
-
-    Used on the preview/diagnostic path (bounded `pane.read` text for
-    non-terminal surfaces). The display path decodes Dart-side with an
-    equivalent incremental decoder; both must agree on never splitting a
-    sequence across a flush boundary.
+    """Decode preview text incrementally, retaining incomplete UTF-8 and escape sequences across
+    deliveries.
     """
 
     def __init__(self) -> None:

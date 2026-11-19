@@ -1,11 +1,5 @@
-"""File-backed on-demand refresh state.
-
-One JSON document holding cooldowns, saved tool session ids, attempt records
-and the tab-ownership journal. Mode 0600, atomic replace. All access goes
-through RefreshState, which serializes with a lock. A corrupt or unreadable
-file starts empty (fail open: a restart must not wedge refreshes; worst case
-one extra refresh runs). No screen text, paths or prompts are ever stored:
-only ids, timestamps, journal phases and result codes.
+"""Persist cooldowns, saved session IDs, attempts and tab ownership in a private atomic
+document. Corrupt or unreadable state starts empty without retaining screen content.
 """
 
 from __future__ import annotations

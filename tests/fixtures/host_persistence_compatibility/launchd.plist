@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/synthetic/bin:/usr/bin</string>
+	</dict>
+	<key>KeepAlive</key>
+	<true/>
+	<key>Label</key>
+	<string>dev.relaydeck.companion</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/synthetic/bin/relaydeck</string>
+		<string>--config</string>
+		<string>/synthetic/config.toml</string>
+		<string>start</string>
+		<string>--connect-herdr</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/synthetic/home/Library/Logs/RelayDeck/companion.err.log</string>
+	<key>StandardOutPath</key>
+	<string>/synthetic/home/Library/Logs/RelayDeck/companion.out.log</string>
+	<key>ThrottleInterval</key>
+	<integer>30</integer>
+</dict>
+</plist>

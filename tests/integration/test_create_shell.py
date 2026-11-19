@@ -17,12 +17,11 @@ import httpx
 import pytest
 
 from relaydeck.client.features.create.commands import shell_create_command
-from relaydeck.client.features.sync.transport import (
-    HttpxGatewayTransport,
-    TransportError,
-)
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.client.ports.transport import TransportError
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
 from tests.support.live_server import LiveGateway
 
 FIXTURES = Path(__file__).resolve().parent.parent / "fixtures" / "gateway"

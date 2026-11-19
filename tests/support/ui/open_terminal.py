@@ -6,8 +6,7 @@ import json
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from relaydeck.client.features.sync.sse import SseFrame
-from relaydeck.client.features.sync.transport import GatewayTransport
+from relaydeck.client.ports.transport import GatewayTransport, SseFrame
 from relaydeck.domain.models import scope_key
 from tests.support.metadata_page import snapshot_page
 from tests.support.paths import TESTS_DIR

@@ -7,7 +7,7 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.features.sync.transport import TransportError
+from relaydeck.client.ports.transport import TransportError
 from tests.support.scripted_sessions import ScriptedTerminalSocket, make_scripted_sessions
 
 

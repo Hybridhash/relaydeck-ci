@@ -1,9 +1,5 @@
-"""`relaydeck`: one entry point for the Mac companion and its install tools.
-
-Companion commands (start, stop, status, doctor, pairing) are delegated unchanged to
-`relaydeck.companion.cli`, so their behaviour and options stay the companion's. The install
-commands (setup, service, web) live here. `relaydeck-companion` and the gateway/connector
-scripts are unchanged.
+"""Command entry point for companion operations, installation, service management and web
+bundles.
 """
 
 from __future__ import annotations
@@ -14,19 +10,20 @@ import os
 import sys
 from collections.abc import Sequence
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
-from relaydeck import webbundle
-from relaydeck.companion import cli as companion_cli
-from relaydeck.companion import prereqs, readiness, tailscale
-from relaydeck.companion import service as service_agent
-from relaydeck.companion import setup as setup_flow
-from relaydeck.companion.config import DEFAULT_CONFIG, load_config
-from relaydeck.companion.detect import DetectReport
-from relaydeck.companion.setup import detect_report, run_setup
-from relaydeck.version import __version__
+from relaydeck.companion.adapters.service_output import configure_child
+
+configure_child()
+
+if TYPE_CHECKING:
+    from relaydeck.companion.inspection import readiness
+    from relaydeck.companion.inspection.detect import DetectReport
+    from relaydeck.companion.setup.context import LocalWeb
+
 
 COMPANION_COMMANDS = ("start", "stop", "status", "doctor", "pairing", "usage")
-INSTALL_COMMANDS = ("setup", "service", "web")
+INSTALL_COMMANDS = ("setup", "service", "web", "pair")
 
 
 def _first_command(argv: Sequence[str]) -> str | None:
@@ -46,6 +43,9 @@ def _first_command(argv: Sequence[str]) -> str | None:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    from relaydeck.companion.config import DEFAULT_CONFIG
+    from relaydeck.version import __version__
+
     parser = argparse.ArgumentParser(
         prog="relaydeck",
         description=(
@@ -63,7 +63,22 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Separately authorize limits-hook install",
     )
-    setup.add_argument("--yes", action="store_true", help="Apply the serve mapping without asking")
+    setup.add_argument(
+        "--yes",
+        action="store_true",
+        help=(
+            "Answer only the Tailscale Serve question and the install/open questions for a "
+            "missing prerequisite; every other choice is still asked"
+        ),
+    )
+    setup.add_argument(
+        "--web-archive",
+        default=None,
+        help="Install the web app from this local release archive (with --web-signature)",
+    )
+    setup.add_argument(
+        "--web-signature", default=None, help="The archive's .minisig file (with --web-archive)"
+    )
     setup.add_argument(
         "--detect",
         action="store_true",
@@ -79,7 +94,20 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Remove only the usage sources setup added that are still unchanged",
     )
-    setup.add_argument("--no-probe", action="store_true", help="Skip doctor --probe-private")
+    setup.add_argument(
+        "--no-probe", action="store_true", help="Do not probe the private HTTPS route at the end"
+    )
+    setup.add_argument(
+        "--re-enroll",
+        action="store_true",
+        help="Replace this Mac's connector enrollment (asks first; the old token stops working)",
+    )
+    pair = sub.add_parser(
+        "pair", help="Pair a device: open a window and approve by typing its code"
+    )
+    pair.add_argument(
+        "--ttl", type=int, default=300, help="Seconds the window stays open (max 300)"
+    )
     agent = sub.add_parser("service", help="Opt-in per-user launchd agent")
     agent_actions = agent.add_subparsers(dest="action", required=True)
     install = agent_actions.add_parser("install", help="Write the LaunchAgent (needs --yes)")
@@ -93,6 +121,12 @@ def build_parser() -> argparse.ArgumentParser:
     web_actions = web.add_subparsers(dest="action", required=True)
     bundle = web_actions.add_parser("install", help="Copy and verify a built web bundle")
     bundle.add_argument("dir", help="Built web directory (holds main.dart.js)")
+    fetch = web_actions.add_parser(
+        "fetch", help="Download, verify and install the signed web bundle for a release"
+    )
+    fetch.add_argument("--version", default=None, help="Release version (default: installed)")
+    fetch.add_argument("--archive", default=None, help="Local release archive (offline)")
+    fetch.add_argument("--signature", default=None, help="Its .minisig file (with --archive)")
     web_actions.add_parser("list", help="Installed bundles; the newest verified is current")
     for name in COMPANION_COMMANDS:
         sub.add_parser(name, help="Companion command (delegated; see relaydeck-companion --help)")
@@ -105,10 +139,14 @@ def _emit_line(line: str) -> None:
 
 
 def _confirm(prompt: str) -> bool:
+    """A question marked [Y/n] is answered yes by an empty reply; every other one needs a y."""
     try:
-        return input(prompt).strip().lower() in ("y", "yes")
+        answer = input(prompt).strip().lower()
     except EOFError:
         return False
+    if "[Y/n]" in prompt and answer == "":
+        return True
+    return answer in ("y", "yes")
 
 
 def _yes_no(value: bool | None) -> str:
@@ -116,11 +154,10 @@ def _yes_no(value: bool | None) -> str:
 
 
 def detect_lines(report: DetectReport) -> list[str]:
-    """The `setup --detect` table, at most 100 columns: one row per CLI, its next step below it.
-
-    The states are kept apart: Herdr detects, Herdr hook, installed, adapter, configured.
-    Printing only.
+    """Return detection-table lines within 100 columns, keeping discovery, installation and
+    configuration states distinct.
     """
+
     lines = [
         f"{'CLI':<13} {'Detects':<7} {'Hook':<14} {'Installed':<9} {'Adapter':<32} "
         f"{'Configured':<10}",
@@ -154,13 +191,14 @@ def detect_lines(report: DetectReport) -> list[str]:
     return lines
 
 
-_SYMBOL = {readiness.OK: "✓", readiness.WARN: "!", readiness.FAIL: "✗"}
-
-
 def readiness_lines(report: readiness.Readiness, home: str) -> list[str]:
-    """The `setup --check` report: one line per item, its next step below it. Printing only; every
-    path
-    is shown with ~ for the home directory."""
+    """Return one readiness item per line with its next step below it, abbreviating the home
+    directory as ~.
+    """
+    from relaydeck.companion.inspection import readiness
+
+    _SYMBOL = {readiness.OK: "✓", readiness.WARN: "!", readiness.FAIL: "✗"}
+
     lines: list[str] = []
     for item in report.items:
         lines.append(f"{_SYMBOL[item.state]} {item.number:>2}. {item.title}: {item.reason}")
@@ -175,10 +213,14 @@ def readiness_lines(report: readiness.Readiness, home: str) -> list[str]:
 
 
 def _check_report(config_path: Path) -> readiness.Readiness:
-    """The real read-only readiness: the prerequisite probes, the Serve mapping, the companion
-    state, the
-    web bundle and the usage detection. The same reads the companion and the detection already
-    use."""
+    """Read prerequisite, Serve, companion, web bundle and usage readiness without changing
+    configuration.
+    """
+    from relaydeck.companion.adapters import tailscale
+    from relaydeck.companion.config import load_config
+    from relaydeck.companion.inspection import prereqs, readiness
+    from relaydeck.companion.setup import detect_report
+
     try:
         config = load_config(config_path)
     except (OSError, ValueError):
@@ -200,9 +242,73 @@ def _check_report(config_path: Path) -> readiness.Readiness:
     return readiness.run_check(config_path, prereq_report=report, usage=usage)
 
 
+def _pending_remedies(config_path: Path) -> tuple[str, ...]:
+    """What an interactive setup would offer for the prerequisites as they are now (read-only)."""
+    from relaydeck.companion import setup as setup_flow
+    from relaydeck.companion.setup import remediate
+
+    try:
+        return remediate.pending_actions(setup_flow.preflight(config_path))
+    except Exception:  # noqa: BLE001 - a note for the no-terminal path never fails it
+        return ()
+
+
+def _update_section(config_path: Path) -> list[str]:
+    """The update-check lines for `setup --check`; nothing when there is no loadable config."""
+    from relaydeck.companion.config import load_config
+    from relaydeck.companion.updates.report import update_lines
+
+    try:
+        config = load_config(config_path)
+        return update_lines(config, config_path)
+    except Exception:  # noqa: BLE001 - the update section never breaks the readiness report
+        return []
+
+
+def _local_web(args: argparse.Namespace, config_path: Path) -> tuple[LocalWeb | None, str]:
+    """Return the offline web source or a refusal. Accept the archive and signature together or
+    neither, and refuse them for reports, undo runs or profiles with the web app off.
+    """
+    from relaydeck.companion.config import load_config
+    from relaydeck.companion.setup.context import LocalWeb
+
+    archive, signature = args.web_archive, args.web_signature
+    if archive is None and signature is None:
+        return None, ""
+    if (archive is None) != (signature is None):
+        return None, "setup refused: --web-archive and --web-signature go together"
+    if args.check or args.detect or args.undo_sources:
+        return None, "setup refused: --web-archive does not apply to a report or an undo"
+    archive_path, signature_path = Path(archive).expanduser(), Path(signature).expanduser()
+    if not archive_path.is_file() or not signature_path.is_file():
+        return None, "setup refused: the web archive or its signature is not a file"
+    try:
+        web_ui = load_config(config_path).web_ui
+    except (OSError, ValueError):
+        web_ui = True  # no profile yet: the template turns the web app on
+    if not web_ui:
+        return None, "setup refused: this profile has web_ui = false, so there is no web app"
+    return LocalWeb(archive_path, signature_path), ""
+
+
 def _run_install(args: argparse.Namespace) -> int:
+    from relaydeck.companion import setup as setup_flow
+    from relaydeck.companion.adapters import launchd as service_agent
+    from relaydeck.companion.config import DEFAULT_CONFIG, load_config
+    from relaydeck.companion.inspection import readiness
+    from relaydeck.companion.pairing.wizard import run_pair
+    from relaydeck.companion.setup import detect_report, run_setup
+    from relaydeck.releases import bundles as webbundle
+    from relaydeck.version import __version__
+
     config_path = Path(args.config).expanduser().absolute()
     home_text = os.path.expanduser("~")
+    local_web: LocalWeb | None = None
+    if args.command == "setup":
+        local_web, refusal = _local_web(args, config_path)
+        if refusal:
+            print(refusal)
+            return 2
     if args.command == "setup" and getattr(args, "detect", False):
         for line in detect_lines(detect_report(config_path)):
             print(line)
@@ -211,14 +317,16 @@ def _run_install(args: argparse.Namespace) -> int:
         check = _check_report(config_path)
         print(f"relaydeck {__version__}")
         print("\n".join(readiness_lines(check, home_text)))
+        notice_lines = _update_section(config_path)
+        if notice_lines:
+            print("\n".join(line.replace(home_text, "~") for line in notice_lines))
         return check.exit_code
     if args.command == "setup" and getattr(args, "undo_sources", False):
         undo_lines, undo_code = setup_flow.undo_sources(config_path)
         print("\n".join(undo_lines))
         return undo_code
     if args.command == "setup" and not sys.stdin.isatty():
-        # No terminal means no prompt can be answered; --yes does not change this.
-        # Nothing is written.
+        # Without a terminal, setup cannot ask questions or write configuration, even with --yes.
         pending = readiness.pending_decisions(config_path)
         print("\n".join(readiness_lines(pending, home_text)))
         candidates, _unsupported = setup_flow.source_candidates(
@@ -230,25 +338,39 @@ def _run_install(args: argparse.Namespace) -> int:
                 print(
                     f"  - {candidate.display_name} ({candidate.kind}) at {candidate.root_display}"
                 )
+        offered = _pending_remedies(config_path)
+        if offered:
+            print("Setup would offer, asking first:")
+            for line in offered:
+                print(f"  - {line}")
         print("Pending decisions: run relaydeck setup in a terminal to answer its prompts.")
         print("Nothing was written.")
         return 1
     if args.command == "setup":
-
-        def probe() -> int:
-            return companion_cli.main(["--config", str(config_path), "doctor", "--probe-private"])
-
+        effects: dict[str, Any] = {} if local_web is None else {"web": local_web}
         report = run_setup(
             config_path=config_path,
             assume_yes=args.yes,
             install_limits_hook=args.install_limits_hook,
             confirm=_confirm,
-            probe=None if args.no_probe else probe,
             emit_line=_emit_line,
+            re_enroll=args.re_enroll,
+            skip_route_probe=args.no_probe,
+            **effects,
         )
         if report.lines:
             print("\n".join(report.lines), flush=True)
         return report.exit_code
+    if args.command == "pair":
+        if not sys.stdin.isatty():
+            print("relaydeck pair needs a terminal; nothing was changed.")
+            return 2
+        try:
+            config = load_config(config_path)
+        except (OSError, ValueError):
+            print("The configuration cannot be loaded. Run: relaydeck setup")
+            return 2
+        return run_pair(config, prompt=input, say=_emit_line, ttl_s=args.ttl)
     if args.command == "service":
         home = Path.home()
         uid = os.getuid()
@@ -257,8 +379,14 @@ def _run_install(args: argparse.Namespace) -> int:
             return 0
         if args.action == "install":
             executable = Path(sys.argv[0]).expanduser().resolve()
+            default = Path(DEFAULT_CONFIG).expanduser().absolute()
             outcome = service_agent.install(
-                executable=executable, home=home, uid=uid, yes=args.yes, load=args.load
+                executable=executable,
+                home=home,
+                uid=uid,
+                yes=args.yes,
+                load=args.load,
+                config=None if config_path == default else config_path,
             )
         else:
             outcome = service_agent.uninstall(home=home, uid=uid, yes=args.yes, unload=args.unload)
@@ -274,6 +402,31 @@ def _run_install(args: argparse.Namespace) -> int:
             )
             print(f"{row['build_id']}  {flag}  installed {row['installed_at']}  {row['path']}")
         return 0
+    if args.action == "fetch":
+        from relaydeck.releases import web as webrelease
+        from relaydeck.version import __version__ as installed_version
+
+        if bool(args.archive) != bool(args.signature):
+            print("web fetch refused: --archive and --signature go together")
+            return 2
+        version = args.version or installed_version
+        try:
+            if args.archive:
+                signed = webrelease.install_archive(
+                    Path(args.archive), Path(args.signature), version
+                )
+            else:
+                signed = webrelease.fetch_release(version)
+        except webrelease.ReleaseError as exc:
+            print(f"web fetch refused: {exc.reason}")
+            return 1
+        shown = signed.path
+        try:
+            shown = Path("~") / signed.path.relative_to(Path.home())
+        except ValueError:
+            pass
+        print(f"Installed signed web bundle {signed.version} at {shown} (signature verified).")
+        return 0
     try:
         record = webbundle.install(Path(args.dir))
     except webbundle.BundleError as exc:
@@ -285,6 +438,21 @@ def _run_install(args: argparse.Namespace) -> int:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args_list = list(sys.argv[1:] if argv is None else argv)
+    if _first_command(args_list) == "service-run":
+        from relaydeck.companion.adapters.service_output import main as service_main
+
+        return service_main(args_list)
+    if argv is None and os.environ.get("RELAYDECK_SERVICE_OUTPUT") != "1":
+        # Explicit argument lists are embedded/test calls; console entry points own logging.
+        import logging.config
+
+        from relaydeck.host.observability.exceptions import install_exception_safety
+        from relaydeck.host.observability.logging import logging_config
+
+        install_exception_safety()
+        logging.config.dictConfig(logging_config())
+    import relaydeck.companion.cli as companion_cli
+
     if _first_command(args_list) in COMPANION_COMMANDS:
         return companion_cli.main(args_list)
     args = build_parser().parse_args(args_list)

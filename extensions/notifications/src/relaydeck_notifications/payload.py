@@ -1,12 +1,5 @@
-"""Push payload guard.
-
-Only generic attention payloads are accepted: notification id, opaque
-device/host/session/event references, category, timestamps. Any
-transcript text, repository path, command, secret, or approval decision
-fails closed. The key set includes device_ref/host_ref/session_ref; the
-refs stay optional here so older forwarders (Dart sends the 3-key
-subset) keep validating; the server always emits the full set and the
-lock-screen audit test asserts it exactly.
+"""Validate generic notification keys, bounded values and category names. Authenticated
+application code resolves the opaque references.
 """
 
 from __future__ import annotations

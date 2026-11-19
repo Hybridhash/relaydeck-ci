@@ -1,0 +1,616 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#24100A",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "BLOCKED"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-blocked-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#FF8A3D",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#FFC49A",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "BLOCKED"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-blocked-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#24100A",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#06202E",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "WORKING"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-working-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#5CCBFF",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#06202E",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "WORKING"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-working-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#5CCBFF",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#1A2400",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "DONE"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-done-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#C8F03C",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#1A2400",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "DONE"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-done-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#C8F03C",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#1F1840",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "IDLE"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-idle-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#B7AFDA",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#1F1840",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "IDLE"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-idle-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#B7AFDA",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "UNKNOWN"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-unknown-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#191335",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "UNKNOWN"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "status-unknown-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#191335",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family": "Bricolage Grotesque Bold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.9130434782608696,
+         "letter_spacing": 0.5750000000000001,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "bold"
+         }
+        },
+        "value": "CUSTOM STATUS"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#191335",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#B7AFDA"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 11,
+       "bottom_right": 11,
+       "top_left": 11,
+       "top_right": 11
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 10,
+       "right": 10
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

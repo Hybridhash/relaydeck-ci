@@ -44,9 +44,13 @@ var loader = {loadServiceWorker(e){if(!e||!("serviceWorker"in navigator))return 
 """
 
 INDEX = """<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="description" content="Your Herdr agents and terminals, from your phone.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#130F26">
+  <meta name="color-scheme" content="light dark">
   <title>RelayDeck</title>
 </head>
 <body>
@@ -54,6 +58,16 @@ INDEX = """<!DOCTYPE html>
 </body>
 </html>
 """
+
+MANIFEST = {
+    "name": "RelayDeck",
+    "short_name": "RelayDeck",
+    "description": "Your Herdr agents and terminals, from your phone.",
+    "id": "/",
+    "scope": "/",
+    "lang": "en",
+    "theme_color": "#130F26",
+}
 
 
 def _write(path: Path, data: str | bytes) -> None:
@@ -69,6 +83,7 @@ def out(tmp_path: Path) -> Path:
     root = tmp_path / "out"
     for name in ws.SHELL_FIXED:
         _write(root / name, f"content of {name}")
+    _write(root / "manifest.json", json.dumps(MANIFEST))
     _write(root / "flutter_bootstrap.js", BOOTSTRAP)
     _write(root / "index.html", INDEX)
     _write(root / "flutter_service_worker.js", "/* Flet stub */")
@@ -119,6 +134,32 @@ def test_build_id_is_the_digest_of_the_listed_files_and_verify_detects_tampering
     assert ws.digest(out, names) != build
 
 
+@pytest.mark.parametrize("head_space", ["", "\n", "\n  "])
+def test_hosted_producer_then_worker_keeps_a_stable_final_policy(
+    out: Path, head_space: str
+) -> None:
+    from relaydeck.companion.app.hosted_web.headers import load_policy
+
+    spec = importlib.util.spec_from_file_location(
+        "hosted_index_producer", ROOT / "scripts/build_manifest.py"
+    )
+    assert spec and spec.loader
+    producer = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(producer)
+    index = out / "index.html"
+    index.write_text(INDEX.replace("<head>\n", "<head>" + head_space + "<!-- fletAppConfig -->"))
+    producer.prepare_hosted_index(out)
+    build = ws.apply(out)
+    assert ws.verify(out) == build
+    page = index.read_bytes()
+    worker = (out / "flutter_service_worker.js").read_bytes()
+    assert producer.main(["--write-web-csp", str(out)]) == 0
+    assert load_policy(out)["index_sha256"] == hashlib.sha256(page).hexdigest()
+    assert ws.apply(out) == build
+    assert index.read_bytes() == page
+    assert (out / "flutter_service_worker.js").read_bytes() == worker
+
+
 def test_install_revalidates_with_no_cache_and_never_reloads(out: Path) -> None:
     ws.apply(out)
     worker = (out / "flutter_service_worker.js").read_text()
@@ -159,6 +200,69 @@ def test_shell_list_is_explicit_and_excludes_everything_else(out: Path) -> None:
     for name in shell:
         assert not name.startswith("assets/fonts/notosans"), name  # fallback fonts: runtime only
         assert not any(name.startswith(prefix) or name == prefix for prefix in forbidden), name
+
+
+def test_verify_accepts_the_shell_conventions(out: Path) -> None:
+    build = ws.apply(out)
+    assert ws.verify(out) == build
+    ws.check_web_shell(out)
+
+
+_SHELL_MUTATIONS = [
+    ('<html lang="en">', "<html>", None),
+    (
+        "width=device-width, initial-scale=1.0, viewport-fit=cover",
+        "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
+        None,
+    ),
+    (
+        'content="Your Herdr agents and terminals, from your phone.">\n  <meta name="viewport"',
+        'content="Some other app">\n  <meta name="viewport"',
+        None,
+    ),
+    ('<meta name="theme-color" content="#130F26">\n', "", None),
+    ('<meta name="color-scheme" content="light dark">\n', "", None),
+    (None, None, {"id": "/app"}),
+    (None, None, {"scope": "/app/"}),
+    (None, None, {"lang": "fr"}),
+    (None, None, {"description": "Different text"}),
+    (None, None, {"theme_color": "#000000"}),
+]
+
+
+@pytest.mark.parametrize(("old", "new", "manifest_patch"), _SHELL_MUTATIONS)
+def test_verify_rejects_a_shell_that_loses_a_convention(
+    out: Path, old: str | None, new: str | None, manifest_patch: dict[str, str] | None
+) -> None:
+    ws.apply(out)
+    ws.check_web_shell(out)  # starts sound
+    if old is not None:
+        page = out / "index.html"
+        text = page.read_text()
+        assert old in text
+        page.write_text(text.replace(old, new or "", 1))
+    if manifest_patch is not None:
+        doc = json.loads((out / "manifest.json").read_text())
+        doc.update(manifest_patch)
+        (out / "manifest.json").write_text(json.dumps(doc))
+    with pytest.raises(ValueError):
+        ws.check_web_shell(out)
+
+
+def test_build_script_writes_what_verify_checks() -> None:
+    """The writer (build script) and the checker (this module) must not drift apart."""
+    script = (ROOT / "scripts" / "build_web_client.sh").read_text()
+    assert '<html lang="en">' in script
+    assert ws.VIEWPORT in script
+    assert ws.DESCRIPTION in script
+    assert f'"{ws.THEME_COLOR}"' in script and '"theme-color"' in script
+    assert f'"{ws.COLOR_SCHEME}"' in script and '"color-scheme"' in script
+    for member in ('id="/"', 'scope="/"', 'lang="en"'):
+        assert member in script
+    # The unused payload is removed in post-processing, before the worker step.
+    removal = script.index('rm -rf "$OUT/pyodide" "$OUT/assets/app"')
+    assert 'rm -f "$OUT/python-worker.js"' in script
+    assert removal < script.index("web_service_worker.py")
 
 
 def test_missing_shell_file_fails_the_build_loudly(out: Path) -> None:

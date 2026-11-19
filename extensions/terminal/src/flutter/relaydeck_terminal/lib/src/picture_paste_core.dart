@@ -42,7 +42,8 @@ enum PasteVerdict {
 /// One file the clipboard exposed. `mime` may be empty or generic; only a
 /// filename with an image extension then makes it a candidate, never proof.
 class PasteCandidate {
-  const PasteCandidate({required this.mime, required this.size, this.name = ''});
+  const PasteCandidate(
+      {required this.mime, required this.size, this.name = ''});
 
   final String mime;
   final int size;
@@ -71,9 +72,8 @@ class PasteClassification {
   final PasteCandidate? candidate;
 }
 
-/// Classifies the files of one paste. The caller passes the file list taken
-/// from `clipboardData.items`, or `files` only when the items had none, so one
-/// file is never listed twice. Identical entries are collapsed anyway.
+/// Classify the files of one paste, collapsing identical entries. The caller passes clipboard
+/// items, or files only when there were no items.
 PasteClassification classifyPaste(List<PasteCandidate> files) {
   final seen = <String>{};
   final images = <PasteCandidate>[];
@@ -84,7 +84,9 @@ PasteClassification classifyPaste(List<PasteCandidate> files) {
     }
   }
   if (images.isEmpty) return const PasteClassification(PasteVerdict.none);
-  if (images.length > 1) return const PasteClassification(PasteVerdict.multiple);
+  if (images.length > 1) {
+    return const PasteClassification(PasteVerdict.multiple);
+  }
   final image = images.single;
   if (image.size <= 0) {
     return PasteClassification(PasteVerdict.empty, image);
@@ -179,9 +181,9 @@ class PasteDecision {
   bool get takesEvent => action != PasteAction.ignore;
 }
 
-/// Decides one paste from facts alone. Pictures win over text while Python can
-/// take them; a text paste belongs to the focused terminal, else to the focused
-/// text field; one without text is refused with a reason when an input owns it.
+/// Choose picture or text handling from the focused region and clipboard metadata. Prefer text
+/// over an accompanying picture for an input selection, and reject unusable owned pastes with a
+/// reason.
 PasteDecision decidePaste({
   required PasteClassification pictures,
   required String text,
@@ -197,7 +199,8 @@ PasteDecision decidePaste({
       trimmed.isNotEmpty &&
       pictures.verdict == PasteVerdict.accept &&
       trimmed != pictures.candidate?.name;
-  if (focused && (pictures.verdict == PasteVerdict.none || textWins) &&
+  if (focused &&
+      (pictures.verdict == PasteVerdict.none || textWins) &&
       text.length > maxPasteText) {
     return const PasteDecision(PasteAction.reject, reason: 'text_too_large');
   }
@@ -275,9 +278,8 @@ class PicturePasteDispatcher {
   bool get shortcutHandoff => focusedRegion() != null;
 }
 
-/// Which request each region holds. One picture is pending at a time; a second
-/// paste is refused without touching the one in progress, and only the owning
-/// region may upload, abort or clean up its request.
+/// Keep one pending picture request and track its owning region. Only that region can upload,
+/// abort or clean it up.
 class PendingPictureLedger {
   final Map<String, String> _owners = {};
 

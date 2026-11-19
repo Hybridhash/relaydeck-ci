@@ -1,18 +1,5 @@
-"""Format "jsonl-cumulative-token-count-v1": per-call usage in per-session rollout files.
-
-Layout under the root: `sessions/YYYY/MM/DD/rollout-*.jsonl`. Counted usage comes ONLY from
-top-level `token_usage_record` records, one per model call: `payload.usage` is the per-call usage,
-keyed by `(session, payload.response_id)`. Nested `compacted.latest_token_usage_record` entries
-repeat earlier records and are ignored. Cumulative `token_count` totals are NOT used for usage;
-they supply rate-limit snapshots only (latest per quota and window). A file that reports
-cumulative totals but no per-call records is a known gap: it is counted as legacy, and the batch
-stays PARTIAL.
-
-Input is inclusive: uncached = input - cached_input - cache_write_input. A record whose result is
-negative, or whose reasoning exceeds its output, is skipped and counted (a gap). The model is the
-latest turn context's model, with the session-meta model as the fallback. The session's working
-folder (`session_meta` `cwd`) is digested with the budget's keyed digest callable and pinned per
-file; the raw folder never leaves the reader.
+"""Read per-call token records while using cumulative totals only for allowance snapshots. Keep
+invalid bucket relationships and cumulative-only history visible as coverage gaps.
 """
 
 from __future__ import annotations
@@ -50,7 +37,7 @@ from relaydeck.usage.readers._files import (
 
 FORMAT_ID = "jsonl-cumulative-token-count-v1"
 FILE_UUID = re.compile(r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.jsonl$")
-SCHEMA = "rollout-4"  # v4: session working-folder digest pinned per file
+SCHEMA = "rollout-4"  # Include the working-folder digest in each file cursor context.
 
 
 def _window(name: str, data: object, observed: int) -> LimitWindow | None:

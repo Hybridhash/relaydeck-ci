@@ -8,11 +8,12 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.features.settings.prefs import TerminalPrefs, clean
-from relaydeck.client.features.shell.ops import ScriptedShellGatewayOps, ShellOpError
 from relaydeck.client.features.terminal.agent_session import AGENT_CONFLICT
-from relaydeck.gateway.leases import LeaseStore
+from relaydeck.client.models.preferences import TerminalPrefs, clean
+from relaydeck.client.ports.terminal import ShellOpError
+from relaydeck.gateway.features.terminals.leases import LeaseStore
 from tests.support.terminal.sessions import _agent_session
+from tests.support.terminal.shell_ops import ScriptedShellGatewayOps
 
 
 def _run(coro: Any) -> Any:

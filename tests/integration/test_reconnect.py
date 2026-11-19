@@ -20,13 +20,14 @@ from typing import Any
 import httpx
 import pytest
 
-from relaydeck.client.features.sync.backoff import Backoff
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport
+from relaydeck.client.app.state.sync import SyncController
+from relaydeck.client.platform.transport.backoff import Backoff
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
 from relaydeck.contracts.cursors import AFTER_SEQUENCE_HEADER
+from relaydeck.devtools.fakes.gateway import FakeBackend
 from relaydeck.domain.models import ConnectionState
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
 from relaydeck.gateway.cursors import encode_cursor
 from tests.support.live_server import LiveGateway
 

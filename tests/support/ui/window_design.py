@@ -6,7 +6,7 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.features.a11y.focus import iter_controls
+from tests.support.ui.focus import iter_controls
 
 
 def _missing(app: Any, key: str) -> bool:

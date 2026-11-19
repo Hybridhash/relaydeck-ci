@@ -1,6 +1,5 @@
 """RelayDeck terminal extension (Flet user extension, xterm2 bridge)."""
 
-from relaydeck_terminal.picture_paste import RelayDeckPicturePaste
 from relaydeck_terminal.protocol import (
     ACK,
     CLEAR_SELECTION,
@@ -12,7 +11,6 @@ from relaydeck_terminal.protocol import (
     SIZE_REPORT,
     WRITE,
 )
-from relaydeck_terminal.terminal import RelayDeckTerminal
 
 __all__ = [
     "ACK",
@@ -24,6 +22,4 @@ __all__ = [
     "SELECTION_TEXT",
     "SIZE_REPORT",
     "WRITE",
-    "RelayDeckPicturePaste",
-    "RelayDeckTerminal",
 ]

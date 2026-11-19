@@ -8,9 +8,9 @@ import asyncio
 from pathlib import Path
 from typing import Any
 
-from relaydeck.connector.fixture import FixtureAdapter
 from relaydeck.connector.journal import ConnectorDispatch
-from relaydeck.journal import CommandJournal
+from relaydeck.devtools.fakes.connector import FixtureAdapter
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.support.creation.command_journal import NOW, _dispatch_msg
 
 

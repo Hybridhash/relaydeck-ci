@@ -1,21 +1,6 @@
-"""Generation-bound terminal input shared by AgentSession and ShellSession.
-
-Routes committed text, engine-encoded keys and tools/dock keys into the one
-live writer owned by the session's input-session bundle. It holds no session
-reference; everything arrives through `KeyHooks`.
-
-Input invariants:
-- there is exactly one writer: every send goes through the bound
-  `KeyInputSession` (`keys()`), and nothing is sent unless a live writer is
-  bound (`bound()`);
-- an input token (bind epoch, keys token) captured at render is rejected as
-  soon as the writer changes (unmount, selection change, takeover, reconnect,
-  remount, pause, background): `ROUTE_DROPPED`, nothing sent;
-- nothing is replayed or queued across a writer change; a dropped or
-  unencodable input simply returns, leaving modifiers armed;
-- mouse reports never become input;
-- the Composer (draft routing) stays agent-only: a shell has no store, so a
-  shell can never route to a draft.
+"""Generation-bound terminal input shared by AgentSession and ShellSession. Routes committed
+text, engine-encoded keys and tools/dock keys into the one live writer owned by the session's
+input-session bundle.
 """
 
 from __future__ import annotations
@@ -25,7 +10,7 @@ from dataclasses import dataclass
 
 from relaydeck_terminal.protocol import ORIGIN_KEY, ORIGIN_MOUSE, ORIGIN_TEXT
 
-from relaydeck.client.features.composer.domain import ComposerStore
+from relaydeck.client.features.composer.api import ComposerStore
 from relaydeck.client.features.terminal.input_modes import (
     ROUTE_DRAFT,
     ROUTE_DROPPED,
@@ -34,7 +19,7 @@ from relaydeck.client.features.terminal.input_modes import (
     route_committed_text,
 )
 from relaydeck.client.features.terminal.keys import KeyInputSession
-from relaydeck.client.features.terminal.paste_policy import contains_only_safe_scalars
+from relaydeck.client.models.input.paste_policy import contains_only_safe_scalars
 
 
 async def _drop_review(_text: str) -> str:

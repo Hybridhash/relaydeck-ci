@@ -1,12 +1,4 @@
-"""Deadline-bound control-lease renewal.
-
-One cancellable driver renews each live lease. Terminal or non-retryable
-failures invalidate the writer once. Transient failures retry only before
-the known expiry; both sleep and network awaits are bounded by that deadline.
-
-Successful responses supply the authoritative expiry. Missing expiry uses
-the nominal TTL for compatible transports; malformed or past expiry fails
-closed. Stop cancels renewal before pause, disconnect or disposal."""
+"""Deadline-bound control-lease renewal. One cancellable driver renews each live lease."""
 
 from __future__ import annotations
 
@@ -16,7 +8,7 @@ from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from typing import Any
 
-from relaydeck.client.features.sync.transport import TransportError
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.lease_diagnostics import LeaseTrace
 
 # `stale_revision` means this lease was superseded: it can never renew again.
@@ -37,11 +29,9 @@ def lease_deadline_monotonic(
     clock: Callable[[], float] = time.monotonic,
     wall_now: float | None = None,
 ) -> float | None:
-    """Convert a lease `expires_at` ISO-8601 UTC stamp to monotonic-clock
-    seconds for the driver deadline. Unparseable stamps return None.
-    Never raises: the stamp is untrusted gateway input, so non-string
-    and out-of-range values fail closed to None (the driver treats a
-    declared-but-unparseable stamp as a dead lease)."""
+    """Convert a lease `expires_at` ISO-8601 UTC stamp to monotonic-clock seconds for the driver
+    deadline. Unparseable stamps return None.
+    """
     if not isinstance(expires_at, str):
         return None
     try:

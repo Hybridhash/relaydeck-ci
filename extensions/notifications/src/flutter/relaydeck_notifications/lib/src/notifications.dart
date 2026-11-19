@@ -43,8 +43,7 @@ class RelayDeckNotificationsService extends FletService {
       FirebaseMessaging.onBackgroundMessage(
         relayDeckMessagingBackgroundHandler,
       );
-      _tokenSub =
-          FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+      _tokenSub = FirebaseMessaging.instance.onTokenRefresh.listen((token) {
         if (_disposed) return;
         control.triggerEvent('push_token', {'token': token});
       });
@@ -83,8 +82,7 @@ class RelayDeckNotificationsService extends FletService {
 
   void _onAppLink(Uri uri) {
     if (_disposed) return;
-    // Only relaydeck app-link hosts are accepted; the Python side
-    // validates the path (OAuth callback vs deep link) before acting.
+    // Forward app-link URIs to Python for origin, path and callback validation before acting.
     control.triggerEvent('app_link', {'uri': uri.toString()});
   }
 
@@ -94,7 +92,8 @@ class RelayDeckNotificationsService extends FletService {
     switch (name) {
       case 'permission':
         if (!_messagingReady) return 'unknown';
-        final current = await FirebaseMessaging.instance.getNotificationSettings();
+        final current =
+            await FirebaseMessaging.instance.getNotificationSettings();
         switch (current.authorizationStatus) {
           case AuthorizationStatus.authorized:
           case AuthorizationStatus.provisional:
@@ -110,10 +109,8 @@ class RelayDeckNotificationsService extends FletService {
         }
       case 'request_permission':
         if (!_messagingReady) return false;
-        final settings =
-            await FirebaseMessaging.instance.requestPermission();
-        return settings.authorizationStatus ==
-            AuthorizationStatus.authorized;
+        final settings = await FirebaseMessaging.instance.requestPermission();
+        return settings.authorizationStatus == AuthorizationStatus.authorized;
       case 'get_token':
         if (!_messagingReady) return null;
         try {
@@ -128,8 +125,7 @@ class RelayDeckNotificationsService extends FletService {
         return null;
       case 'initial_tap':
         if (!_messagingReady) return null;
-        final message =
-            await FirebaseMessaging.instance.getInitialMessage();
+        final message = await FirebaseMessaging.instance.getInitialMessage();
         if (message == null) return null;
         return {
           'notification_id': message.data['notification_id'] ?? '',

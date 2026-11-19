@@ -1,0 +1,39 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "props": {
+        "color": "#CFC9E6",
+        "height": 20,
+        "stroke_width": 2,
+        "width": 20
+       },
+       "slot": "content",
+       "type": "ProgressRing"
+      }
+     ],
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "height": 44,
+      "width": 44
+     },
+     "slot": "content",
+     "type": "Container"
+    }
+   ],
+   "key": "limit-refresh-tool",
+   "props": {
+    "label": "Refresh example limits, reading"
+   },
+   "slot": "root",
+   "type": "Semantics"
+  }
+ ]
+}

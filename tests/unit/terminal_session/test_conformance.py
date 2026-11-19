@@ -1,4 +1,4 @@
-"""Q5a: shared session contracts, green before any Q5 extraction.
+"""Shared session contracts.
 
 Only construction, explicit takeover and resume disclosure differ by session.
 Tests exercise real sessions/controllers/renewal and decode their wire frames;
@@ -17,12 +17,12 @@ from typing import Any, cast
 import pytest
 from relaydeck_terminal.protocol import ORIGIN_KEY, ORIGIN_MOUSE, ORIGIN_TEXT
 
-from relaydeck.client.features.shell.session import ShellSession
-from relaydeck.client.features.sync.transport import TransportError
 from relaydeck.client.features.terminal.agent_session import AgentSession
-from relaydeck.client.features.terminal.input_modes import WORKFLOW_AGENT_DIRECT
-from relaydeck.client.features.terminal.paste_policy import BRACKET_END, BRACKET_START
 from relaydeck.client.features.terminal.paste_review import STALE_MESSAGE
+from relaydeck.client.features.terminal.shell_session import ShellSession
+from relaydeck.client.models.input.modes import WORKFLOW_AGENT_DIRECT
+from relaydeck.client.models.input.paste_policy import BRACKET_END, BRACKET_START
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.contracts.wire.terminal import InputChunk, decode_input, encode_output
 from tests.support.scripted_sessions import (
     ScriptedSessions,

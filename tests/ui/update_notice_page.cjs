@@ -478,6 +478,25 @@ async function scenarios() {
     console.log('PASS: the 15 s push check stops once the bar is closed');
   }
 
+  // 17. The push bar hides while a text input has focus and returns on blur.
+  {
+    const answer = { publicKey: 'k', csrf: 'c', subscribed: false, choice: ['blocked'] };
+    const env = makeEnv({ fetchImpl: () => Promise.resolve({ ok: true, json: () => Promise.resolve(answer) }) });
+    const controller = makeWorker(PAGE_BUILD);
+    await boot(env, makeRegistration({ active: controller }), controller);
+    const pushBar = () => env.doc.getElementById('rd-push-bar');
+    assert.equal(pushBar().style.display, 'flex');
+    env.doc.activeElement = env.doc.createElement('input');
+    env.docFire('focusin');
+    assert.equal(pushBar().style.display, 'none', 'hidden while typing');
+    env.doc.activeElement = env.body;
+    env.docFire('focusout');
+    env.advance(0);
+    await env.tick();
+    assert.equal(pushBar().style.display, 'flex', 'returns when the input loses focus');
+    console.log('PASS: the push bar hides while a text input has focus');
+  }
+
   console.log('ALL PASS');
 }
 

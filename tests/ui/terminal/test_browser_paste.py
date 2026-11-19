@@ -8,11 +8,14 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
-from relaydeck.client.features.terminal.paste_policy import BRACKET_END, BRACKET_START
-from relaydeck.client.features.terminal.paste_review import CONFIRM_KEY
+from relaydeck.client.features.terminal.paste_sheet import CONFIRM_KEY
 from relaydeck.client.features.terminal.pictures import MAX_PASTE_TEXT
+from relaydeck.client.models.input.paste_policy import BRACKET_END, BRACKET_START
+from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
 from relaydeck.contracts.wire.terminal import MAX_INPUT_CHUNK
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
 from tests.support.fakes import FakeClipboard
 from tests.support.host_harness import run
 from tests.support.terminal.direct_typing import _direct, open_compose

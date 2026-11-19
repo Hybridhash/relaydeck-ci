@@ -9,11 +9,11 @@ from typing import Any
 
 import httpx
 
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport
-from relaydeck.connector.fixture import fixture_event
+from relaydeck.client.app.state.sync import SyncController
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.devtools.fakes.connector import fixture_event
 from relaydeck.domain.models import ConnectionState
-from relaydeck.gateway.app import create_app
+from relaydeck.gateway.app.bootstrap import create_app
 from relaydeck.gateway.cursors import decode_cursor
 from tests.security.helpers import SECRET, auth, mint_token
 from tests.support.sync.transport_fixtures import _state

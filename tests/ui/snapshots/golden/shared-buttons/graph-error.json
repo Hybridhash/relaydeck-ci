@@ -1,0 +1,166 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "key": "graph-mode-all",
+           "props": {
+            "content": "All branches",
+            "height": 48,
+            "style": {
+             "@": "ButtonStyle",
+             "bgcolor": "#7443F5",
+             "color": "#FFFFFF",
+             "shape": {
+              "@": "StadiumBorder"
+             },
+             "text_style": {
+              "@": "TextStyle",
+              "size": 12.5,
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w600"
+              }
+             }
+            }
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          },
+          {
+           "key": "graph-mode-branch",
+           "props": {
+            "content": "This branch",
+            "height": 48,
+            "style": {
+             "@": "ButtonStyle",
+             "bgcolor": "#2B2356",
+             "color": "#F5F2FF",
+             "shape": {
+              "@": "StadiumBorder"
+             },
+             "text_style": {
+              "@": "TextStyle",
+              "size": 12.5,
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w600"
+              }
+             }
+            }
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          }
+         ],
+         "slot": "content",
+         "type": "Row"
+        }
+       ],
+       "key": "graph-chips",
+       "props": {
+        "padding": {
+         "@": "Padding",
+         "left": 16,
+         "right": 16
+        }
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "children": [
+        {
+         "key": "graph-error",
+         "props": {
+          "color": "#D9D3F2",
+          "value": "Could not load the graph."
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "padding": {
+         "@": "Padding",
+         "left": 16,
+         "right": 16
+        }
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "children": [
+        {
+         "key": "graph-retry",
+         "props": {
+          "content": "Retry",
+          "height": 48
+         },
+         "slot": "content",
+         "type": "TextButton"
+        }
+       ],
+       "props": {
+        "padding": {
+         "@": "Padding",
+         "left": 16,
+         "right": 16
+        }
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "key": "changes-graph-after",
+           "props": {
+            "height": 0
+           },
+           "slot": "controls",
+           "type": "Container"
+          }
+         ],
+         "key": "changes-graph",
+         "props": {
+          "expand": true,
+          "item_extents": [
+           0
+          ],
+          "padding": {
+           "@": "Padding"
+          },
+          "scroll_interval": 100,
+          "size_change_interval": 100
+         },
+         "slot": "body",
+         "type": "PlacedListView"
+        }
+       ],
+       "slot": "controls",
+       "type": "Component:VirtualList"
+      }
+     ],
+     "props": {
+      "expand": true,
+      "spacing": 0
+     },
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:GraphView"
+  }
+ ]
+}

@@ -1,0 +1,219 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "key": "select-text-title",
+       "props": {
+        "size": 15,
+        "value": "Select Text",
+        "weight": {
+         "enum": "FontWeight",
+         "value": "bold"
+        }
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "key": "select-text-range",
+       "props": {
+        "size": 13,
+        "value": "All text (23 chars)"
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "key": "select-text-error",
+       "props": {
+        "value": "Example error"
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "key": "select-text-field",
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "font_family": "JetBrains Mono",
+             "size": 14
+            },
+            "value": "Example terminal output"
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "key": "select-text-area",
+         "slot": "controls",
+         "type": "SelectionArea"
+        }
+       ],
+       "props": {
+        "expand": true,
+        "horizontal_alignment": {
+         "enum": "CrossAxisAlignment",
+         "value": "stretch"
+        },
+        "scroll": {
+         "enum": "ScrollMode",
+         "value": "auto"
+        }
+       },
+       "slot": "controls",
+       "type": "Column"
+      },
+      {
+       "children": [
+        {
+         "key": "select-text-copy",
+         "props": {
+          "content": "Copy",
+          "height": 48,
+          "style": {
+           "@": "ButtonStyle",
+           "bgcolor": {
+            "ControlState.DEFAULT": "#2B2356",
+            "ControlState.DISABLED": "#2B2356",
+            "ControlState.FOCUSED": "#1F1840",
+            "ControlState.HOVERED": "#1F1840"
+           },
+           "color": {
+            "ControlState.DEFAULT": "#F5F2FF",
+            "ControlState.DISABLED": "#B7AFDA"
+           },
+           "elevation": 0,
+           "icon_size": 20,
+           "overlay_color": "transparent",
+           "padding": {
+            "@": "Padding",
+            "bottom": 8,
+            "left": 12,
+            "right": 12,
+            "top": 8
+           },
+           "shape": {
+            "@": "RoundedRectangleBorder",
+            "radius": 8
+           },
+           "side": {
+            "ControlState.DEFAULT": {
+             "@": "BorderSide",
+             "color": "#8E86B8"
+            },
+            "ControlState.FOCUSED": {
+             "@": "BorderSide",
+             "color": "#A98BFF",
+             "width": 2
+            }
+           },
+           "text_style": {
+            "@": "TextStyle",
+            "font_family_fallback": [
+             "Noto Sans Symbols 2",
+             "Noto Sans Symbols"
+            ],
+            "size": 14,
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w500"
+            }
+           }
+          }
+         },
+         "slot": "controls",
+         "type": "Button"
+        },
+        {
+         "key": "select-text-close",
+         "props": {
+          "content": "Done",
+          "height": 48,
+          "style": {
+           "@": "ButtonStyle",
+           "bgcolor": {
+            "ControlState.DEFAULT": "#2B2356",
+            "ControlState.DISABLED": "#2B2356",
+            "ControlState.FOCUSED": "#1F1840",
+            "ControlState.HOVERED": "#1F1840"
+           },
+           "color": {
+            "ControlState.DEFAULT": "#F5F2FF",
+            "ControlState.DISABLED": "#B7AFDA"
+           },
+           "elevation": 0,
+           "icon_size": 20,
+           "overlay_color": "transparent",
+           "padding": {
+            "@": "Padding",
+            "bottom": 8,
+            "left": 12,
+            "right": 12,
+            "top": 8
+           },
+           "shape": {
+            "@": "RoundedRectangleBorder",
+            "radius": 8
+           },
+           "side": {
+            "ControlState.DEFAULT": {
+             "@": "BorderSide",
+             "color": "#8E86B8"
+            },
+            "ControlState.FOCUSED": {
+             "@": "BorderSide",
+             "color": "#A98BFF",
+             "width": 2
+            }
+           },
+           "text_style": {
+            "@": "TextStyle",
+            "font_family_fallback": [
+             "Noto Sans Symbols 2",
+             "Noto Sans Symbols"
+            ],
+            "size": 14,
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w500"
+            }
+           }
+          }
+         },
+         "slot": "controls",
+         "type": "Button"
+        }
+       ],
+       "props": {
+        "alignment": {
+         "enum": "MainAxisAlignment",
+         "value": "end"
+        },
+        "wrap": true
+       },
+       "slot": "controls",
+       "type": "Row"
+      }
+     ],
+     "key": "select-text-sheet",
+     "props": {
+      "expand": true,
+      "spacing": 8
+     },
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:SelectTextSheet"
+  }
+ ]
+}

@@ -1,8 +1,7 @@
-"""Identity-bound lease renewal and stale-lease release.
-
-A failure reaches the session only while its captured driver, lease and
-controller are current and the session is neither paused nor disposed.
-Retired failures cannot act on a replacement. All access uses `LeaseHooks`."""
+"""Identity-bound lease renewal and stale-lease release. A failure reaches the session only
+while its captured driver, lease and controller are current and the session is neither paused
+nor disposed.
+"""
 
 from __future__ import annotations
 
@@ -11,14 +10,14 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
-from relaydeck.client.features.shell.ops import LeaseInfo, ShellOpError
-from relaydeck.client.features.sync.transport import TransportError
 from relaydeck.client.features.terminal.controller import TerminalController
 from relaydeck.client.features.terminal.renewal import (
     DEFAULT_RENEWAL_INTERVAL_S,
     LeaseRenewalDriver,
     lease_deadline_monotonic,
 )
+from relaydeck.client.ports.terminal import LeaseInfo, ShellOpError
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.lease_diagnostics import LeaseTrace, opaque
 
 RenewLease = Callable[[str], Awaitable[dict[str, Any]]]
@@ -74,10 +73,9 @@ class LeaseRenewalOwner:
         return self.driver is not None and self.driver.running
 
     def start(self, interval_s: float, *, renew_lease: RenewLease | None = None) -> None:
-        """(Re)start renewal for the held control lease. Restart
-        semantics: any previous driver is cancelled first. No lease, no
-        renew callable, paused, or disposed: no driver runs. A passed
-        `renew_lease` replaces the constructor callable from now on."""
+        """(Re)start renewal for the held control lease. Restart semantics: any previous driver
+        is cancelled first.
+        """
         if renew_lease is not None:
             self._renew_lease = renew_lease
         self._interval_s = interval_s

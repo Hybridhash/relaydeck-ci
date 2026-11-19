@@ -2,7 +2,7 @@
 // they run without a browser; the real shortcut check is done in a browser.
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/src/picture_paste_core.dart';
+import 'package:relaydeck_terminal/src/picture_paste_core.dart';
 
 PasteCandidate png({int size = 1000, String name = 'image.png'}) =>
     PasteCandidate(mime: 'image/png', size: size, name: name);
@@ -73,7 +73,12 @@ void main() {
     });
 
     test('unsupported picture types are recognised', () {
-      for (final mime in ['image/heic', 'image/heif', 'image/gif', 'image/tiff']) {
+      for (final mime in [
+        'image/heic',
+        'image/heif',
+        'image/gif',
+        'image/tiff'
+      ]) {
         expect(
           classifyPaste([PasteCandidate(mime: mime, size: 10, name: 'x')])
               .verdict,
@@ -92,7 +97,8 @@ void main() {
       );
       expect(
         classifyPaste(const [
-          PasteCandidate(mime: 'application/octet-stream', size: 10, name: 'x.bin'),
+          PasteCandidate(
+              mime: 'application/octet-stream', size: 10, name: 'x.bin'),
         ]).verdict,
         PasteVerdict.none,
       );
@@ -184,7 +190,8 @@ void main() {
   });
 
   group('decidePaste', () {
-    test('an office copy (picture plus text) pastes the text into an input', () {
+    test('an office copy (picture plus text) pastes the text into an input',
+        () {
       final files = [png(name: 'image.png')];
       expect(decide(files: files, text: 'A1\tB1', field: true).action,
           PasteAction.field);
@@ -218,7 +225,8 @@ void main() {
       expect(decision.takesEvent, isTrue);
     });
 
-    test('text goes into the focused text field when no terminal has focus', () {
+    test('text goes into the focused text field when no terminal has focus',
+        () {
       final decision = decide(text: 'hello', field: true);
       expect(decision.action, PasteAction.field);
       expect(decision.takesEvent, isTrue);
@@ -245,8 +253,8 @@ void main() {
       expect(decide(files: [png()], text: 'caption', terminal: true).action,
           PasteAction.terminal);
       // With pictures off the caller passes no files, so the text is pasted.
-      expect(decide(text: 'caption', terminal: true).action,
-          PasteAction.terminal);
+      expect(
+          decide(text: 'caption', terminal: true).action, PasteAction.terminal);
     });
 
     test('a paste without text is refused with a reason when an input owns it',
@@ -264,8 +272,10 @@ void main() {
 
     test('picture refusals keep their reasons and a busy slot refuses', () {
       expect(decide(files: [png()], busy: true).reason, 'busy');
-      expect(decide(files: [png(name: 'a.png'), png(name: 'b.png', size: 2)])
-          .reason, 'multiple');
+      expect(
+          decide(files: [png(name: 'a.png'), png(name: 'b.png', size: 2)])
+              .reason,
+          'multiple');
       expect(decide(files: [png(size: 0)]).reason, 'empty');
       expect(decide(files: [png(size: kMaxPicturePasteBytes + 1)]).reason,
           'too_large');

@@ -21,7 +21,7 @@ from typing import Any
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
-from relaydeck.gateway.revocation import revoke_account_and_close
+from relaydeck.gateway.app.revocation import revoke_account_and_close
 from tests.security.helpers import (
     ALL_CAPS,
     NOW,
@@ -140,10 +140,10 @@ def test_ws_close_reasons_are_fixed_codes() -> None:
     fixed code set or an enum-bound value (error code, ring status,
     reset detail) -- never requester or victim data."""
     root = Path(__file__).resolve().parent.parent.parent / "src" / "relaydeck"
-    # The WebSocket handlers live in the sockets router; app.py keeps the rest.
+    # Include composition and the terminal WebSocket handlers.
     sources = [
-        (root / "gateway" / "app.py").read_text(),
-        (root / "gateway" / "api" / "sockets.py").read_text(),
+        *(path.read_text() for path in sorted((root / "gateway" / "app").glob("*.py"))),
+        (root / "gateway" / "http" / "sockets.py").read_text(),
     ]
     app_source = "\n".join(sources)
     import ast
@@ -170,7 +170,7 @@ def test_ws_close_reasons_are_fixed_codes() -> None:
     call_reasons = re.findall(r"close_\w+\([^)]*\"([^\"]+)\"\)", app_source)
     assert call_reasons
     # Inspect actual socket.close calls, not diagnostic reason= arguments.
-    sockets_source = (root / "gateway" / "sockets.py").read_text()
+    sockets_source = (root / "gateway" / "features" / "terminals" / "sockets.py").read_text()
     socket_reasons = [
         ast.unparse(keyword.value)
         for node in ast.walk(ast.parse(sockets_source))
@@ -182,7 +182,7 @@ def test_ws_close_reasons_are_fixed_codes() -> None:
     ]
     assert socket_reasons and set(socket_reasons) == {"reason"}
     # ...and the web guard passes a literal at its one registry call.
-    serve_source = (root / "client" / "serve.py").read_text()
+    serve_source = (root / "companion" / "app" / "hosted_web" / "serve.py").read_text()
     assert "reason=" not in serve_source
     serve_calls = re.findall(
         r"close_(?:account|device|lease|host)\(([^)]*)\)", serve_source, re.DOTALL
@@ -192,7 +192,7 @@ def test_ws_close_reasons_are_fixed_codes() -> None:
 
 
 def test_registry_close_logs_and_reason_are_content_free(caplog: pytest.LogCaptureFixture) -> None:
-    from relaydeck.gateway.sockets import SocketRegistry
+    from relaydeck.gateway.features.terminals.sockets import SocketRegistry
     from relaydeck.lease_diagnostics import LeaseTrace
 
     closes: list[tuple[int, str]] = []
@@ -247,10 +247,12 @@ def test_close_reason_values_observed_are_safe() -> None:
 
 
 def test_exceptions_carry_no_canaries() -> None:
-    from relaydeck.gateway.backend import BackendError, FakeBackend
-    from relaydeck.gateway.leases import LeaseError, LeaseStore
-    from relaydeck.gateway.push import PushDenied, PushStore
-    from relaydeck.journal import JournalConflict
+    from relaydeck.devtools.fakes.gateway import FakeBackend
+    from relaydeck.gateway.features.notifications.adapters.sqlite_store import PushStore
+    from relaydeck.gateway.features.notifications.model import PushDenied
+    from relaydeck.gateway.features.terminals.leases import LeaseError, LeaseStore
+    from relaydeck.gateway.ports import BackendError
+    from relaydeck.host.persistence.command_journal import JournalConflict
 
     messages: list[str] = []
 
@@ -301,7 +303,7 @@ def test_logs_carry_no_canaries(caplog: Any, capsys: Any) -> None:
     """No logging/printf emitter in the request path: drive auth,
     terminal, journal, and push traffic with live canaries and assert
     the captured logs and stdio stay canary-free."""
-    from relaydeck.client.features.composer.domain import ComposerStore
+    from relaydeck.client.features.composer.model import ComposerStore
 
     submits: list[dict[str, Any]] = []
 
@@ -356,7 +358,7 @@ def test_persisted_non_secret_stores_carry_no_credentials(tmp_path: Any) -> None
     journal routing columns, or error-adjacent fields."""
     import sqlite3
 
-    from relaydeck.journal import CommandJournal
+    from relaydeck.host.persistence.command_journal import CommandJournal
 
     client, state, backend = make_client()
     access, _ = state.sessions.create("victim", ALL_CAPS, frozenset({"home-mac"}), NOW)

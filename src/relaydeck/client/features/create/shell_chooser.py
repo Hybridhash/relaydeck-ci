@@ -5,9 +5,10 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.components.appearance import chrome_style
-from relaydeck.client.features.terminal.events import click
-from relaydeck.client.theme import MIN_TOUCH, palette
+from relaydeck.client.design_system.appearance import chrome_style
+from relaydeck.client.design_system.buttons import Button
+from relaydeck.client.design_system.theme import MIN_TOUCH, palette
+from relaydeck.client.platform.flet.events import click
 from relaydeck.domain.models import Tab, scope_key
 
 
@@ -23,10 +24,10 @@ def ShellChooser(
     return ft.Column(
         key="shell-chooser",
         controls=[
-            ft.Text("Open shell terminal", key="shell-chooser-title", color=tokens["text"]),
-            ft.Text("Choose a terminal in this workspace.", color=tokens["muted"]),
+            ft.Text("Open shell terminal", key="shell-chooser-title", color=tokens.text),
+            ft.Text("Choose a terminal in this workspace.", color=tokens.muted),
             *[
-                ft.Button(
+                Button(
                     tab.label or tab.id,
                     key=f"shell-choice-{scope_key(tab.host_id, tab.id)}",
                     height=MIN_TOUCH,
@@ -35,14 +36,14 @@ def ShellChooser(
                 )
                 for tab in tabs
             ],
-            ft.Button(
+            Button(
                 "New terminal",
                 key="shell-choice-new",
                 height=MIN_TOUCH,
                 style=chrome_style(dark),
                 on_click=lambda e: on_new(),
             ),
-            ft.Button(
+            Button(
                 "Cancel",
                 key="shell-choice-cancel",
                 height=MIN_TOUCH,

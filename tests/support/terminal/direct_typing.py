@@ -6,14 +6,15 @@ from typing import Any
 
 from flet.messaging.protocol import MessageAction
 
-from relaydeck.client.features.shell.screen import mount_shell_screen
-from relaydeck.client.features.terminal.surfaces import mount_agent_screen
 from relaydeck.client.features.terminal.switcher import SwitcherRow
+from relaydeck.client.screens.shell.screen import mount_shell_screen
+from relaydeck.client.screens.terminal.screen import mount_agent_screen
 from tests.support.host_harness import render_component
 from tests.support.terminal.sessions import _agent_session, _session
 
 
 async def _direct(shell: bool, tier: str = "compact") -> tuple[Any, Any, Any, list[int]]:
+    session: Any
     if shell:
         session, _ops, factory = _session()
         await session.open("term-1")
@@ -53,7 +54,8 @@ async def _direct(shell: bool, tier: str = "compact") -> tuple[Any, Any, Any, li
             focuses.append(body.control_id)
             app.session.handle_invoke_method_results(body.control_id, body.call_id, None, None)
 
-    app.conn.send_message = acknowledge
+    connection: Any = app.conn
+    connection.send_message = acknowledge
     if shell:
         await app.set_props_and_fire("shell-keyboard-toggle", {}, "click")
     else:

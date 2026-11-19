@@ -12,17 +12,24 @@ import httpx
 import pytest
 
 from relaydeck.connector.journal import ConnectorDispatch
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.command_io import command_io
-from relaydeck.gateway.loop_watch import LoopWatch
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.gateway.usage import UsageService
-from relaydeck.journal import CommandJournal, JournalConflict
-from relaydeck.offload import OrderedGate
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.command_io import command_io
+from relaydeck.gateway.features.usage_read.api import UsageService
+from relaydeck.gateway.http.middleware.loop_watch import LoopWatch
+from relaydeck.host.concurrency.offload import OrderedGate
+from relaydeck.host.persistence.command_journal import CommandJournal, JournalConflict
 from relaydeck.usage.contracts import UsageQuery
 from relaydeck.usage.store import SqliteUsageStore
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.creation.command_journal import NOW, _dispatch_msg
 from tests.support.pairing import foundation, proof
+from tests.support.usage.results import wire_page
 
 
 def _blocking(seconds: float, content: str) -> None:
@@ -217,11 +224,11 @@ def test_usage_cache_validation_does_not_wait_for_collector_on_loop(tmp_path: Pa
 
         thread = threading.Thread(target=collector)
         try:
-            assert (await service.page(query, "owner", "phone")).status_code == 200
+            assert (await wire_page(service, query, "owner", "phone")).status_code == 200
             thread.start()
             while not entered.is_set():
                 await asyncio.sleep(0)
-            task = asyncio.create_task(service.page(query, "owner", "phone"))
+            task = asyncio.create_task(wire_page(service, query, "owner", "phone"))
             # A delayed coroutine cannot execute this release if page blocks the loop.
             await asyncio.sleep(0.02)
             assert task.done() and task.result().status_code == 200
@@ -264,7 +271,7 @@ def test_usage_shutdown_waits_for_inflight_cache_validation(tmp_path: Path):
 
         service._validate = delayed
         query = UsageQuery("mac", "2023-11-14", "2023-11-14")
-        task = asyncio.create_task(service.page(query, "owner", "phone"))
+        task = asyncio.create_task(wire_page(service, query, "owner", "phone"))
         try:
             async with asyncio.timeout(1):
                 while not entered.is_set():
@@ -285,8 +292,8 @@ def test_usage_shutdown_waits_for_inflight_cache_validation(tmp_path: Path):
 
 
 def test_gateway_lifespan_starts_and_stops_the_always_on_watchdog():
-    from relaydeck.companion.runtime import _uvicorn_logging_config
-    from relaydeck.gateway.app import create_app
+    from relaydeck.companion.app.hosted_web.binding import _uvicorn_logging_config
+    from relaydeck.gateway.app.bootstrap import create_app
     from tests.security.helpers import make_state
 
     async def scenario():
@@ -411,7 +418,7 @@ def test_pairing_redemption_worker_cannot_replay_or_mint_for_replaced_host(tmp_p
                     assert (await task).status_code == 404
                 assert minted == []
                 # Restore the host only for checking the consumed proof, not its authority.
-                from relaydeck.gateway.pairing import PairingError
+                from relaydeck.gateway.features.access.pairing import PairingError
 
                 with pytest.raises(PairingError):
                     redeem(row["request_id"], proof(), host, clock[0])

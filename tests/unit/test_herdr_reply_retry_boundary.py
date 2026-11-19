@@ -11,7 +11,7 @@ import pytest
 import relaydeck.connector.journal as dispatch_module
 from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.connector.journal import ConnectorDispatch
-from relaydeck.journal import CommandJournal
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.support.creation.command_journal import NOW
 from tests.support.creation.create_readiness import _message
 from tests.support.gateway.herdr_adapter import _FakeReader, _FakeWriter

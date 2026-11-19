@@ -2,9 +2,9 @@
 
 Inventory of third-party software that RelayDeck distributes, vendors, patches
 or uses to build. Python entries are generated from `uv.lock` (sha256
-`500b989977713f80e34060c3e0d1a779098eb4d52d1ce9be54534b10f47b95f7`) with
+`70ce788eae0af2faf4f85090914eff85a3f86db91529c72a9759550a1cc399c8`) with
 `uv run python scripts/license_inventory.py` (add `--out PATH` for the JSON
-SBOM): 67 Python and 12 Dart entries, 0 unknown. The scan fails
+SBOM): 70 Python and 15 Dart entries, 0 unknown. The scan fails
 on any UNKNOWN license, and this file is its written proof, so extend both
 together when a dependency changes. Sections 3, 4, 6 and 7 below are
 maintained by hand; the script does not read them. SPDX ids are measured from installed
@@ -22,7 +22,7 @@ The `relaydeck` package is MIT-licensed (see `LICENSE`); the `relaydeck-terminal
 and `relaydeck-notifications` extensions are Apache-2.0.
 
 The list in Settings › Acknowledgements
-(`src/relaydeck/client/features/settings/acknowledgements.py`) is the user-facing
+(`src/relaydeck/client/screens/settings/parts/acknowledgements.py`) is the user-facing
 summary of the packages and fonts below; update it with this file.
 
 ## 1. Python runtime packages (the closure the native app ships)
@@ -37,9 +37,9 @@ the mobile pin versions are not measured separately.
 | Package | Locked version | License | How verified |
 |---|---|---|---|
 | anyio | 4.15.1 | MIT | License-Expression |
-| certifi | 2026.7.22 | MPL-2.0 | License metadata field |
+| certifi | 2026.10.19 | MPL-2.0 | License metadata field |
 | cffi | 2.1.1 | MIT-0 | License-Expression |
-| cryptography | 48.0.0 | Apache-2.0 OR BSD-3-Clause | License-Expression |
+| cryptography | 50.0.2 | Apache-2.0 OR BSD-3-Clause | License-Expression |
 | flet | 1.0.3 | Apache-2.0 | License-Expression |
 | flet-secure-storage | 1.0.3 | Apache-2.0 | bundled license file flet_secure_storage-1.0.3.dist-info/licenses/LICENSE |
 | h11 | 0.16.0 | MIT | License metadata field |
@@ -47,10 +47,10 @@ the mobile pin versions are not measured separately.
 | httpx | 0.28.1 | BSD-3-Clause | License metadata field |
 | idna | 3.20 | BSD-3-Clause | License-Expression |
 | msgpack | 1.2.3 | Apache-2.0 | License-Expression |
-| oauthlib | 4.0.0 | BSD-3-Clause | License metadata field |
+| oauthlib | 4.0.1 | BSD-3-Clause | License metadata field |
 | pycparser | 3.0 | BSD-3-Clause | License-Expression |
-| relaydeck-notifications | 0.1.0 | Apache-2.0 | License metadata field |
-| relaydeck-terminal | 0.1.0 | Apache-2.0 | License metadata field |
+| relaydeck-notifications | 0.1.0 | MIT | License metadata field |
+| relaydeck-terminal | 0.1.0 | MIT | License metadata field |
 | repath | 0.9.0 | MIT | License metadata field |
 | six | 1.17.0 | MIT | License metadata field |
 | typing-extensions | 4.16.0 | PSF-2.0 | License-Expression |
@@ -63,19 +63,20 @@ including `uvicorn`'s optional extras as resolved in the lock).
 
 | Package | Locked version | License | How verified |
 |---|---|---|---|
+| annotated-doc | 0.0.5 | MIT | License-Expression |
 | annotated-types | 0.8.0 | MIT | License-Expression |
 | click | 8.5.0 | BSD-3-Clause | License-Expression |
 | colorama | 0.4.6 | BSD | verified table (not installed): PyPI colorama/0.4.6 trove classifier BSD License; uv.lock marker sys_platform == 'win32' (absent on macOS/Linux) |
-| fastapi | 0.117.1 | MIT | trove classifier: License :: OSI Approved :: MIT License |
+| fastapi | 0.133.1 | MIT | License-Expression |
 | flet-web | 1.0.3 | Apache-2.0 | License-Expression |
 | httptools | 0.8.0 | MIT | License-Expression |
-| pillow | 12.3.0 | MIT-CMU | License-Expression |
+| pillow | 13.0.0 | MIT-CMU | License-Expression |
 | pydantic | 2.13.5 | MIT | License-Expression |
 | pydantic-core | 2.46.5 | MIT | License-Expression |
 | python-dotenv | 1.2.4 | BSD-3-Clause | License metadata field |
 | pyyaml | 6.0.3 | MIT | License metadata field |
 | qrcode | 8.2 | BSD | License metadata field |
-| starlette | 0.48.0 | BSD-3-Clause | License-Expression |
+| starlette | 1.8.0 | BSD-3-Clause | License-Expression |
 | typing-inspection | 0.4.4 | MIT | License-Expression |
 | uvicorn | 0.35.0 | BSD-3-Clause | License-Expression |
 | uvloop | 0.23.0 | MIT License | License metadata field |
@@ -85,7 +86,8 @@ including `uvicorn`'s optional extras as resolved in the lock).
 
 | Component | License | What RelayDeck does | Where |
 |---|---|---|---|
-| `file_picker` 11.0.3 (Miguel Ruivo, pub.dev) | MIT, (c) 2018 Miguel Ruivo; license file ships in the tree | Vendored with the "RD1" web backport of upstream fix PR `vicajilau/flutter_file_picker#2228` (issue #2222, released upstream as `file_picker_web` 4.0.1) so picture attach works in Safari/WebKit. Remove when Flet ships the fix. | `extensions/terminal/third_party/file_picker-11.0.3-rd1/`; diff and notes in `patches/flutter-file-upload-patch/` |
+| Flet 1.0.3 | Apache-2.0; license file ships in the tree | Vendored reconnect reconciliation and bounded retries, selection magnifier repairs, per-row list extents and trailing scroll notifications. | [Vendored package and license](../extensions/terminal/third_party/README.md); [patch](../patches/flet-reconnect-merge-patch/flet-1.0.3-rd1.diff) |
+| `file_picker` 11.0.3 | MIT; license file ships in the tree | Vendored backport of upstream pull request 2228 so picture attachment completes in Safari/WebKit. Remove when the pinned upstream version supplies the fix. | [Vendored package and license](../extensions/terminal/third_party/README.md); [patch](../patches/flutter-file-upload-patch/file_picker-11.0.3-rd1.diff) |
 | Flutter web engine, PR `flutter/flutter#189608` (tracking issue #188781) | BSD-3-Clause (Flutter) | Backported to an isolated copy of Flutter 3.44.8 so touch pointer-up is not lost on iOS WebKit; the patched engine code is compiled into the web bundle. The SDK itself is not redistributed and `~/flutter` is never edited. | `patches/flutter-ios-pointer-patch/` (upstream diff kept for provenance) |
 | Flet 1.0.3 build template | Apache-2.0 (Flet) | Patched copy raises the iOS deployment target from 13.0 to 15.0 (Xcode 27 needs 15.0+); only the diff is kept, the template is not redistributed. | `patches/flet-build-template-ios15/` |
 | Native packaging pins | n/a (data) | Python 3.14 for mobile builds, mobile-wheel versions of `cffi` and `msgpack`, `jni_flutter` 1.0.3 override. | `patches/native-runtime-pins/` |
@@ -132,6 +134,8 @@ notice in `tests/fixtures/OFL-fallback-sample.txt`.
 | flet-cli | 1.0.3 | Apache-2.0 | License-Expression |
 | flet-desktop | 1.0.3 | Apache-2.0 | License-Expression |
 | flet-platform-assets | 1.0.3 | Apache-2.0 | License-Expression |
+| grimp | 3.18 | BSD 2-Clause License | License metadata field |
+| import-linter | 2.15 | BSD 2-Clause License | License metadata field |
 | iniconfig | 2.3.0 | MIT | License-Expression |
 | jinja2 | 3.1.6 | BSD | trove classifier: License :: OSI Approved :: BSD License |
 | librt | 0.16.0 | MIT | License-Expression |
@@ -144,7 +148,7 @@ notice in `tests/fixtures/OFL-fallback-sample.txt`.
 | pathspec | 1.1.1 | MPL-2.0 | trove classifier: License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0) |
 | pluggy | 1.6.0 | MIT | License metadata field |
 | pygments | 2.21.0 | BSD-2-Clause | License-Expression |
-| pytest | 8.4.2 | MIT | License metadata field |
+| pytest | 9.0.3 | MIT | License-Expression |
 | python-dateutil | 2.9.0.post0 | Dual License | License metadata field |
 | python-slugify | 9.1.2 | MIT | License-Expression |
 | requests | 2.34.2 | Apache-2.0 | License metadata field |
@@ -174,23 +178,25 @@ Copyleft/dual-license notes (measured):
 | app_links | ^7.2.1 | Apache-2.0 | verified table: llfbandit/app_links LICENSE (Apache-2.0) | relaydeck_notifications |
 | firebase_core | ^4.15.0 | BSD-3-Clause | verified table: flutterfire LICENSE (BSD, (c) 2017 The Chromium Authors) | relaydeck_notifications |
 | firebase_messaging | ^16.7.0 | BSD-3-Clause | verified table: flutterfire LICENSE (BSD, (c) 2017 The Chromium Authors) | relaydeck_notifications |
-| flet | ^1.0.3 | Apache-2.0 | verified table: flet-dev/flet LICENSE at a87ca7fc (Apache-2.0) | relaydeck_notifications |
+| flet | 1.0.3 | Apache-2.0 | verified table: flet-dev/flet LICENSE at a87ca7fc (Apache-2.0) | relaydeck_notifications |
 | flutter | (sdk) | BSD-3-Clause | Flutter SDK (flutter/flutter LICENSE); provided by pinned Flutter 3.44.8, not a package | relaydeck_notifications |
 | flutter_lints | ^3.0.0 (dev) | BSD-3-Clause | verified table: dart-lang/lints LICENSE (BSD, (c) 2021 Dart project authors) | relaydeck_notifications |
 | flutter_test |  (dev) | BSD-3-Clause | Flutter SDK (flutter/flutter LICENSE); provided by pinned Flutter 3.44.8, not a package | relaydeck_notifications |
+| fake_async | ^1.3.3 (dev) | Apache-2.0 | [verified table: pub.dev archive fake_async-1.3.3 LICENSE (Apache-2.0)](https://pub.dev/api/archives/fake_async-1.3.3.tar.gz) | relaydeck_terminal |
 | flet | ^1.0.3 | Apache-2.0 | verified table: flet-dev/flet LICENSE at a87ca7fc (Apache-2.0) | relaydeck_terminal |
 | flutter | (sdk) | BSD-3-Clause | Flutter SDK (flutter/flutter LICENSE); provided by pinned Flutter 3.44.8, not a package | relaydeck_terminal |
 | flutter_lints | ^3.0.0 (dev) | BSD-3-Clause | verified table: dart-lang/lints LICENSE (BSD, (c) 2021 Dart project authors) | relaydeck_terminal |
 | flutter_test |  (dev) | BSD-3-Clause | Flutter SDK (flutter/flutter LICENSE); provided by pinned Flutter 3.44.8, not a package | relaydeck_terminal |
+| provider | ^6.1.5+1 (dev) | MIT | [verified table: pub.dev archive provider-6.1.5+1 LICENSE (MIT, (c) 2019 Remi Rousselet)](https://pub.dev/api/archives/provider-6.1.5%2B1.tar.gz) | relaydeck_terminal |
 | web | ^1.1.1 | BSD-3-Clause | verified table: pub.dev archive web-1.1.1 LICENSE (BSD, (c) 2023 Dart project authors) | relaydeck_terminal |
 | xterm2 | ^5.2.0 | MIT | verified table: pub.dev archive xterm2-5.2.0 LICENSE (MIT, (c) 2020 xuty) | relaydeck_terminal |
 
-Transitive Dart dependencies are pinned in
-`extensions/terminal/src/flutter/relaydeck_terminal/pubspec.lock` (about 140
-packages) and are not listed here; their licences are those of each package on
-pub.dev. `extensions/notifications` has no `pubspec.lock`. Native Android and
-iOS dependencies, including the Firebase SDKs, resolve at build time and are
-likewise not listed.
+Transitive Dart versions are pinned in
+`extensions/terminal/src/flutter/relaydeck_terminal/pubspec.lock` and
+`extensions/notifications/src/flutter/relaydeck_notifications/pubspec.lock`.
+This table lists direct declarations; transitive package license texts remain
+with their published packages on pub.dev. Native Android and iOS dependencies,
+including the Firebase SDKs, resolve at build time and are not listed.
 
 ## 7. Notices
 

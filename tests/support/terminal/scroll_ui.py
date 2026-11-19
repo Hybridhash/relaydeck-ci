@@ -6,9 +6,9 @@ from typing import Any
 
 from relaydeck_terminal import protocol
 
-from relaydeck.client.features.shell.screen import mount_shell_screen
-from relaydeck.client.features.terminal.input_modes import WORKFLOW_AGENT_DIRECT
-from relaydeck.client.features.terminal.surfaces import mount_agent_screen
+from relaydeck.client.models.input.modes import WORKFLOW_AGENT_DIRECT
+from relaydeck.client.screens.shell.screen import mount_shell_screen
+from relaydeck.client.screens.terminal.screen import mount_agent_screen
 from tests.support.host_harness import render_component
 from tests.support.terminal.channel_open import _HarnessChannel
 from tests.support.terminal.select_sheet import _sheet

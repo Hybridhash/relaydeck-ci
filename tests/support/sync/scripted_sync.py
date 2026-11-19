@@ -7,8 +7,7 @@ import json
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from relaydeck.client.features.sync.sse import SseFrame
-from relaydeck.client.features.sync.transport import GatewayTransport, TransportError
+from relaydeck.client.ports.transport import GatewayTransport, SseFrame, TransportError
 from tests.support.paths import TESTS_DIR
 
 FIXTURES = TESTS_DIR / "fixtures" / "gateway"

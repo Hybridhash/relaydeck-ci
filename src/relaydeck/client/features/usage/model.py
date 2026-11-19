@@ -1,15 +1,4 @@
-"""Usage page model. Pure: wire JSON in, view values out. No Flet, no I/O.
-
-Rules (UI plan, wire contract v1):
-
-- A null cost is unavailable (partially unpriced), never $0.
-- Reasoning sits inside output, so it is not added to the token total.
-- Sessions are not additive across days or models, so they are never summed.
-- Limits are current host/account quotas: they ignore the period and space filters.
-- A window is a capacity signal only when its status is `fresh`. Expired, stale or missing
-  observations never imply remaining capacity.
-- Display names come from `kinds[].display_name` only. Nothing here names a CLI.
-"""
+"""Usage page model. Pure: wire JSON in, view values out."""
 
 from __future__ import annotations
 
@@ -43,7 +32,7 @@ class UsageDocError(ValueError):
     """A usage document that does not match the wire contract. The message names no content."""
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Counters:
     input_uncached: int = 0
     cache_read: int = 0
@@ -77,7 +66,7 @@ class Counters:
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Row:
     day: str
     workspace_id: str | None
@@ -98,7 +87,7 @@ class Row:
     inferred_sessions: int | None = None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CreditRow:
     """One credit-metered row. Credits are a separate meter: they are never part of a token
     total or a cost, so they live apart from `UsagePage.rows`."""
@@ -112,7 +101,7 @@ class CreditRow:
     hour: int | None = None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Window:
     window_key: str
     used_percent: float
@@ -128,7 +117,7 @@ class Window:
     idle: bool = False  # the tool reports no use in this window yet: a reading, not a failure
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Limit:
     kind: str
     quota_key: str
@@ -144,28 +133,27 @@ class Limit:
     plan_label: str | None = None  # the tool's plan name ("TOOL FREE"); None: not sent
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CoverageEntry:
     kind: str
     coverage: str
     observed_ms: int | None
     unmapped_sessions: int
-    # exact-linked and inferred-linked sessions, disjoint from unmapped. None: the server did
-    # not
-    # send the field (an older server). Never shown as zero.
+    # Keep exact-linked and inferred-linked coverage separate from unmapped.
+    # An absent field means unavailable data, never zero.
     linked_sessions: int | None = None
     inferred_sessions: int | None = None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class LimitsSetup:
-    """Installation state of a managed limits hook (addendum D). Independent of limit freshness."""
+    """Describe managed limits-hook installation independently of reading freshness."""
 
     state: str
     checked_ms: int | None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class SourceSetup:
     """One configured source of a kind: its format and its own limits-hook state."""
 
@@ -173,7 +161,7 @@ class SourceSetup:
     setup: LimitsSetup | None = None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RefreshAttempt:
     """The last on-demand read the companion finished: its id, when, and `ok` or an error code."""
 
@@ -182,7 +170,7 @@ class RefreshAttempt:
     result: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class LimitsRefresh:
     """Whether the companion can read this tool's limits on demand (an on-demand `/usage` read),
     and where that read stands. Shared by every device: the server owns the cooldown."""
@@ -196,7 +184,7 @@ class LimitsRefresh:
     probe_dir: str | None = None  # the folder to trust once, named when the last read stopped there
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Kind:
     kind: str
     display_name: str
@@ -212,7 +200,7 @@ class Kind:
     limits_error: str | None = None  # the timed source's last fetch failed with this error
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class UsagePage:
     host_id: str
     generated_ms: int
@@ -233,6 +221,7 @@ class UsagePage:
     # "ok", or "exceeded": the report was over the server cap and carries no rows
     capacity: str = "ok"
     as_of_ms: int | None = None  # Optional for older servers; immutable across cursor pages.
+    report_id: str | None = None
 
 
 # -- parsing -------------------------------------------------------------------------------------
@@ -419,9 +408,9 @@ def _label(value: object) -> str | None:
 
 def current_limits(limits: tuple[Limit, ...]) -> tuple[Limit, ...]:
     """The readings that may be shown as current. A kind's provider readings that name more than
-    one account are ambiguous: none is shown, because a reading is never picked across accounts by
-    timestamp. (The server already sends only the active account; this is the client's guard.)
-    Readings with no source (status line, logs) are one account-less source and pass through."""
+    one account are ambiguous: none is shown, because a reading is never picked across
+    accounts by timestamp.
+    """
     accounts: dict[str, set[str | None]] = {}
     for limit in limits:
         if limit.source:
@@ -596,8 +585,8 @@ LIMIT_FRESH = "fresh"
 def reading_stale(kind: Kind | None, limit: Limit, now_ms: int) -> bool:
     """Whether the reading may be wrong, not merely old. A passive source (status line, logs)
     can only have moved if the tool was used after it was read; a timed source is stale after
-    three missed checks; any failed attempt makes it suspect. A server that does not report
-    activity falls back to the age rule."""
+    three missed checks; any failed attempt makes it suspect.
+    """
     if limit.status == "stale":
         return True
     if kind is None or not kind.activity_reported:
@@ -643,7 +632,7 @@ def effective_window_status(
     return window.status
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class ConsolePick:
     display_name: str
     window_key: str
@@ -652,7 +641,7 @@ class ConsolePick:
     window_minutes: int | None = None  # names the window ("Weekly"), not its key
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class ConsoleCard:
     has_today: bool
     cost_micro_usd: int | None  # legacy: None unless every token today was priced
@@ -671,78 +660,6 @@ class ConsoleCard:
     # False: the report was over the server cap. Then has_today is False and the totals are not
     # usage at all; a renderer must show "unavailable", never "No usage today" or $0.
     available: bool = True
-
-
-def console_card(page: UsagePage, now_ms: int) -> ConsoleCard:
-    """Today's overall totals (only when the snapshot is from the host's today) and the most-used
-    window that is fresh at `now_ms`, across all limits: an aggregate that is expired does not hide
-    a fresh sibling window. Ties go to the earliest reset. The pick carries its own reset."""
-    # Imported here: the selectors module reads this module's types, so it cannot be imported
-    # at the top of this file.
-    from relaydeck.client.features.usage import selectors
-
-    today = host_day(now_ms, page.timezone)
-    current = page_today(page) == today
-    available = selectors.report_available(page)
-    day_rows: tuple[Row, ...] = ()
-    if current and available:
-        day_rows = selectors.filtered_rows(
-            page,
-            selectors.Filter(period="today", space=selectors.ALL, provider=selectors.ALL),
-            today,
-        )
-    usage = selectors.usage_of(day_rows)
-    priced = usage.cost.state in ("zero", "priced") and available
-    best_by_tool: dict[str, ConsolePick] = {}
-    kinds = {kind.kind: kind for kind in page.kinds}
-    for limit in current_limits(page.limits):
-        stale = reading_stale(kinds.get(limit.kind), limit, now_ms)
-        for window in limit.windows:
-            if (
-                effective_window_status(window, limit.observed_ms, now_ms, stale=stale)
-                != LIMIT_FRESH
-            ):
-                continue  # a stale or ended reading is never ranked
-            candidate = ConsolePick(
-                display_name=_display(page, limit.kind)[0],
-                window_key=window.window_key,
-                used_percent=window.used_percent,
-                resets_at_ms=window.resets_at_ms,
-                window_minutes=window.window_minutes,
-            )
-            held = best_by_tool.get(limit.kind)
-            if held is None or _beats(candidate, held):
-                best_by_tool[limit.kind] = candidate
-    picks = [best_by_tool[key] for key in best_by_tool]
-    ranked: list[ConsolePick] = []
-    for candidate in picks:
-        index = 0
-        while index < len(ranked) and not _beats(candidate, ranked[index]):
-            index += 1
-        ranked.insert(index, candidate)
-    best = ranked[0] if ranked else None
-    by_kind: dict[str, int] = {}
-    for row in day_rows:
-        if _display(page, row.kind)[1]:  # a tool that reports tokens
-            by_kind[row.kind] = by_kind.get(row.kind, 0) + row.counters.tokens
-    top_tool: tuple[str, int] | None = None
-    if by_kind:
-        top_kind = max(sorted(by_kind), key=lambda kind: by_kind[kind])
-        if by_kind[top_kind] > 0:
-            top_tool = (_display(page, top_kind)[0], by_kind[top_kind])
-    return ConsoleCard(
-        has_today=bool(day_rows),
-        stale_day=not current,
-        cost_micro_usd=usage.cost.priced_micro_usd if priced else None,
-        tokens=(usage.tokens or 0) if available else 0,  # 0 is a placeholder when unavailable
-        pick=best,
-        picks=tuple(ranked),
-        top_tool=top_tool,
-        age_ms=max(0, now_ms - page.generated_ms),
-        priced_micro_usd=usage.cost.amount_micro_usd if available else None,
-        unpriced_tokens=(usage.cost.unpriced_tokens or 0) if available else 0,
-        available=available,
-    )
 
 
 def _beats(candidate: ConsolePick, best: ConsolePick) -> bool:

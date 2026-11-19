@@ -6,6 +6,7 @@ import argparse
 import asyncio
 import faulthandler
 import json
+import os
 import signal
 import sys
 from collections.abc import Iterator
@@ -13,11 +14,14 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+from relaydeck.companion.app.lifecycle import AlreadyRunning, request_stop, supervise
+from relaydeck.companion.app.runtime import CompanionRuntime
 from relaydeck.companion.config import DEFAULT_CONFIG, CompanionConfig, load_config
-from relaydeck.companion.lifecycle import AlreadyRunning, request_stop, status, supervise
-from relaydeck.companion.runtime import CompanionRuntime
+from relaydeck.companion.inspection.running import probe_private
+from relaydeck.companion.inspection.status import status
 from relaydeck.companion.setup import preflight
-from relaydeck.usage.hook_cli import add_usage_parser, run_configured_usage
+from relaydeck.companion.setup.usage_cli import run_configured_usage
+from relaydeck.usage.api import add_usage_parser
 from relaydeck.version import __version__
 
 
@@ -38,6 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config", default=DEFAULT_CONFIG, help="Owner-only companion TOML")
     parser.add_argument("--version", action="version", version=f"relaydeck {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
+    service = sub.add_parser("service-run", help="Run the installed companion with bounded logs")
+    service.add_argument("--log-directory", required=True, type=Path)
     add_usage_parser(sub)
     start = sub.add_parser(
         "start", help="Foreground gateway + dynamic Flet; never install a service"
@@ -65,7 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
     pairing = sub.add_parser("pairing", help="Explicit Mac-local device pairing authorization")
     actions = pairing.add_subparsers(dest="pairing_action", required=True)
     window = actions.add_parser("open", help="Open a bounded window for an enrolled Mac")
-    window.add_argument("--ttl-seconds", type=int, default=120)
+    window.add_argument("--ttl-seconds", type=int, default=300)
     actions.add_parser("list", help="Inspect requests and compare matching codes")
     for action in ("approve", "deny"):
         decision = actions.add_parser(action, help=f"Explicitly {action} a matching device request")
@@ -95,7 +101,7 @@ WEB_ROTATE_PHRASE = "rotate web push"
 def _web_rotate(config: CompanionConfig) -> int:
     """Replace the VAPID key after a typed confirmation (no --yes). Refuses without a terminal, and
     while the companion runs, because a running process still holds the old key."""
-    from relaydeck.gateway.webpush_store import WebPushStore, rotate
+    from relaydeck.gateway.features.notifications.api import WebPushStore, rotate
 
     if not sys.stdin.isatty():
         print("push web-rotate needs an interactive terminal; nothing was changed.")
@@ -118,70 +124,87 @@ def _web_rotate(config: CompanionConfig) -> int:
     return 0
 
 
-async def probe_private(url: str) -> dict[str, str]:
-    import httpx
+class WebBundleMissing(RuntimeError):
+    """No signed bundle for this version and no developer override."""
+
+
+def _update_object(config: CompanionConfig) -> dict[str, Any]:
+    """The additive `update` object of status and doctor: stored facts only, no network."""
+    from relaydeck.companion.updates import schedule as update_schedule
+    from relaydeck.companion.updates.worker import read_notice
 
     try:
-        async with httpx.AsyncClient(timeout=5, trust_env=False, follow_redirects=False) as client:
-            response = await client.get(url + "/healthz")
-            body = response.json()
-            if (
-                response.status_code != 200
-                or not isinstance(body, dict)
-                or body.get("ok") is not True
-            ):
-                return {
-                    "state": "failed",
-                    "message": "HTTPS route did not reach the companion health endpoint.",
-                }
-    except (httpx.HTTPError, ValueError):
-        return {
-            "state": "failed",
-            "message": (
-                "Private route unavailable. Check Mac power/network, Tailscale login, "
-                "HTTPS Serve and device access policy."
-            ),
-        }
-    return {
-        "state": "reachable",
-        "message": (
-            "HTTPS health reachable; application login and Android/mobile access "
-            "still need separate verification."
-        ),
-    }
+        return update_schedule.status_object(read_notice(config))
+    except Exception:  # noqa: BLE001 - the notice must never break status or doctor
+        return update_schedule.status_object(
+            update_schedule.Notice(__version__, config.updates.check, None, None, None, "state")
+        )
 
 
 def _select_web_bundle() -> None:
-    """with FLET_WEB_PATH unset, serve the newest verified installed bundle.
-    An explicit FLET_WEB_PATH always wins; with nothing installed, say how to install."""
+    """Select a verified signed bundle for this installed version unless FLET_WEB_PATH
+    explicitly overrides it. Refuse an absent bundle rather than serve stock Flet or another
+    version.
+    """
     import os
 
-    from relaydeck import webbundle
+    from relaydeck.companion.app.hosted_web.headers import load_policy
+    from relaydeck.releases import web as webrelease
+    from relaydeck.releases.bundles import BundleError
 
-    if os.environ.get("FLET_WEB_PATH"):
-        return
-    current = webbundle.current_bundle()
-    if current is None:
-        print("No installed web bundle; run `relaydeck web install <build dir>` to install one.")
-        return
-    os.environ["FLET_WEB_PATH"] = str(current)
-    print(f"Web bundle: {current}")
+    def compatible(path: Path) -> bool:
+        try:
+            load_policy(path)
+        except BundleError:
+            return False
+        return True
+
+    explicit = os.environ.get("FLET_WEB_PATH")
+    signed = None if explicit else webrelease.installed_signed(__version__, compatible=compatible)
+    selected = Path(explicit) if explicit else signed.path if signed is not None else None
+    if selected is None:
+        raise WebBundleMissing("csp_metadata_required")
+    try:
+        load_policy(selected)
+    except (BundleError, ValueError):
+        raise WebBundleMissing("csp_metadata_required") from None
+    if not explicit:
+        os.environ["FLET_WEB_PATH"] = str(selected)
+        print("Web bundle: signed release for this version")
 
 
 def main(argv: list[str] | None = None) -> int:
+    from relaydeck.companion.adapters.service_output import configure_child
+
+    configure_child()
+    if argv is None and os.environ.get("RELAYDECK_SERVICE_OUTPUT") != "1":
+        # Console calls own logging; embedded calls keep their caller's configuration.
+        import logging.config
+
+        from relaydeck.host.observability.exceptions import install_exception_safety
+        from relaydeck.host.observability.logging import logging_config
+
+        install_exception_safety()
+        logging.config.dictConfig(logging_config())
     args = build_parser().parse_args(argv)
+    if args.command == "service-run":
+        from relaydeck.companion.adapters.service_output import main as service_main
+
+        return service_main(sys.argv[1:] if argv is None else argv)
     if args.command == "usage":
         return run_configured_usage(args)  # Before full config, secrets and prerequisite probes.
     try:
         config = load_config(Path(args.config).expanduser().absolute())
         if args.command == "pairing":
-            from relaydeck.companion.pairing import run_pairing
+            from relaydeck.companion.pairing.service import run_pairing
 
             return run_pairing(config, args)
         if args.command == "push":
             return _web_rotate(config)
         if args.command == "status":
-            print(json.dumps(status(config.state_dir), indent=2))
+            print(
+                json.dumps({**status(config.state_dir), "update": _update_object(config)}, indent=2)
+            )
             return 0
         if args.command == "stop":
             if not 0 < args.timeout <= 60:
@@ -219,6 +242,7 @@ def main(argv: list[str] | None = None) -> int:
                     "No separate account login; a device signs in by pairing with this Mac."
                 ),
                 "push": "Native push/provider integration and device proof remain required.",
+                "update": _update_object(config),
                 "private_route": asyncio.run(probe_private(config.advertised_origin))
                 if args.probe_private
                 else {
@@ -241,6 +265,7 @@ def main(argv: list[str] | None = None) -> int:
                         config,
                         connect_herdr=args.connect_herdr,
                         fixture=args.fixture,
+                        config_path=Path(args.config).expanduser().absolute(),
                     ),
                     stop,
                 )
@@ -249,12 +274,30 @@ def main(argv: list[str] | None = None) -> int:
                     loop.remove_signal_handler(sig)
 
         if config.web_ui:
-            _select_web_bundle()
+            try:
+                _select_web_bundle()
+            except WebBundleMissing as missing:
+                print(
+                    "companion: csp_metadata_required"
+                    if os.environ.get("RELAYDECK_SERVICE_OUTPUT") == "1"
+                    else missing
+                )
+                print(
+                    "Check FLET_WEB_PATH or unset it and run relaydeck web fetch."
+                    if os.environ.get("FLET_WEB_PATH")
+                    else "Run relaydeck web fetch to install the web bundle for this version."
+                )
+                return 2
         print(f"Foreground companion: {config.advertised_origin}; backend {config.local_endpoint}")
         with thread_dumps():
             return asyncio.run(run())
     except (ValueError, OSError, RuntimeError, AlreadyRunning) as exc:
-        print(f"companion: {exc}")
+        if os.environ.get("RELAYDECK_SERVICE_OUTPUT") == "1":
+            from relaydeck.host.observability.exceptions import exception_category
+
+            print(f"companion_failure category={exception_category(exc)}")
+        else:
+            print(f"companion: {exc}")
         return 2
 
 

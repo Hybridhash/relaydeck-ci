@@ -7,7 +7,6 @@ import 'package:flet/flet.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/material.dart' show Icons;
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
@@ -77,14 +76,8 @@ const _kSwipeDown = 1;
 class _TaggedTerminal extends Terminal {
   _TaggedTerminal({required super.maxLines});
 
-  /// Fired synchronously when a mode/buffer mutation changes the swipe
-  /// eligibility bits (alternate screen, mouse scroll reporting). xterm2
-  /// parses a whole write() before notifying, and suppresses notifications
-  /// inside synchronized output, so the repaint listener misses a
-  /// leave-and-return in one write or across synchronized writes; these
-  /// overrides observe the actual mutations instead. No-op
-  /// re-emissions (already alt, already the same reporting) do not fire,
-  /// so ordinary and redundant output never disturbs a live gesture.
+  /// Observe actual mode and buffer mutations synchronously so batched notifications cannot
+  /// hide a round trip. No-op assignments leave the gesture generation intact.
   VoidCallback? onSwipeBoundary;
 
   int _pendingOrigin = _kOriginText;
@@ -212,12 +205,9 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
   int? _swipePointer;
   double _swipePixels = 0;
   Timer? _swipeIdle;
-  // Boundary generation: input-disable, RESET, and alt/mouse
-  // transitions retire pending swipe pixels/timer/pointer, and delayed
-  // callbacks fire only for the generation that armed them. Rechecking
-  // current eligibility alone is not enough: disable-enable or a mode
-  // round trip inside the idle window would otherwise resurrect a stale
-  // run as a fresh valid swipe.
+  // Advance the boundary generation when input, reset or mode transitions retire gestures.
+  // Delayed callbacks must match their arming generation even if eligibility has since
+  // returned.
   int _swipeEpoch = 0;
   // Last observed (alt, reportScroll) bits; -1 until the first terminal
   // notification. Compared synchronously on every notification so even
@@ -304,11 +294,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     // per-frame VIEW_REPORT.
     _terminal.addListener(_scheduleViewReport);
     _terminal.addListener(_swipeWatchMode);
-    // Mutation-level swipe fence: retires pending swipe
-    // state at the exact mutation, independent of repaint notifications.
-    // The listener above stays as the fence-bits updater for reset paths
-    // that assign engine fields directly (RIS/DECSTR clear synchronized
-    // mode themselves, so their write-end notification still fires).
+    // Retire swipes at actual mode mutations independently of repaint notifications. Retain
+    // notification checks for reset paths that assign engine fields directly.
     _terminal.onSwipeBoundary = _gestureBoundary;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _scheduleViewReport();
@@ -340,14 +327,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     backend.addListener(_onBackendChanged);
   }
 
-  /// Tracks Flet's loading state for the input fence. Pure logic
-  /// flag (no setState): nothing renders from it. The fence latches on
-  /// the live->reconnecting edge and releases only on an explicit
-  /// resume-verified or RESET packet from Python — re-registration
-  /// (isLoading false) proves UI plumbing, not native-instance/reset/
-  /// offset continuity, so it must not enable input.
-  /// Pending gesture state retires at the edge so an old gesture can
-  /// never emit after reopening.
+  /// Latch the input fence and retire gestures when a live transport starts reconnecting.
+  /// Re-registration alone cannot release it; only verified continuity or explicit reset can.
   void _onBackendChanged() {
     final backend = _backend;
     if (backend == null) return;
@@ -449,8 +430,10 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
 
   void _onPageChanged() {
     if (!mounted) return;
+    // Every visual viewport change reaches Python: the keyboard's stages, the accessory
+    // bar, and the dismissal that restores the full height (a zero inset).
     final before = pageMetrics();
-    if (pinPageTop()) _sendPageMetrics(true, before);
+    _sendPageMetrics(pinPageTop(), before);
   }
 
   void _sendPageMetrics(bool reset, List<double>? metrics) {
@@ -561,25 +544,15 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
       _inputEnabledOverride ?? widget.control.getBool('input_enabled', false)!;
 
   void _onTerminalOutput(String data) {
-    // Display-only gate (Composer mode): xterm2's readOnly does NOT block
-    // hardware-key bytes from reaching onOutput (TerminalView._handleKeyEvent
-    // never consults readOnly), so the widget drops engine output while
-    // input is disabled. Key/text/mouse input funnels only through onOutput
-    // and never mutates the display buffer, so dropping here is complete:
-    // no PTY bytes, no display desync, and selection/shortcuts keep working.
+    // Drop engine output while display-only because readOnly does not block every hardware-key
+    // path. Selection remains available without changing display state.
     if (!_inputEnabled) return;
     final origin = _terminal.takeOrigin();
     var bytes = utf8.encode(data);
     if (origin == _kOriginMouse && _localGestureMode) {
-      // Normal buffer with mouse reporting on: the always-mounted
-      // Listener already scrolled this gesture locally from raw
-      // pointer deltas, independent of mouse-report coordinate
-      // limits (classic X10 emits nothing past column 223). Any
-      // wheel reports xterm did emit are consumed here so the same
-      // movement is never counted twice and never reaches the PTY.
-      // The emulator keeps its mouse mode; clicks, motion,
-      // horizontal wheels and text still forward for the standing
-      // Python-side policy.
+      // Drive normal-buffer mouse-mode scrolling from raw pointer deltas beyond protocol
+      // coordinate limits. Consume vertical wheel reports to prevent PTY delivery or duplicate
+      // scrolling.
       final wheels = extractWheelScroll(data);
       if (wheels.total > 0) {
         if (wheels.remainder.isEmpty) return;
@@ -615,12 +588,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     _sendInput(origin, bytes);
   }
 
-  /// True when xterm would application-scroll a normal buffer: mouse
-  /// reporting on outside the alternate screen. Local gestures drive
-  /// the owned controller from raw Listener pointer deltas in both
-  /// control and watch (parsed wheel reports are consumed, never
-  /// double-counted); the alternate buffer keeps xterm's exact routing
-  /// (wheel reports when the app reports them, readOnly swallow).
+  /// Use raw-pointer local scrolling for normal-buffer mouse mode in both control and watch
+  /// views. Alternate-buffer wheel forwarding and readOnly handling stay with the emulator.
   bool get _localGestureMode =>
       !_terminal.isUsingAltBuffer && _terminal.mouseMode.reportScroll;
 
@@ -702,13 +671,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     _swipeFenceBits = bits;
   }
 
-  /// Retires pending swipe state at a boundary: pixels, idle timer and
-  /// active pointer are forgotten and the generation advances, so
-  /// delayed callbacks armed earlier can no longer fire. A fresh
-  /// pointer-down is required afterwards. Swipe state only: per-event
-  /// guards call this on every move outside swipe mode, so the wheel
-  /// queue and momentum (which live through those moves) retire
-  /// separately in [_gestureBoundary].
+  /// Retire swipe pixels, timer and pointer generation so a fresh press must start the next
+  /// run. Wheel queues and momentum have separate boundary retirement.
   void _swipeRetire() {
     _swipeEpoch++;
     _swipePointer = null;
@@ -717,12 +681,7 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     _swipeIdle = null;
   }
 
-  /// Full gesture boundary: swipe state plus queued wheel rows, any
-  /// momentum coast and the pending release velocity, which all belong
-  /// to the mode they started in. A coast may only start from a
-  /// pointer-down after the last boundary. Only real boundaries call
-  /// this (mode fence, transport fence, input-disable, RESET), never
-  /// per-event guards.
+  /// Retire swipe, wheel, coast and release velocity at a mode, transport or reset boundary.
   void _gestureBoundary() {
     _swipeRetire();
     _retireScrollMotion();
@@ -853,12 +812,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
   }
 
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
-    // Shift+Enter override: physical Enter arrives as TerminalKey.enter,
-    // whose keytab rules have no shift variant (Enter-NewLine emits CR), but
-    // the multiline action must send Ctrl-J (0x0A). (The keytab's ESC O M
-    // rule names Qt Return = TerminalKey.returnKey, which the Flutter key
-    // path never produces.) Intercept it so the physical-key path emits
-    // exactly the same byte as the Python tools encoder.
+    // Intercept Shift+Enter as LF to match the application key encoder. The physical Enter key
+    // uses the CR keytab rule rather than the separate Return-key rule.
     if (_inputEnabled &&
         event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.enter &&
@@ -911,11 +866,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     _sendSizeReport();
   }
 
-  // Tail following. xterm2 recomputes its own stick-to-bottom flag on every scroll
-  // notification, and a notification that lands between a viewport/line-count change and its
-  // layout correction (new output arriving while the keyboard or size changes) clears it, so
-  // the view stays behind. This flag is changed only by the reader's own gestures and by our
-  // jump-to-latest, and re-pins after every write and geometry change while set.
+  // Track tail following from reader gestures and jump-to-latest actions. While enabled, repin
+  // after output and geometry changes so layout notifications cannot strand the view.
   bool _followTail = true;
 
   void _onScrollChanged() {
@@ -950,12 +902,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
   }
 
   void _onPythonMessage(Uint8List bytes) {
-    // No catch-and-drop here by design: discarding bytes and resuming
-    // as live would silently lose terminal output. A handler throw
-    // surfaces loudly (console error, stalled ACKs trip the Python
-    // backpressure/reset path) instead of lying about applied bytes.
-    // The one known throw source (ByteData.setUint64 on dart2js) is
-    // fixed at the root in ack.dart.
+    // Surface output-handler failures instead of silently dropping bytes. Stalled
+    // acknowledgements force visible backpressure recovery without claiming undisplayed output.
     _inbox.add(bytes);
     final buf = _inbox.toBytes();
     var offset = 0;
@@ -1015,10 +963,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
         _controller.clearSelection();
         return 1;
       case _kRequestKeyboard:
-        // Direct Input icon: open the soft keyboard. Only while input is
-        // enabled (INPUT_ENABLED precedes this packet). Arm
-        // focus first; the text input is already mounted, so the request
-        // reaches it immediately. Never writes to the PTY.
+        // Arm focus and open the soft keyboard only after input is enabled. This command never
+        // writes to the PTY.
         if (_inputEnabled) {
           if (!_keyboardArmed) {
             setState(() => _keyboardArmed = true);
@@ -1090,10 +1036,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
         WidgetsBinding.instance.scheduleFrame();
         return 2;
       default:
-        // Unknown kinds come from a newer companion: ignore the kind byte
-        // rather than killing the viewer. (A future multi-byte kind would
-        // still misframe here, but new control kinds stay single-byte, so
-        // an older bundle keeps working.)
+        // Consume unknown kind bytes without closing the viewer. Compatibility requires unknown
+        // control kinds to have no body.
         return 1;
     }
   }
@@ -1130,10 +1074,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     _channel?.send(encodeAck(_appliedBytes));
   }
 
-  /// Resume report: kind + u32 req + u64 instance + u32 resets + u64
-  /// applied (25 bytes). u64s encode as two u32be halves (`~/`/`%`,
-  /// never setUint64) and applied saturates exactly like ACKs, so a
-  /// report can never over-claim displayed bytes.
+  /// Report request, native instance, reset count and applied bytes in a fixed 25-byte packet.
+  /// Encode u64 halves and saturate applied bytes exactly as ACKs do.
   void _sendResumeReport(int reqId) {
     var applied = _appliedBytes;
     if (applied < 0) applied = 0;
@@ -1149,10 +1091,8 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     _channel?.send(data.buffer.asUint8List());
   }
 
-  /// Local view scroll for page up/down buttons. Never touches the
-  /// emulator or the PTY: [pages] is -n/+n pages (viewport heights) or
-  /// 0x7F for jump-to-bottom. A no-op in the alternate buffer, which
-  /// has no scrollback — the packet is still consumed (handled).
+  /// Scroll the local viewport by signed page counts or jump to the bottom with 0x7F. Consume
+  /// the command without scrolling in the alternate buffer and never write to the PTY.
   void _scrollViewport(int pages) {
     _retireScrollMotion();
     if (_terminal.isUsingAltBuffer) return;
@@ -1232,14 +1172,9 @@ class _RelayDeckTerminalControlState extends State<RelayDeckTerminalControl>
     // the page as "JetBrains Mono", the design typography).
     final fontFamily =
         widget.control.getString('font_family', 'JetBrains Mono')!;
-    // Local gestures in a mouse-reporting normal buffer (always
-    // mounted: no conditional wrapper, so the engine subtree never
-    // remounts on mode changes). xterm's handler owns the arena and its
-    // reports cannot be trusted past coordinate limits (classic X10
-    // emits nothing past 223; watching readOnly emits nothing at
-    // all), so raw pointer deltas drive the owned controller in both
-    // control and watch; reports are consumed, never double-counted.
-    // Every other mode ignores these events.
+    // Keep raw pointer listeners mounted so normal-buffer mouse-mode gestures scroll both
+    // control and watch views without remounting the engine. Consume emulator wheel reports and
+    // ignore pointer scrolling in other modes.
     final view = Listener(
       onPointerDown: (event) {
         // A fresh press always kills momentum; a tap lands here too.
@@ -1356,8 +1291,6 @@ Uint8List _u16(int v) =>
     (ByteData(2)..setUint16(0, v, Endian.big)).buffer.asUint8List();
 Uint8List _u32(int v) =>
     (ByteData(4)..setUint32(0, v, Endian.big)).buffer.asUint8List();
-int _readU16(Uint8List b, int o) =>
-    ByteData.sublistView(b, o, o + 2).getUint16(0, Endian.big);
 int _readU32(Uint8List b, int o) =>
     ByteData.sublistView(b, o, o + 4).getUint32(0, Endian.big);
 int _readI8(Uint8List b, int o) => ByteData.sublistView(b, o, o + 1).getInt8(0);
@@ -1373,26 +1306,16 @@ class WheelScroll {
   int get total => up + down;
 }
 
-// xterm2 MouseReporter encodings (pinned 5.2.0 reporter.dart): X10
-// `ESC[M btn col row` (btn = 32 + id + mods), SGR `ESC[< Cb;Cx;Cy M/m`
-// (Cb = id + mods), urxvt `ESC[ Cb;Cx;Cy M` (Cb = 32 + id + mods).
-// Modifiers add 4/8/16 (modifiers.dart), so the low two id bits —
-// 64 up, 65 down, 66/67 horizontal — survive all three forms.
-// Col/row span the full UTF range: the reporter emits 32 + coord as
-// one char through logical 2015 (U+07FF); classic X10 stops at 223
-// (and emits nothing past it — the Listener covers that case).
+// Recognize X10, SGR and urxvt mouse reports with modifier bits intact. Wheel IDs 64/65 encode
+// vertical direction; coordinate limits and full layouts are documented in
+// terminal-extension.md.
 final _x10Wheel = RegExp('\x1b\\[M([\x20-\xFF])([\x20-\u07FF])([\x20-\u07FF])');
 final _sgrWheel = RegExp('\x1b\\[<(\\d+);(\\d+);(\\d+)([Mm])');
 final _urxvtWheel = RegExp('\x1b\\[(\\d+);(\\d+);(\\d+)M');
 
-/// Splits vertical wheel reports out of mouse-origin output.
-///
-/// Returns the up/down line counts plus the remainder (clicks, motion,
-/// horizontal wheels and anything unrecognized pass through for the
-/// standing forward/reject policy). Wheel identity is bit 64 of the raw
-/// button id with the low two bits 0 (up) or 1 (down); motion (+32)
-/// and modifier (+4/+8/+16) offsets can never forge that pattern from
-/// a click id (0-3).
+/// Extract vertical wheel counts and preserve all remaining mouse output for the forwarding
+/// policy. Require wheel bit 64 and direction bits 0/1 so clicks, motion and horizontal wheels
+/// cannot qualify.
 WheelScroll extractWheelScroll(String data) {
   var up = 0;
   var down = 0;
@@ -1420,14 +1343,8 @@ WheelScroll extractWheelScroll(String data) {
   return WheelScroll(up, down, rest);
 }
 
-/// Vertical wheel reports in mouse-origin [data] as source-order runs.
-///
-/// Each run holds consecutive same-direction reports (first report's exact
-/// bytes stand for the run); enqueueing runs in order keeps a mixed chunk
-/// faithful instead of reordering all-ups before all-downs. Uses
-/// [extractWheelScroll]'s exact encodings and id math, so the two can
-/// never disagree on what is a wheel line; counts and the remainder
-/// stay authoritative there.
+/// Preserve consecutive same-direction wheel reports as source-order runs, using the first
+/// exact report bytes for each run. Share encoding and identity rules with extractWheelScroll.
 List<({bool towardOlder, int rows, String report})> _wheelRuns(String data) {
   final found = <({int start, int end, bool towardOlder, String bytes})>[];
   void scan(Pattern pattern, int Function(Match) rawId) {

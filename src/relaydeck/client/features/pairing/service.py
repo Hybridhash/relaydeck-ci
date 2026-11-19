@@ -13,13 +13,15 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any, cast
 
-from relaydeck.client.adapters.ports import CredentialStore
+from relaydeck.client.platform.diagnostics.client import failure_category
 from relaydeck.contracts import paths
 from relaydeck.contracts.endpoints import origin
 from relaydeck.contracts.pairing import DEVICE_CAPABILITIES, MAX_POLLS, REQUEST_TTL_MS
 from relaydeck.contracts.schemas import Me, PairingStatus, TokenResponse, validate
+from relaydeck.contracts.storage import CredentialStore
 
 PENDING_KEY = "pairing_pending_key"
+VERIFIER_PREFIX = "pairing_verifier_"
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +44,7 @@ class PairingSnapshot:
 async def discard_pending(credentials: CredentialStore) -> None:
     """Process death never resumes a pending exchange or redeems an old request."""
     key = await credentials.get(PENDING_KEY)
-    if key and key.startswith("pairing_verifier_"):
+    if key and key.startswith(VERIFIER_PREFIX):
         await credentials.delete(key)
     await credentials.delete(PENDING_KEY)
 
@@ -76,11 +78,11 @@ class PairingFlow:
         for listener in tuple(self.listeners):
             try:
                 listener(snapshot)
-            except Exception:  # noqa: BLE001 - a dead page must not break others
+            except Exception as exc:  # noqa: BLE001 - a dead page must not break others
                 # A listener whose page/session is already gone (browser
                 # closed or reconnected) is dropped; raising here crashed
                 # the NEW page that triggered the cleanup.
-                logger.debug("dropping failed pairing listener", exc_info=True)
+                logger.debug("dropping failed pairing listener: category=%s", failure_category(exc))
                 if listener in self.listeners:
                     self.listeners.remove(listener)
 
@@ -115,7 +117,7 @@ class PairingFlow:
         def current() -> bool:
             return self.generation == generation
 
-        key = "pairing_verifier_" + secrets.token_urlsafe(24)
+        key = VERIFIER_PREFIX + secrets.token_urlsafe(24)
         cleared = False
         snapshot = PairingSnapshot(
             endpoint=endpoint, host_id=host_id, device_label=label, phase="connecting", busy=True

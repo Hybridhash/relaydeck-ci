@@ -8,12 +8,13 @@ from typing import Any, cast
 import flet as ft
 import httpx
 
-from relaydeck.client.app import Root
-from relaydeck.client.features.inventory.routing import RouteBridge
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport
-from relaydeck.connector.pubkey import fingerprint_of_raw, generate, openssh_to_raw
-from relaydeck.gateway.app import create_app
+from relaydeck.client.app.navigation import RouteBridge
+from relaydeck.client.app.root import Root
+from relaydeck.client.app.state.sync import SyncController
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.contracts.pubkeys import fingerprint_of_raw, openssh_to_raw
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.host.security.enrollment import generate
 from tests.security.helpers import ALL_CAPS, make_state
 from tests.support.host_harness import render_component
 from tests.support.scripted_sessions import make_scripted_sessions

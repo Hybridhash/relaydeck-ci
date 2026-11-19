@@ -41,8 +41,7 @@ def origin(value: str, *, loopback: bool = False, tailscale: bool = False) -> st
 
 
 def is_trusted_endpoint(url: str, plaintext_hosts: frozenset[str]) -> bool:
-    """TLS by default. Plaintext only for loopback or explicitly allowed
-    hosts (owner-authorized, development-only;)."""
+    """Require TLS except for loopback or explicitly allowed development hosts."""
     try:
         parsed = urlparse(url)
     except ValueError:

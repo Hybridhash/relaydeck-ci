@@ -1,0 +1,800 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "WATCHING"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-watching-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 12,
+       "right": 12
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "WATCHING"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-watching-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 8,
+       "right": 8
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#1A2400",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "LIVE · IN CONTROL"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-in-control-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#C8F03C",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 12,
+       "right": 12
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#1A2400",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "LIVE"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-in-control-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#C8F03C",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 8,
+       "right": 8
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "CONNECTING"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-connecting-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 12,
+       "right": 12
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "CONNECTING"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-connecting-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 8,
+       "right": 8
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "DISCONNECTED"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-disconnected-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 12,
+       "right": 12
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "DISCONNECTED"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-disconnected-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 8,
+       "right": 8
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "EXITED"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-exited-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 12,
+       "right": 12
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "EXITED"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-exited-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 8,
+       "right": 8
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "CUSTOM"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-custom-False",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 12,
+       "right": 12
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque ExtraBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 2.3333333333333335,
+         "letter_spacing": 0.6000000000000001,
+         "size": 12,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w800"
+         }
+        },
+        "value": "CUSTOM"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "state-custom-True",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#2B2356",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#5A4F96"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 14,
+       "bottom_right": 14,
+       "top_left": 14,
+       "top_right": 14
+      },
+      "padding": {
+       "@": "Padding",
+       "left": 8,
+       "right": 8
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

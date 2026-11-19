@@ -8,13 +8,13 @@ from collections.abc import Callable
 from types import SimpleNamespace
 from typing import Any
 
-from relaydeck.client.features.composer.pictures import Picture
 from relaydeck.client.features.terminal.picture_operations import (
     PictureOperation,
     SourceMetadata,
     UploadFailed,
 )
 from relaydeck.client.features.terminal.pictures import FAILURE, PictureClientError
+from relaydeck.client.models.pictures import Picture
 
 
 class FakePasteSource:

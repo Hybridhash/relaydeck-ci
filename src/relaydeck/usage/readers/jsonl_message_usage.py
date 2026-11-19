@@ -1,17 +1,5 @@
-"""Format "jsonl-message-usage-v1": per-call usage records in per-project JSON Lines files.
-
-Layout under the root: `<project>/<session>.jsonl`, and subagent logs in
-`<project>/<session>/subagents/<agent>.jsonl`. Records with the role `assistant` carry
-`message.usage` with the record's own totals. Only those totals are read:
-
-- `message.usage.output_tokens_details.thinking_tokens` is reasoning, a subset of output.
-- `message.usage.iterations[]` is ignored: the top-level usage is the record total.
-- Top-level `modelUsage` summaries are ignored entirely, so they cannot double count.
-
-Streamed duplicates share `(message.id, requestId)`, which is the event key, so a replay replaces.
-The session is the record's `sessionId` when present, else the file name. The session's working
-folder (top-level `cwd`) is digested with the budget's keyed digest callable and pinned per file;
-the raw folder never leaves the reader.
+"""Read top-level per-call usage totals from session message logs. Ignore iteration and
+model-summary repeats and keep raw working folders inside the reader.
 """
 
 from __future__ import annotations
@@ -37,7 +25,7 @@ from relaydeck.usage.readers._files import (
 )
 
 FORMAT_ID = "jsonl-message-usage-v1"
-SCHEMA = "message-4"  # v4: session working-folder digest pinned per file
+SCHEMA = "message-4"  # Include the working-folder digest in each file cursor context.
 
 
 def _split_creation(usage: dict[str, object]) -> tuple[int, int, int] | None:

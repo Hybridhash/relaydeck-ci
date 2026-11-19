@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 
-from relaydeck.client.retained_sessions import RetainedSessions
+from relaydeck.client.app.sessions.retained import RetainedSessions
 
 
 async def jobs(pool: RetainedSessions) -> None:

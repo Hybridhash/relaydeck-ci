@@ -1,4 +1,4 @@
-"""Q6b: `render_component` must keep a session's scheduler task alive.
+"""`render_component` must keep a session's scheduler task alive.
 
 Flet's `Session.__updates_scheduler` task is referenced only by a cycle through its own
 session. When a test drops its `HostApp` mid-run (for example by reassigning `app` in a

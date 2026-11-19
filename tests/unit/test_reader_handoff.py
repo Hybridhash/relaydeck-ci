@@ -2,11 +2,12 @@
 
 import pytest
 
-from relaydeck.gateway.backend import BackendError, FakeBackend
-from relaydeck.gateway.identity import TicketGrant, TicketStore
-from relaydeck.gateway.leases import READER_HANDOFF_TTL_MS
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.features.access.identity import TicketGrant, TicketStore
+from relaydeck.gateway.features.terminals.leases import READER_HANDOFF_TTL_MS
+from relaydeck.gateway.ports import BackendError
+from relaydeck.host.persistence.command_journal import CommandJournal
 
 
 @pytest.fixture(params=["fake", "journal"])

@@ -1,4 +1,4 @@
-"""Q6d: the inventory components package keeps its documented shape."""
+"""The inventory components package keeps its documented shape."""
 
 from __future__ import annotations
 
@@ -9,9 +9,11 @@ from pathlib import Path
 
 import pytest
 
-import relaydeck.client.features.inventory.components as components
+import relaydeck.client.app.shell as components
+import relaydeck.client.screens.console.parts as console_components
 
 PKG_DIR = Path(components.__file__).parent
+CONSOLE_DIR = Path(console_components.__file__).parent
 MAX_MODULE_LINES = 800
 MAX_FUNCTION_LINES = 250
 
@@ -27,7 +29,6 @@ BUILDERS = {
         "apply_collapsed_strip",
     ),
     "shell_frame": ("build_split", "build_body", "build_nav", "build_frame"),
-    "chips": ("host_chips", "space_chips", "filter_field"),
     "state": ("use_filter_state", "use_sidebar_state"),
 }
 
@@ -49,13 +50,22 @@ def test_every_module_has_a_docstring_and_stays_within_the_size_budget(name: str
             assert size <= MAX_FUNCTION_LINES, f"{name}.{node.name} is {size} lines"
 
 
-def test_the_documented_modules_exist_and_the_docstring_lists_every_module() -> None:
-    expected = {"models", "lists", "panes", "chips", "state", "context", "shell", "shell_panes"}
-    expected |= {"shell_frame"}
-    assert expected <= set(_modules())
-    doc = components.__doc__ or ""
-    for name in _modules():
-        assert f"`{name}`" in doc, name
+def test_app_frame_and_console_modules_have_explicit_owners() -> None:
+    assert {
+        "models",
+        "panes",
+        "state",
+        "context",
+        "shell",
+        "shell_panes",
+        "shell_frame",
+        "destinations",
+        "navigation",
+    } == set(_modules())
+    assert {m.name for m in pkgutil.iter_modules(console_components.__path__)} == {"chips", "lists"}
+    for package in (components, console_components):
+        tree = ast.parse(Path(package.__file__).read_text())
+        assert all(isinstance(n, ast.Expr) and isinstance(n.value, ast.Constant) for n in tree.body)
 
 
 @pytest.mark.parametrize(("module", "names"), sorted(BUILDERS.items()))
@@ -91,12 +101,28 @@ def test_app_shell_is_the_only_component_that_calls_the_hooks_and_builders() -> 
         assert name in calls
 
 
-def test_public_names_still_import_from_the_package() -> None:
-    names = [
-        "AgentsList", "AppShell", "ConnectionBanner", "DESTINATIONS", "DiagnosticsPane",
-        "HostsList", "SearchField", "SessionDetail", "SettingsPane", "ShellsList", "StatusDot",
-        "agent_scope_label", "host_context", "terminal_rows",
-    ]  # fmt: skip
-    for name in names:
-        assert hasattr(components, name), name
-        assert name in components.__all__, name
+@pytest.mark.parametrize("name", ["chips", "lists"])
+def test_residual_console_modules_keep_their_budgets(name: str) -> None:
+    path = CONSOLE_DIR / f"{name}.py"
+    tree = ast.parse(path.read_text())
+    assert ast.get_docstring(tree)
+    assert len(path.read_text().splitlines()) <= MAX_MODULE_LINES
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+            first = min([node.lineno, *(d.lineno for d in node.decorator_list)])
+            assert node.end_lineno is not None
+            assert node.end_lineno - first + 1 <= MAX_FUNCTION_LINES
+
+
+def test_console_filter_builders_remain_plain_functions() -> None:
+    tree = ast.parse((CONSOLE_DIR / "chips.py").read_text())
+    defined = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+    for name in ("host_chips", "space_chips", "filter_field"):
+        assert name in defined
+        assert not any("component" in ast.unparse(d) for d in defined[name].decorator_list)
+
+
+def test_packages_do_not_reexport_component_names() -> None:
+    for package in (components, console_components):
+        for name in ("AppShell", "AgentsList", "terminal_rows", "DESTINATIONS", "__all__"):
+            assert not hasattr(package, name), name

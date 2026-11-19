@@ -1,0 +1,95 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#1A2400",
+             "font_family": "Bricolage Grotesque Bold",
+             "font_family_fallback": [
+              "Noto Sans Symbols 2"
+             ],
+             "height": 1.2,
+             "size": 14,
+             "weight": {
+              "enum": "FontWeight",
+              "value": "bold"
+             }
+            },
+            "value": "1"
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#C8F03C",
+          "border_radius": {
+           "@": "BorderRadius",
+           "bottom_left": 13,
+           "bottom_right": 13,
+           "top_left": 13,
+           "top_right": 13
+          },
+          "height": 26,
+          "width": 26
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "props": {
+          "expand": true,
+          "style": {
+           "@": "TextStyle",
+           "color": "#F5F2FF",
+           "font_family": "Bricolage Grotesque Bold",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.375,
+           "size": 16,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "bold"
+           }
+          },
+          "value": "Example step"
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "slot": "controls",
+       "type": "Row"
+      },
+      {
+       "props": {
+        "value": "Example instructions"
+       },
+       "slot": "controls",
+       "type": "Text"
+      }
+     ],
+     "slot": "controls",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

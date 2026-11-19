@@ -1,0 +1,85 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "key": "existing",
+         "props": {
+          "text": "Existing workspace"
+         },
+         "slot": "options",
+         "type": "DropdownOption"
+        },
+        {
+         "key": "new",
+         "props": {
+          "text": "New workspace"
+         },
+         "slot": "options",
+         "type": "DropdownOption"
+        }
+       ],
+       "key": "example-workspace-mode",
+       "props": {
+        "content_padding": {
+         "@": "Padding",
+         "bottom": 16,
+         "left": 12,
+         "right": 12,
+         "top": 16
+        },
+        "expand": true,
+        "expanded_insets": 0,
+        "label": "Launch target",
+        "value": "new"
+       },
+       "slot": "controls",
+       "type": "Dropdown"
+      }
+     ],
+     "slot": "controls",
+     "type": "Row"
+    },
+    {
+     "key": "example-workspace-directory",
+     "props": {
+      "content_padding": {
+       "@": "Padding",
+       "bottom": 16,
+       "left": 12,
+       "right": 12,
+       "top": 16
+      },
+      "hint_text": "Home directory when empty",
+      "label": "Directory (optional)",
+      "value": "/example"
+     },
+     "slot": "controls",
+     "type": "TextField"
+    },
+    {
+     "key": "example-workspace-label",
+     "props": {
+      "content_padding": {
+       "@": "Padding",
+       "bottom": 16,
+       "left": 12,
+       "right": 12,
+       "top": 16
+      },
+      "label": "Workspace label (optional)",
+      "value": "Example space"
+     },
+     "slot": "controls",
+     "type": "TextField"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

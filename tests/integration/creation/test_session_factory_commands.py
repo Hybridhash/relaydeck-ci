@@ -10,27 +10,27 @@ from typing import Any
 import httpx
 import pytest
 
-from relaydeck.client.features.composer.domain import (
+from relaydeck.client.app.sessions.factory import SessionFactory
+from relaydeck.client.features.commands.observation import CommandObserver
+from relaydeck.client.features.composer.model import (
     SEND_DELIVERED_VIA_ATTACH,
     SEND_DELIVERED_VIA_PROMPT,
     SEND_FAILED,
-    SEND_IGNORED,
+    SEND_SUPERSEDED,
     SEND_UNKNOWN,
     ComposerStore,
 )
-from relaydeck.client.features.composer.observation import CommandObserver, CommandOutcomeUnknown
-from relaydeck.client.features.shell.ops import HttpxShellGatewayOps
-from relaydeck.client.features.sync.transport import (
-    HttpxGatewayTransport,
-    TransportError,
-)
-from relaydeck.client.sessions import SessionFactory
-from relaydeck.connector.fixture import FixtureAdapter
+from relaydeck.client.features.terminal.pictures import PictureApi as PictureApiFactory
+from relaydeck.client.platform.transport.shell_ops import HttpxShellGatewayOps
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.client.ports.commands import CommandOutcomeUnknown
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.connector.herdr import HerdrAdapter, HerdrError
 from relaydeck.connector.link import ConnectorLink, LinkConfig
 from relaydeck.connector.source import HerdrSource
-from relaydeck.gateway.app import create_app
-from relaydeck.journal import digest_for
+from relaydeck.devtools.fakes.connector import FixtureAdapter
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.host.persistence.command_journal import digest_for
 from tests.security.helpers import auth, mint_token
 from tests.support.asgi_socket import AsgiSocket
 from tests.support.gateway.asgi_terminal import AsgiTerminal
@@ -122,7 +122,9 @@ def test_factory_observes_one_submitted_command_and_preserves_draft(
             return record
 
         factory = SessionFactory(
-            ops=HttpxShellGatewayOps("http://gw", get_token, http),
+            ops=HttpxShellGatewayOps(
+                "http://gw", get_token, http, picture_api_factory=PictureApiFactory
+            ),
             open_stream=lambda lease, ticket: AsgiTerminal(app, lease, ticket),
             submit_command=submit,
             prompt_text=None,
@@ -267,7 +269,7 @@ def test_reconnect_discards_late_command_observation_without_replay() -> None:
         store.reconnect()
         await reconciling.wait()
         complete.set()
-        assert await pending == SEND_IGNORED
+        assert await pending == SEND_SUPERSEDED
         assert store.submission == "unknown" and store.draft == "preserve late draft"
         # The old observation stays fenced; a fresh read by the same command id may prove
         # delivery and clear an unchanged draft, without resubmitting anything.
@@ -301,7 +303,9 @@ def test_expired_accepted_command_is_observed_without_dispatch(tmp_path: Path) -
             return result
 
         factory = SessionFactory(
-            HttpxShellGatewayOps("http://gw", get_token, http),
+            HttpxShellGatewayOps(
+                "http://gw", get_token, http, picture_api_factory=PictureApiFactory
+            ),
             lambda lease, ticket: AsgiTerminal(create_app(state), lease, ticket),
             submit,
             None,

@@ -7,17 +7,19 @@ from __future__ import annotations
 import time
 from typing import TYPE_CHECKING
 
-from relaydeck.client.features.terminal.input_modes import WORKFLOW_SHELL
 from relaydeck.client.features.terminal.renewal import lease_deadline_monotonic
 from relaydeck.client.features.terminal.session.keys import KeyHooks
 from relaydeck.client.features.terminal.session.lease import LeaseHooks
 from relaydeck.client.features.terminal.session.paste import PasteHooks
 from relaydeck.client.features.terminal.session.rendering import RendererHooks
 from relaydeck.client.features.terminal.session.selection import SelectionHooks
+from relaydeck.client.models.input.modes import WORKFLOW_SHELL
 
 if TYPE_CHECKING:
     from relaydeck.client.features.terminal.controller import TerminalController
-    from relaydeck.client.features.terminal.session.base import TerminalSessionBase
+    from relaydeck.client.features.terminal.session.context import (
+        SessionContext as TerminalSessionBase,
+    )
 
 
 def renderer_hooks(session: TerminalSessionBase) -> RendererHooks:

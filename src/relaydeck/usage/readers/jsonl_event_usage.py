@@ -1,36 +1,5 @@
-"""Format "jsonl-event-usage-v1": the usage representations in per-session event logs.
-
-Layout under the root: `sessions/YYYY/MM/DD/<id>/session.jsonl`. Two counted
-representations (schema events-4):
-
-- `goal_usage_attribution` lines carry `payload.event.record`: `usage_id` is
-  the event key (a replay replaces it), `owner.session_id` is the session,
-  `quantity` holds the counters. Only records with `quantity.reported=True`
-  are counted; unreported records are estimates, ignored quietly, so a later
-  reported correction is the only one that sums. Cached tokens provably sit
-  inside the input: total == input+output and input == cached+non-cached
-  hold exactly on real usage lines, and cached <= input / reasoning <= output
-  hold on every real record line, so input_uncached = input-cached with
-  cache_read = cached.
-- `automated_review_completed` lines carry `payload.event.usage` with
-  input/output/cached_input/non_cached/reasoning counters and no identity
-  keys; they are keyed by (file generation, byte offset) and attributed to
-  the directory session. Other usage kinds are deliberately not counted:
-  `model_completed` usage describes the same calls the records already count
-  (per-file 1:1 on real logs: counting both would double-count),
-  `resource_usage_sampled` carries RSS/CPU only, and
-  `context_projection_checkpoint` has unknown overlap.
-
-A counted line must have `record_type == "event"`. The documented contract's
-`payload_type`/`payload_schema_version` requirement is NOT adopted: those
-keys are absent from every real line (drift).
-
-Enrichment: the same-root `session-index.db` maps session ids to model and
-working folder (field allowlist: those two plus the id). A missing, corrupt
-or locked index means no enrichment, never an error. An event is verified
-iff the v4 contract holds for its line and a model is attached (owner join
-for records; the line's model dict, else the directory session join, for
-reviews). Model-less events stay stored but unverified.
+"""Read reported attribution and review-usage events with bounded model enrichment. Avoid
+overlapping usage kinds and retain model-less records as unverified.
 """
 
 from __future__ import annotations
@@ -67,7 +36,7 @@ from relaydeck.usage.readers._files import (
 from relaydeck.usage.readers._session_index import SessionIndex, load_session_index
 
 FORMAT_ID = "jsonl-event-usage-v1"
-SCHEMA = "events-4"  # v4: kinds, reviews, index enrichment; v3: per-file context
+SCHEMA = "events-4"  # Cursor schema covers counted kinds, index enrichment and per-file context.
 MIN_OCCURRED_MS = 946_684_800_000  # 2000-01-01T00:00:00Z
 FUTURE_SLACK_MS = 86_400_000  # one day
 
@@ -81,11 +50,9 @@ LOCK_FILENAME = ".session.lock"
 
 
 def path_session_keys(rel: str) -> tuple[str | None, str | None]:
-    """(session, None) from a session lock relpath; (None, None) otherwise.
-
-    Mirrors this reader's layout exactly (`sessions/YYYY/MM/DD/<id>/`): the
-    lock's session is the directory id, the same key the reader emits when the
-    log's records name that session. Anything else links nothing (fail closed).
+    """(session, None) from a session lock relpath; (None, None) otherwise. Mirrors this
+    reader's layout exactly (`sessions/YYYY/MM/DD/<id>/`): the lock's session is the
+    directory id, the same key the reader emits when the log's records name that session.
     """
     parts = rel.split("/")
     if len(parts) != 6 or parts[0] != "sessions" or parts[-1] != LOCK_FILENAME:

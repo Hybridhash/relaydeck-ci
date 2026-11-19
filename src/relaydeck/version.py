@@ -6,6 +6,7 @@ from the same pyproject.toml.
 
 from __future__ import annotations
 
+import re
 from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version
 
@@ -25,3 +26,18 @@ def _resolve() -> str:
 
 
 __version__ = _resolve()
+
+
+def _resolve_build_revision() -> str:
+    """Only packaged build metadata identifies the server; never inspect checkout paths."""
+    try:
+        stamp = import_module("relaydeck._build")
+    except ImportError:
+        return "unknown"
+    revision = getattr(stamp, "REVISION", None)
+    if type(revision) is not str or re.fullmatch(r"[0-9a-f]{40}", revision) is None:
+        return "unknown"
+    return revision
+
+
+__build_revision__ = _resolve_build_revision()

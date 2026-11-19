@@ -19,9 +19,7 @@ import httpx
 import pytest
 
 from relaydeck.client.features.composer.commands import agent_prompt_command
-from relaydeck.client.features.composer.domain import (
-    INPUT_MODE_COMPOSER,
-    INPUT_MODE_TOOLS_KEYS,
+from relaydeck.client.features.composer.model import (
     MISSING_WRITER_MESSAGE,
     SEND_BLOCKED_REVIEW,
     SEND_DELIVERED_VIA_ATTACH,
@@ -30,16 +28,18 @@ from relaydeck.client.features.composer.domain import (
     SUBMISSION_BLOCKED_INSERTED,
     ComposerStore,
 )
-from relaydeck.client.features.sync.transport import (
-    HttpxGatewayTransport,
-    TerminalSocket,
-    TransportError,
-)
 from relaydeck.client.features.terminal.controller import TerminalController
+from relaydeck.client.models.input.modes import INPUT_MODE_COMPOSER, INPUT_MODE_TOOLS_KEYS
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
+)
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.client.ports.transport import TerminalSocket, TransportError
 from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.contracts.wire import terminal as terminal_wire
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
 from tests.support.live_server import LiveGateway
 
 UPSTREAM = Path(__file__).resolve().parent.parent / "fixtures" / "upstream"
@@ -104,6 +104,7 @@ class _ScriptedSocket(TerminalSocket):
 
 def _controller(sock: _ScriptedSocket, generation: int = 3) -> TerminalController:
     return TerminalController(
+        stream_factory=_terminal_stream_factory,
         socket_factory=lambda ticket: sock,
         lease_id="lease-1",
         generation=generation,
@@ -182,7 +183,7 @@ def _store(
     prompt: Callable[[str, str], Awaitable[dict[str, Any]]],
     controller: TerminalController | None = None,
 ) -> ComposerStore:
-    from relaydeck.client.features.composer.domain import bind_blocked_writer
+    from relaydeck.client.features.composer.model import bind_blocked_writer
 
     store = ComposerStore(
         target="w1:p1",

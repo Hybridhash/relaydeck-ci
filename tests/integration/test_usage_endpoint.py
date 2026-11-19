@@ -9,15 +9,11 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from relaydeck.companion.config import UsageConfig, UsageSourceConfig
 from relaydeck.connector.source import translate_event
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.usage import (
-    CURSOR_TTL_MS,
-    MAX_REPORTS,
-    UsageService,
-    live_workspace_labels,
-)
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.features.usage_read.service import CURSOR_TTL_MS, MAX_REPORTS, UsageService
+from relaydeck.gateway.http.usage import live_workspace_labels
+from relaydeck.usage.config import UsageConfig, UsageSourceConfig
 from relaydeck.usage.contracts import (
     Basis,
     Batch,
@@ -30,6 +26,13 @@ from relaydeck.usage.contracts import (
 from relaydeck.usage.pricing import PriceTable
 from relaydeck.usage.store import SqliteUsageStore
 from tests.security.helpers import auth, make_state
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
+from tests.support.usage.results import wire_page
 from tests.support.usage.store import NOW
 
 SOURCE = "home-mac/kind-a/jsonl-message-usage-v1"
@@ -430,7 +433,7 @@ def test_space_filter_workspace_only_live_labels_and_fallback(endpoint):
 
 
 def test_web_companion_route_forwarding_preserves_session_guard(endpoint):
-    from relaydeck.client.serve import build_web_app
+    from relaydeck.companion.app.hosted_web.serve import build_web_app
 
     _, state, store, _, token, _ = endpoint
     populate(store, 1)
@@ -451,7 +454,7 @@ def test_web_companion_route_forwarding_preserves_session_guard(endpoint):
 
 
 def test_setup_evidence_is_frozen_and_independent_of_missing_quota(endpoint, tmp_path):
-    from relaydeck.usage.hook_setup import HookSetupCheck
+    from relaydeck.usage.api import HookSetupCheck
 
     client, state, _, service, token, clock = endpoint
     timer = [0.0]
@@ -505,7 +508,7 @@ def test_cancelled_request_keeps_query_admission_until_worker_finishes(endpoint,
 
     async def check():
         query = UsageQuery("home-mac", "2026-10-11", "2026-10-11")
-        task = asyncio.create_task(service.page(query, "owner", "device-a"))
+        task = asyncio.create_task(wire_page(service, query, "owner", "device-a"))
         while not started.is_set():
             await asyncio.sleep(0.001)
         task.cancel()
@@ -514,14 +517,14 @@ def test_cancelled_request_keeps_query_admission_until_worker_finishes(endpoint,
         # The worker still holds the slot: a different report waits, then gets `usage_busy`.
         service.wait_s = 0.05
         other = UsageQuery("home-mac", "2026-10-10", "2026-10-10")
-        refused = await service.page(other, "owner", "device-a")
+        refused = await wire_page(service, other, "owner", "device-a")
         assert refused.status_code == 503
         assert refused.headers["Retry-After"] == "2"
         assert json.loads(refused.body) == {"error": "usage_busy"}
         release.set()
         while service._busy:
             await asyncio.sleep(0.001)
-        assert (await service.page(query, "owner", "device-a")).status_code == 200
+        assert (await wire_page(service, query, "owner", "device-a")).status_code == 200
 
     asyncio.run(check())
 
@@ -588,10 +591,10 @@ def test_two_concurrent_identical_requests_both_succeed_with_one_computation(end
 
     async def check():
         query = UsageQuery("home-mac", "2026-10-11", "2026-10-11")
-        first = asyncio.create_task(service.page(query, "owner", "device-a"))
+        first = asyncio.create_task(wire_page(service, query, "owner", "device-a"))
         while not started.is_set():
             await asyncio.sleep(0.001)
-        second = asyncio.create_task(service.page(query, "owner", "device-a"))
+        second = asyncio.create_task(wire_page(service, query, "owner", "device-a"))
         await asyncio.sleep(0.02)
         assert not second.done()
         release.set()
@@ -611,10 +614,10 @@ def test_two_concurrent_different_requests_both_succeed_in_turn(endpoint, monkey
     async def check():
         today = UsageQuery("home-mac", "2026-10-11", "2026-10-11")
         week = UsageQuery("home-mac", "2026-10-05", "2026-10-11")
-        first = asyncio.create_task(service.page(today, "owner", "device-a"))
+        first = asyncio.create_task(wire_page(service, today, "owner", "device-a"))
         while not started.is_set():
             await asyncio.sleep(0.001)
-        second = asyncio.create_task(service.page(week, "owner", "device-a"))
+        second = asyncio.create_task(wire_page(service, week, "owner", "device-a"))
         await asyncio.sleep(0.02)
         assert not second.done()  # queued behind the running one, not refused
         release.set()

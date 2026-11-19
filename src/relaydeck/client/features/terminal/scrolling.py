@@ -22,10 +22,10 @@ from relaydeck_terminal.protocol import (
     input_cancel_epoch,
 )
 
-from relaydeck.client.components.design_system import tokens as console_tokens
-from relaydeck.client.features.terminal.events import click, spawn
+from relaydeck.client.design_system import tokens as console_tokens
 from relaydeck.client.features.terminal.input_modes import ROUTE_DROPPED, ROUTE_PTY
 from relaydeck.client.features.terminal.keys import encode_key
+from relaydeck.client.platform.flet.events import click, spawn
 
 _views: WeakKeyDictionary[Any, tuple[Any, ViewState]] = WeakKeyDictionary()
 _DEFAULT = ViewState(alt=False, at_bottom=True, mouse=False)
@@ -162,10 +162,8 @@ def last_lines(text: str, count: int) -> str:
 
 
 def is_scroll_input(origin: int, data: bytes, state: ViewState) -> bool:
-    """Accept only xterm's vertical wheel frames or alternate-buffer arrow fallback.
-
-    Mouse clicks, motion, releases, horizontal wheels and concatenated packets
-    remain rejected. This is not a general mouse-input authorization.
+    """Accept only xterm's vertical wheel frames or alternate-buffer arrow fallback. Mouse
+    clicks, motion, releases, horizontal wheels and concatenated packets remain rejected.
     """
     if not state.alt:
         return False
@@ -193,11 +191,10 @@ def is_scroll_input(origin: int, data: bytes, state: ViewState) -> bool:
 
 
 def use_open_at_end(session: Any) -> None:
-    """A terminal brought to the front shows its newest output.
-
-    The engine stops following the end once a touch moves its view, and a resync replaces the
-    screen without following again, so a terminal could reopen partway up its history. A fresh
-    engine follows the end already. The jump is queued in order with the output."""
+    """A terminal brought to the front shows its newest output. The engine stops following the
+    end once a touch moves its view, and a resync replaces the screen without following
+    again, so a terminal could reopen partway up its history.
+    """
     term = session.current_term
     foreground = bool(getattr(session, "foreground", False))
     # The first view report of an engine is what makes the jump possible; without it in the
@@ -225,13 +222,11 @@ def scroll_away(state: ViewState | None) -> bool:
 def use_terminal_scroll(
     session: Any, send: Callable[..., Awaitable[str]], *, touch: bool = False
 ) -> dict[str, Any]:
-    """One boundary for buttons and native touch/wheel across all width classes.
-
-    `touch` marks pointer-coarse clients (iPhone/iPad/Android): they never
-    emit a native wheel, so an alt+mouse app must not hide its scroll
-    buttons forever waiting for an encoder that never arrives. Unknown
-    encodings fall back to PageUp/PageDown; a learned wheel keeps
-    precedence everywhere."""
+    """One boundary for buttons and native touch/wheel across all width classes. `touch` marks
+    pointer-coarse clients (iPhone/iPad/Android): they never emit a native wheel, so an
+    alt+mouse app must not hide its scroll buttons forever waiting for an encoder that never
+    arrives.
+    """
     _tick, set_tick = ft.use_state(0)
     term = session.current_term
     state = view_state(term)
@@ -429,12 +424,9 @@ def ScrollButtons(
     on_tools: Callable[[], Any] | None = None,
     tools_open: bool = False,
 ) -> Any:
-    """A narrow, always-mounted Stack sibling; no wrapper around the engine.
-
-    `jump_only` keeps just "Jump to latest" (mouse clients scroll with the wheel).
-
-    `on_keyboard` adds the keyboard toggle below the scroll buttons
-    (touch devices in control only). `on_tools` adds the phone's tools button instead."""
+    """A narrow, always-mounted Stack sibling; no wrapper around the engine. `jump_only` keeps
+    just "Jump to latest" (mouse clients scroll with the wheel).
+    """
     current = ft.use_ref((binding, visible))
     current.current = (binding, visible)
     holding: Any = ft.use_ref(None)
@@ -499,10 +491,8 @@ def ScrollButtons(
                 on_long_press_end=cancel,
                 on_long_press_up=cancel,
                 on_long_press_cancel=cancel,
-                # The transparent painted box stops taps reaching the engine.
-                # Ignore only the inner button's pointer recognizers: pinned
-                # Flet always gives it a competing long-press recognizer.
-                # Its real keyboard focus/actions remain available.
+                # Block engine pointer input with a transparent painted box.
+                # Ignore the button recognizers while preserving real keyboard actions.
                 content=ft.Container(
                     width=32,
                     height=32,

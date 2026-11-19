@@ -1,7 +1,7 @@
-"""no AI agent or role names in tracked files.
+"""No AI agent or role names in tracked files.
 
-Every tracked text file outside temp/ is scanned, case-insensitively and
-word-bounded, so "solid" or "console" never match. The pattern is built from
+Every tracked text file outside temp/ is scanned for the names as whole words and inside
+identifiers, so "solid" or "console" never match. The pattern is built from
 split strings so this file itself stays clean and needs no exclusion.
 """
 
@@ -29,7 +29,17 @@ TOP_FILES = ("README.md", "pyproject.toml")
 SKIP_DIRS = {"__pycache__", "node_modules", "build", "dist"}
 # Split so this file itself never contains the banned words.
 WORDS = ("as" + "tra", "no" + "va", "s" + "ol", "son" + "net", "op" + "us", "ch" + "ief")
-BANNED = re.compile(r"\b(?:" + "|".join(WORDS) + r")\b", re.IGNORECASE)
+# A word is matched alone and inside identifiers (snake, camel and upper case), never inside a
+# longer ordinary word: "solid" and "console" stay clean.
+BANNED = re.compile(
+    "|".join(
+        (
+            r"(?<![A-Za-z])(?:" + "|".join(WORDS) + r")(?![a-z])",
+            r"(?<![A-Z])(?:" + "|".join(w.capitalize() for w in WORDS) + r")(?![a-z])",
+            r"(?<![A-Z])(?:" + "|".join(w.upper() for w in WORDS) + r")(?![A-Z])",
+        )
+    )
+)
 
 
 def _tracked_files() -> list[Path]:
@@ -73,8 +83,18 @@ def test_no_ai_role_names_in_tracked_files() -> None:
     assert hits == []
 
 
-def test_the_detector_matches_whole_words_case_insensitively() -> None:
-    assert len(WORDS) == 6 and BANNED.pattern.count("|") == 5
-    assert _hits(ROOT / "src" / "x.py", "the " + WORDS[0] + " review") != []
-    assert _hits(ROOT / "src" / "x.py", "THE " + WORDS[5].upper() + " RUNS") != []
-    assert _hits(ROOT / "src" / "x.py", "solid console opencode") == []
+def test_the_detector_matches_whole_words_and_identifiers() -> None:
+    assert len(WORDS) == 6
+    first, last = WORDS[0], WORDS[5]
+    assert _hits(ROOT / "src" / "x.py", "the " + first + " review") != []
+    assert _hits(ROOT / "src" / "x.py", "THE " + last.upper() + " RUNS") != []
+    assert _hits(ROOT / "src" / "x.py", first.upper() + "_COMMENT_EXECUTED") != []
+    assert _hits(ROOT / "src" / "x.py", "printf " + first.upper() + "_X") != []
+    assert _hits(ROOT / "src" / "x.py", "def check_" + first + "_reply()") != []
+    assert _hits(ROOT / "src" / "x.py", "class " + first.capitalize() + "Reply:") != []
+    assert _hits(ROOT / "src" / "x.py", "reviewed" + last.capitalize()) != []
+    assert _hits(ROOT / "src" / "x.py", "solid console opencode " + WORDS[2] + "id") == []
+    assert (
+        _hits(ROOT / "src" / "x.py", "SOLID CONSOLE UNSOLVED " + WORDS[2].capitalize() + "ution")
+        == []
+    )

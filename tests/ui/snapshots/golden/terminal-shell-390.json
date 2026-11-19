@@ -1,0 +1,3574 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "props": {
+                        "color": "#F5F2FF",
+                        "icon": 65957,
+                        "size": 16
+                       },
+                       "slot": "content",
+                       "type": "Icon"
+                      }
+                     ],
+                     "props": {
+                      "alignment": {
+                       "@": "Alignment",
+                       "x": 0.0,
+                       "y": 0.0
+                      },
+                      "bgcolor": "transparent",
+                      "border_radius": {
+                       "@": "BorderRadius",
+                       "bottom_left": 24,
+                       "bottom_right": 24,
+                       "top_left": 24,
+                       "top_right": 24
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "shell-back",
+                   "props": {
+                    "expand": false,
+                    "height": 28,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 24
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Back",
+                    "width": 28
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "key": "shell-title",
+                       "props": {
+                        "max_lines": 1,
+                        "overflow": {
+                         "enum": "TextOverflow",
+                         "value": "ellipsis"
+                        },
+                        "style": {
+                         "@": "TextStyle",
+                         "color": "#F5F2FF",
+                         "font_family": "Bricolage Grotesque SemiBold",
+                         "font_family_fallback": [
+                          "Noto Sans Symbols 2"
+                         ],
+                         "height": 1.3333333333333333,
+                         "size": 15,
+                         "weight": {
+                          "enum": "FontWeight",
+                          "value": "w600"
+                         }
+                        },
+                        "value": "Terminal term-1"
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "key": "[\"heading\", \"str\", \"shell-title\"]",
+                     "props": {
+                      "header": true
+                     },
+                     "slot": "controls",
+                     "type": "Semantics"
+                    }
+                   ],
+                   "props": {
+                    "expand": true,
+                    "spacing": 0,
+                    "tight": true
+                   },
+                   "slot": "controls",
+                   "type": "Column"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "props": {
+                        "bgcolor": "#C8F03C",
+                        "border_radius": 4,
+                        "height": 8,
+                        "width": 8
+                       },
+                       "slot": "content",
+                       "type": "Container"
+                      }
+                     ],
+                     "props": {
+                      "alignment": {
+                       "@": "Alignment",
+                       "x": 0.0,
+                       "y": 0.0
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    },
+                    {
+                     "children": [
+                      {
+                       "props": {
+                        "value": "Live"
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "slot": "items",
+                     "type": "PopupMenuItem"
+                    }
+                   ],
+                   "key": "terminal-connection-dot",
+                   "props": {
+                    "height": 28,
+                    "tooltip": "Live",
+                    "width": 28
+                   },
+                   "slot": "controls",
+                   "type": "PopupMenuButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "props": {
+                        "color": "#F5F2FF",
+                        "icon": 70362,
+                        "size": 16
+                       },
+                       "slot": "content",
+                       "type": "Icon"
+                      }
+                     ],
+                     "props": {
+                      "alignment": {
+                       "@": "Alignment",
+                       "x": 0.0,
+                       "y": 0.0
+                      },
+                      "height": 28,
+                      "width": 28
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    },
+                    {
+                     "children": [
+                      {
+                       "key": "shell-title-host",
+                       "props": {
+                        "color": "#D9D3F2",
+                        "value": "shell"
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "props": {
+                      "disabled": true
+                     },
+                     "slot": "items",
+                     "type": "PopupMenuItem"
+                    },
+                    {
+                     "children": [
+                      {
+                       "key": "terminal-window-size",
+                       "props": {
+                        "color": "#D9D3F2",
+                        "value": "0 x 0"
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "props": {
+                      "disabled": true
+                     },
+                     "slot": "items",
+                     "type": "PopupMenuItem"
+                    },
+                    {
+                     "children": [
+                      {
+                       "key": "terminal-window-status",
+                       "props": {
+                        "color": "#D9D3F2",
+                        "value": "connecting · control"
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "props": {
+                      "disabled": true
+                     },
+                     "slot": "items",
+                     "type": "PopupMenuItem"
+                    },
+                    {
+                     "children": [
+                      {
+                       "props": {
+                        "style": {
+                         "@": "TextStyle",
+                         "color": "#F5F2FF",
+                         "font_family": "Bricolage Grotesque SemiBold",
+                         "font_family_fallback": [
+                          "Noto Sans Symbols 2"
+                         ],
+                         "height": 1.2,
+                         "size": 14,
+                         "weight": {
+                          "enum": "FontWeight",
+                          "value": "w600"
+                         }
+                        },
+                        "value": "Release"
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "key": "shell-disconnect",
+                     "slot": "items",
+                     "type": "PopupMenuItem"
+                    },
+                    {
+                     "children": [
+                      {
+                       "props": {
+                        "style": {
+                         "@": "TextStyle",
+                         "color": "#F5F2FF",
+                         "font_family": "Bricolage Grotesque SemiBold",
+                         "font_family_fallback": [
+                          "Noto Sans Symbols 2"
+                         ],
+                         "height": 1.2,
+                         "size": 14,
+                         "weight": {
+                          "enum": "FontWeight",
+                          "value": "w600"
+                         }
+                        },
+                        "value": "New terminal"
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "key": "shell-more-new-terminal",
+                     "slot": "items",
+                     "type": "PopupMenuItem"
+                    },
+                    {
+                     "children": [
+                      {
+                       "props": {
+                        "style": {
+                         "@": "TextStyle",
+                         "color": "#F5F2FF",
+                         "font_family": "Bricolage Grotesque SemiBold",
+                         "font_family_fallback": [
+                          "Noto Sans Symbols 2"
+                         ],
+                         "height": 1.2,
+                         "size": 14,
+                         "weight": {
+                          "enum": "FontWeight",
+                          "value": "w600"
+                         }
+                        },
+                        "value": "Close terminal…"
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "key": "shell-close",
+                     "slot": "items",
+                     "type": "PopupMenuItem"
+                    }
+                   ],
+                   "key": "shell-more",
+                   "props": {
+                    "bgcolor": "transparent",
+                    "height": 28,
+                    "menu_position": {
+                     "enum": "PopupMenuPosition",
+                     "value": "under"
+                    },
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "padding": 0,
+                     "shape": {
+                      "@": "CircleBorder"
+                     },
+                     "side": {
+                      "@": "BorderSide",
+                      "color": "transparent",
+                      "width": 0
+                     }
+                    },
+                    "tooltip": "More actions",
+                    "width": 28
+                   },
+                   "slot": "controls",
+                   "type": "PopupMenuButton"
+                  }
+                 ],
+                 "key": "terminal-window-header",
+                 "props": {
+                  "height": 28,
+                  "spacing": 4
+                 },
+                 "slot": "content",
+                 "type": "Row"
+                }
+               ],
+               "key": "shell-header",
+               "slot": "controls",
+               "type": "Container"
+              },
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "key": "terminal-surface",
+                                     "props": {
+                                      "input_enabled": true
+                                     },
+                                     "slot": "content",
+                                     "type": "RelayDeckTerminal"
+                                    }
+                                   ],
+                                   "key": "terminal-engine-slot",
+                                   "slot": "controls",
+                                   "type": "Container"
+                                  },
+                                  {
+                                   "children": [
+                                    {
+                                     "children": [
+                                      {
+                                       "key": "terminal-cache-updating",
+                                       "props": {
+                                        "color": "#8E86B8",
+                                        "size": 11,
+                                        "value": "Updating…"
+                                       },
+                                       "slot": "controls",
+                                       "type": "Text"
+                                      },
+                                      {
+                                       "key": "terminal-cache-text",
+                                       "props": {
+                                        "color": "#F5F2FF",
+                                        "font_family": "JetBrains Mono",
+                                        "size": 13
+                                       },
+                                       "slot": "controls",
+                                       "type": "Text"
+                                      }
+                                     ],
+                                     "props": {
+                                      "auto_scroll": true,
+                                      "scroll": {
+                                       "enum": "ScrollMode",
+                                       "value": "auto"
+                                      }
+                                     },
+                                     "slot": "content",
+                                     "type": "Column"
+                                    }
+                                   ],
+                                   "key": "terminal-cached-screen",
+                                   "props": {
+                                    "bgcolor": "#0B0818",
+                                    "ignore_interactions": true,
+                                    "visible": false
+                                   },
+                                   "slot": "controls",
+                                   "type": "Container"
+                                  },
+                                  {
+                                   "children": [
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "key": "terminal-connecting-dot-0",
+                                           "props": {
+                                            "animate_offset": {
+                                             "@": "Animation",
+                                             "curve": {
+                                              "enum": "AnimationCurve",
+                                              "value": "easeInOut"
+                                             },
+                                             "duration": 320
+                                            },
+                                            "bgcolor": "#7443F5",
+                                            "border_radius": 4.0,
+                                            "height": 8,
+                                            "offset": {
+                                             "@": "Offset"
+                                            },
+                                            "width": 8
+                                           },
+                                           "slot": "controls",
+                                           "type": "Container"
+                                          },
+                                          {
+                                           "key": "terminal-connecting-dot-1",
+                                           "props": {
+                                            "animate_offset": {
+                                             "@": "Animation",
+                                             "curve": {
+                                              "enum": "AnimationCurve",
+                                              "value": "easeInOut"
+                                             },
+                                             "duration": 320
+                                            },
+                                            "bgcolor": "#7443F5",
+                                            "border_radius": 4.0,
+                                            "height": 8,
+                                            "offset": {
+                                             "@": "Offset"
+                                            },
+                                            "width": 8
+                                           },
+                                           "slot": "controls",
+                                           "type": "Container"
+                                          },
+                                          {
+                                           "key": "terminal-connecting-dot-2",
+                                           "props": {
+                                            "animate_offset": {
+                                             "@": "Animation",
+                                             "curve": {
+                                              "enum": "AnimationCurve",
+                                              "value": "easeInOut"
+                                             },
+                                             "duration": 320
+                                            },
+                                            "bgcolor": "#7443F5",
+                                            "border_radius": 4.0,
+                                            "height": 8,
+                                            "offset": {
+                                             "@": "Offset"
+                                            },
+                                            "width": 8
+                                           },
+                                           "slot": "controls",
+                                           "type": "Container"
+                                          },
+                                          {
+                                           "props": {
+                                            "width": 4
+                                           },
+                                           "slot": "controls",
+                                           "type": "Container"
+                                          },
+                                          {
+                                           "props": {
+                                            "color": "#B7AFDA",
+                                            "size": 12,
+                                            "value": "Connecting…"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "spacing": 6,
+                                          "tight": true
+                                         },
+                                         "slot": "content",
+                                         "type": "Row"
+                                        }
+                                       ],
+                                       "props": {
+                                        "bgcolor": "#2B2356",
+                                        "border_radius": 16.0,
+                                        "height": 32,
+                                        "padding": {
+                                         "@": "Padding",
+                                         "left": 14,
+                                         "right": 14
+                                        }
+                                       },
+                                       "slot": "content",
+                                       "type": "Container"
+                                      }
+                                     ],
+                                     "key": "terminal-connecting",
+                                     "props": {
+                                      "alignment": {
+                                       "@": "Alignment",
+                                       "x": 0.0,
+                                       "y": 1.0
+                                      },
+                                      "ignore_interactions": true,
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 16
+                                      },
+                                      "visible": false
+                                     },
+                                     "slot": "body",
+                                     "type": "Container"
+                                    }
+                                   ],
+                                   "key": "terminal-connecting-layer",
+                                   "slot": "controls",
+                                   "type": "Component:ConnectingDots"
+                                  },
+                                  {
+                                   "children": [
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "children": [
+                                                {
+                                                 "key": "terminal-scroll-up",
+                                                 "props": {
+                                                  "height": 32,
+                                                  "icon": 69529,
+                                                  "icon_size": 20,
+                                                  "padding": 0,
+                                                  "style": {
+                                                   "@": "ButtonStyle",
+                                                   "bgcolor": "#343434,0.35",
+                                                   "color": "#FFFFFF",
+                                                   "shape": {
+                                                    "@": "CircleBorder"
+                                                   }
+                                                  },
+                                                  "width": 32
+                                                 },
+                                                 "slot": "content",
+                                                 "type": "IconButton"
+                                                }
+                                               ],
+                                               "props": {
+                                                "ignore_interactions": true
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "props": {
+                                              "bgcolor": "transparent",
+                                              "height": 32,
+                                              "width": 32
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "key": "terminal-scroll-up-hold",
+                                           "props": {
+                                            "exclude_from_semantics": true
+                                           },
+                                           "slot": "content",
+                                           "type": "GestureDetector"
+                                          }
+                                         ],
+                                         "key": "terminal-scroll-up-semantics",
+                                         "props": {
+                                          "button": true,
+                                          "exclude_semantics": true,
+                                          "label": "Scroll up"
+                                         },
+                                         "slot": "controls",
+                                         "type": "Semantics"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "children": [
+                                                {
+                                                 "key": "terminal-scroll-down",
+                                                 "props": {
+                                                  "height": 32,
+                                                  "icon": 69517,
+                                                  "icon_size": 20,
+                                                  "padding": 0,
+                                                  "style": {
+                                                   "@": "ButtonStyle",
+                                                   "bgcolor": "#343434,0.35",
+                                                   "color": "#FFFFFF",
+                                                   "shape": {
+                                                    "@": "CircleBorder"
+                                                   }
+                                                  },
+                                                  "width": 32
+                                                 },
+                                                 "slot": "content",
+                                                 "type": "IconButton"
+                                                }
+                                               ],
+                                               "props": {
+                                                "ignore_interactions": true
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "props": {
+                                              "bgcolor": "transparent",
+                                              "height": 32,
+                                              "width": 32
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "key": "terminal-scroll-down-hold",
+                                           "props": {
+                                            "exclude_from_semantics": true
+                                           },
+                                           "slot": "content",
+                                           "type": "GestureDetector"
+                                          }
+                                         ],
+                                         "key": "terminal-scroll-down-semantics",
+                                         "props": {
+                                          "button": true,
+                                          "exclude_semantics": true,
+                                          "label": "Scroll down"
+                                         },
+                                         "slot": "controls",
+                                         "type": "Semantics"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "children": [
+                                                {
+                                                 "key": "terminal-scroll-latest",
+                                                 "props": {
+                                                  "height": 32,
+                                                  "icon": 73806,
+                                                  "icon_size": 20,
+                                                  "padding": 0,
+                                                  "style": {
+                                                   "@": "ButtonStyle",
+                                                   "bgcolor": "#343434,0.35",
+                                                   "color": "#FFFFFF",
+                                                   "shape": {
+                                                    "@": "CircleBorder"
+                                                   }
+                                                  },
+                                                  "visible": false,
+                                                  "width": 32
+                                                 },
+                                                 "slot": "content",
+                                                 "type": "IconButton"
+                                                }
+                                               ],
+                                               "props": {
+                                                "ignore_interactions": true
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "props": {
+                                              "bgcolor": "transparent",
+                                              "height": 32,
+                                              "width": 32
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "key": "terminal-scroll-latest-hold",
+                                           "props": {
+                                            "exclude_from_semantics": true
+                                           },
+                                           "slot": "content",
+                                           "type": "GestureDetector"
+                                          }
+                                         ],
+                                         "key": "terminal-scroll-latest-semantics",
+                                         "props": {
+                                          "button": true,
+                                          "exclude_semantics": true,
+                                          "label": "Jump to latest",
+                                          "visible": false
+                                         },
+                                         "slot": "controls",
+                                         "type": "Semantics"
+                                        }
+                                       ],
+                                       "key": "terminal-scroll-buttons",
+                                       "props": {
+                                        "spacing": 6,
+                                        "tight": true
+                                       },
+                                       "slot": "controls",
+                                       "type": "Column"
+                                      }
+                                     ],
+                                     "key": "terminal-scroll-overlay",
+                                     "props": {
+                                      "alignment": {
+                                       "enum": "MainAxisAlignment",
+                                       "value": "center"
+                                      },
+                                      "bottom": 0,
+                                      "horizontal_alignment": {
+                                       "enum": "CrossAxisAlignment",
+                                       "value": "center"
+                                      },
+                                      "right": 8,
+                                      "spacing": 0,
+                                      "top": 0,
+                                      "width": 32
+                                     },
+                                     "slot": "body",
+                                     "type": "Column"
+                                    }
+                                   ],
+                                   "key": "terminal-scroll-controls",
+                                   "slot": "controls",
+                                   "type": "Component:ScrollButtons"
+                                  }
+                                 ],
+                                 "key": "terminal-viewport-stack",
+                                 "props": {
+                                  "expand": true,
+                                  "fit": {
+                                   "enum": "StackFit",
+                                   "value": "expand"
+                                  }
+                                 },
+                                 "slot": "content",
+                                 "type": "Stack"
+                                }
+                               ],
+                               "key": "terminal-wrap",
+                               "props": {
+                                "expand": true,
+                                "padding": {
+                                 "@": "Padding"
+                                }
+                               },
+                               "slot": "controls",
+                               "type": "Container"
+                              }
+                             ],
+                             "props": {
+                              "spacing": 0
+                             },
+                             "slot": "content",
+                             "type": "Column"
+                            }
+                           ],
+                           "key": "terminal-area",
+                           "props": {
+                            "bgcolor": "#0B0818",
+                            "border_radius": 0,
+                            "clip_behavior": {
+                             "enum": "ClipBehavior",
+                             "value": "antiAlias"
+                            },
+                            "expand": true
+                           },
+                           "slot": "controls",
+                           "type": "Container"
+                          }
+                         ],
+                         "props": {
+                          "expand": true,
+                          "horizontal_alignment": {
+                           "enum": "CrossAxisAlignment",
+                           "value": "stretch"
+                          },
+                          "spacing": 0
+                         },
+                         "slot": "content",
+                         "type": "Column"
+                        }
+                       ],
+                       "key": "terminal-live-body",
+                       "slot": "controls",
+                       "type": "Container"
+                      }
+                     ],
+                     "key": "terminal-surface-stack",
+                     "props": {
+                      "expand": true,
+                      "fit": {
+                       "enum": "StackFit",
+                       "value": "expand"
+                      }
+                     },
+                     "slot": "body",
+                     "type": "Stack"
+                    }
+                   ],
+                   "slot": "content",
+                   "type": "Component:TerminalScreen"
+                  }
+                 ],
+                 "key": "terminal-direct-tap",
+                 "slot": "content",
+                 "type": "GestureDetector"
+                }
+               ],
+               "key": "shell-terminal-host",
+               "props": {
+                "expand": true
+               },
+               "slot": "controls",
+               "type": "Container"
+              },
+              {
+               "key": "picture-upload-status",
+               "slot": "controls",
+               "type": "Column"
+              },
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "Esc"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-esc",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Escape"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "Tab"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-tab",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Tab"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "S-Tab"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-shift-tab",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 56
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Shift Tab"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          }
+                         ],
+                         "key": "keybar-group-0",
+                         "props": {
+                          "spacing": 6,
+                          "tight": true
+                         },
+                         "slot": "controls",
+                         "type": "Row"
+                        },
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "bgcolor": "#3B3270",
+                            "width": 1
+                           },
+                           "slot": "content",
+                           "type": "Container"
+                          }
+                         ],
+                         "props": {
+                          "height": 18,
+                          "padding": {
+                           "@": "Padding",
+                           "left": 8,
+                           "right": 8
+                          },
+                          "width": 17
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "icon": 65957,
+                                  "size": 16
+                                 },
+                                 "slot": "content",
+                                 "type": "Icon"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-left",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Left Arrow"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "icon": 66025,
+                                  "size": 16
+                                 },
+                                 "slot": "content",
+                                 "type": "Icon"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-up",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Up Arrow"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "icon": 65985,
+                                  "size": 16
+                                 },
+                                 "slot": "content",
+                                 "type": "Icon"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-down",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Down Arrow"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "icon": 66001,
+                                  "size": 16
+                                 },
+                                 "slot": "content",
+                                 "type": "Icon"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-right",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Right Arrow"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          }
+                         ],
+                         "key": "keybar-group-1",
+                         "props": {
+                          "spacing": 6,
+                          "tight": true
+                         },
+                         "slot": "controls",
+                         "type": "Row"
+                        },
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "bgcolor": "#3B3270",
+                            "width": 1
+                           },
+                           "slot": "content",
+                           "type": "Container"
+                          }
+                         ],
+                         "props": {
+                          "height": 18,
+                          "padding": {
+                           "@": "Padding",
+                           "left": 8,
+                           "right": 8
+                          },
+                          "width": 17
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "icon": 66192,
+                                  "size": 16
+                                 },
+                                 "slot": "content",
+                                 "type": "Icon"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-backspace",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Backspace"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "icon": 69578,
+                                  "size": 16
+                                 },
+                                 "slot": "content",
+                                 "type": "Icon"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-enter",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Enter"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          }
+                         ],
+                         "key": "keybar-group-2",
+                         "props": {
+                          "spacing": 6,
+                          "tight": true
+                         },
+                         "slot": "controls",
+                         "type": "Row"
+                        },
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "bgcolor": "#3B3270",
+                            "width": 1
+                           },
+                           "slot": "content",
+                           "type": "Container"
+                          }
+                         ],
+                         "props": {
+                          "height": 18,
+                          "padding": {
+                           "@": "Padding",
+                           "left": 8,
+                           "right": 8
+                          },
+                          "width": 17
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "Ctrl"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "mod-ctrl",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 48
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Control"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "Alt"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "mod-alt",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Alt"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          }
+                         ],
+                         "key": "keybar-group-3",
+                         "props": {
+                          "spacing": 6,
+                          "tight": true
+                         },
+                         "slot": "controls",
+                         "type": "Row"
+                        },
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "bgcolor": "#3B3270",
+                            "width": 1
+                           },
+                           "slot": "content",
+                           "type": "Container"
+                          }
+                         ],
+                         "props": {
+                          "height": 18,
+                          "padding": {
+                           "@": "Padding",
+                           "left": 8,
+                           "right": 8
+                          },
+                          "width": 17
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "^C"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-ctrl-c",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Control C"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "^D"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-ctrl-d",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Control D"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "^Z"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-ctrl-z",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Control Z"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "^L"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-ctrl-l",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Control L"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "^R"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-ctrl-r",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Control R"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          }
+                         ],
+                         "key": "keybar-group-4",
+                         "props": {
+                          "spacing": 6,
+                          "tight": true
+                         },
+                         "slot": "controls",
+                         "type": "Row"
+                        },
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "bgcolor": "#3B3270",
+                            "width": 1
+                           },
+                           "slot": "content",
+                           "type": "Container"
+                          }
+                         ],
+                         "props": {
+                          "height": 18,
+                          "padding": {
+                           "@": "Padding",
+                           "left": 8,
+                           "right": 8
+                          },
+                          "width": 17
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "/"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-slash",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Slash"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "~"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-tilde",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Tilde"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "|"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-pipe",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Pipe"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "-"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "key-minus",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 40
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Minus"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          }
+                         ],
+                         "key": "keybar-group-5",
+                         "props": {
+                          "spacing": 6,
+                          "tight": true
+                         },
+                         "slot": "controls",
+                         "type": "Row"
+                        },
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "bgcolor": "#3B3270",
+                            "width": 1
+                           },
+                           "slot": "content",
+                           "type": "Container"
+                          }
+                         ],
+                         "props": {
+                          "height": 18,
+                          "padding": {
+                           "@": "Padding",
+                           "left": 8,
+                           "right": 8
+                          },
+                          "width": 17
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "Paste"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "shell-paste",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 56
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Paste"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "no_wrap": true,
+                                  "size": 13,
+                                  "value": "Select"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#2B2356",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": 8,
+                                "height": 34
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "terminal-select-text",
+                             "props": {
+                              "height": 40,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.FOCUSED": "#7443F5",
+                                "ControlState.HOVERED": "#2B2356"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 8
+                               },
+                               "side": {
+                                "@": "BorderSide",
+                                "color": "transparent",
+                                "width": 0
+                               }
+                              },
+                              "width": 64
+                             },
+                             "slot": "content",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "props": {
+                            "button": true,
+                            "label": "Select text"
+                           },
+                           "slot": "controls",
+                           "type": "Semantics"
+                          }
+                         ],
+                         "key": "keybar-group-6",
+                         "props": {
+                          "spacing": 6,
+                          "tight": true
+                         },
+                         "slot": "controls",
+                         "type": "Row"
+                        }
+                       ],
+                       "key": "terminal-key-row",
+                       "props": {
+                        "run_spacing": 0,
+                        "scroll": {
+                         "enum": "ScrollMode",
+                         "value": "hidden"
+                        },
+                        "spacing": 0
+                       },
+                       "slot": "controls",
+                       "type": "Row"
+                      },
+                      {
+                       "key": "keybar-fade",
+                       "props": {
+                        "bottom": 0,
+                        "gradient": {
+                         "@": "LinearGradient",
+                         "colors": [
+                          "#00110C22",
+                          "#191335"
+                         ]
+                        },
+                        "ignore_interactions": true,
+                        "right": 0,
+                        "top": 0,
+                        "width": 16
+                       },
+                       "slot": "controls",
+                       "type": "Container"
+                      }
+                     ],
+                     "slot": "content",
+                     "type": "Stack"
+                    }
+                   ],
+                   "key": "mobile-keybar",
+                   "props": {
+                    "height": 40
+                   },
+                   "slot": "controls",
+                   "type": "Container"
+                  },
+                  {
+                   "children": [
+                    {
+                     "key": "terminal-keybar-error",
+                     "props": {
+                      "size": 12,
+                      "value": "Action unavailable. Check the terminal before continuing."
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "terminal-keybar-error-region",
+                   "props": {
+                    "live_region": true,
+                    "visible": false
+                   },
+                   "slot": "controls",
+                   "type": "Semantics"
+                  }
+                 ],
+                 "key": "mobile-keybar-feedback",
+                 "props": {
+                  "spacing": 4,
+                  "tight": true
+                 },
+                 "slot": "body",
+                 "type": "Column"
+                }
+               ],
+               "key": "shell-mobile-keybar",
+               "slot": "controls",
+               "type": "Component:MobileKeyBar"
+              },
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "key": "shell-mode-text-typing",
+                       "props": {
+                        "autocorrect": false,
+                        "capitalization": {
+                         "enum": "TextCapitalization",
+                         "value": "none"
+                        },
+                        "color": "transparent",
+                        "content_padding": 8,
+                        "cursor_color": "#A98BFF",
+                        "enable_suggestions": false,
+                        "fill_color": "#2B2356",
+                        "filled": true,
+                        "fit_parent_size": true,
+                        "height": 36,
+                        "hint_text": "Type to terminal",
+                        "multiline": true,
+                        "prefix": "Type to terminal  ",
+                        "selection": {
+                         "@": "TextSelection",
+                         "base_offset": 2,
+                         "extent_offset": 2
+                        },
+                        "size_constraints": {
+                         "@": "BoxConstraints",
+                         "min_height": 36
+                        },
+                        "smart_dashes_type": false,
+                        "smart_quotes_type": false,
+                        "text_size": 15,
+                        "tooltip": "Type directly to the terminal",
+                        "value": "  "
+                       },
+                       "slot": "content",
+                       "type": "TextField"
+                      }
+                     ],
+                     "key": "shell-mode-text-typing:reset:<epoch>",
+                     "slot": "body",
+                     "type": "Container"
+                    }
+                   ],
+                   "slot": "content",
+                   "type": "Component:DirectTypingField"
+                  }
+                 ],
+                 "key": "shell-typing-slot",
+                 "props": {
+                  "expand": true,
+                  "height": 36
+                 },
+                 "slot": "controls",
+                 "type": "Container"
+                },
+                {
+                 "children": [
+                  {
+                   "key": "terminal-attach-picture",
+                   "props": {
+                    "action": {
+                     "@": "PickFiles",
+                     "cancel_upload_on_window_blur": false,
+                     "file_picker": {
+                      "@": "FilePicker"
+                     },
+                     "file_type": {
+                      "enum": "FilePickerFileType",
+                      "value": "image"
+                     },
+                     "method": "pick_files"
+                    },
+                    "disabled": true,
+                    "height": 36,
+                    "icon": 66099,
+                    "icon_size": 18,
+                    "width": 32
+                   },
+                   "slot": "content",
+                   "type": "IconButton"
+                  }
+                 ],
+                 "props": {
+                  "button": true,
+                  "label": "Attach picture"
+                 },
+                 "slot": "controls",
+                 "type": "Semantics"
+                },
+                {
+                 "children": [
+                  {
+                   "key": "shell-keyboard-toggle",
+                   "props": {
+                    "height": 32,
+                    "icon": 69512,
+                    "icon_size": 16,
+                    "padding": 0,
+                    "selected": true,
+                    "selected_icon_color": "#A98BFF",
+                    "width": 32
+                   },
+                   "slot": "content",
+                   "type": "IconButton"
+                  }
+                 ],
+                 "key": "shell-keyboard-semantics",
+                 "props": {
+                  "button": true,
+                  "label": "Terminal keyboard",
+                  "selected": true
+                 },
+                 "slot": "controls",
+                 "type": "Semantics"
+                }
+               ],
+               "key": "shell-keyboard-row",
+               "props": {
+                "alignment": {
+                 "enum": "MainAxisAlignment",
+                 "value": "end"
+                },
+                "height": 40
+               },
+               "slot": "controls",
+               "type": "Row"
+              },
+              {
+               "key": "shell-direct-paste-hint",
+               "props": {
+                "color": "#B7AFDA",
+                "size": 12,
+                "value": "Long-press here and choose Paste",
+                "visible": false
+               },
+               "slot": "controls",
+               "type": "Text"
+              }
+             ],
+             "key": "shell-screen",
+             "props": {
+              "expand": true,
+              "spacing": 0
+             },
+             "slot": "content",
+             "type": "Column"
+            }
+           ],
+           "key": "shell-window",
+           "props": {
+            "expand": true,
+            "padding": 0
+           },
+           "slot": "controls",
+           "type": "Container"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "props": {
+                    "color": "#F5F2FF",
+                    "expand": true,
+                    "size": 18,
+                    "value": "Select text"
+                   },
+                   "slot": "controls",
+                   "type": "Text"
+                  },
+                  {
+                   "key": "phone-select-done",
+                   "props": {
+                    "content": "Done",
+                    "height": 48
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  }
+                 ],
+                 "slot": "controls",
+                 "type": "Row"
+                },
+                {
+                 "props": {
+                  "color": "#F5F2FF",
+                  "size": 13,
+                  "value": "Long-press text to select and use the native copy menu."
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "key": "phone-select-error",
+                 "props": {
+                  "color": "#F5F2FF",
+                  "visible": false
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "key": "phone-select-alt-hint",
+                 "props": {
+                  "color": "#F5F2FF",
+                  "size": 12,
+                  "value": "Showing this screen only. Scroll with ▲ (in control) to reach older output, then Select again.",
+                  "visible": false
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "key": "phone-select-field",
+                       "props": {
+                        "style": {
+                         "@": "TextStyle",
+                         "color": "#F5F2FF",
+                         "font_family": "JetBrains Mono",
+                         "size": 14.0
+                        }
+                       },
+                       "slot": "content",
+                       "type": "Text"
+                      }
+                     ],
+                     "key": "phone-select-area",
+                     "slot": "controls",
+                     "type": "SelectionArea"
+                    }
+                   ],
+                   "key": "phone-select-text-scroll",
+                   "props": {
+                    "expand": true,
+                    "horizontal_alignment": {
+                     "enum": "CrossAxisAlignment",
+                     "value": "stretch"
+                    },
+                    "scroll": {
+                     "enum": "ScrollMode",
+                     "value": "auto"
+                    },
+                    "spacing": 0
+                   },
+                   "slot": "controls",
+                   "type": "Column"
+                  }
+                 ],
+                 "key": "phone-select-text-row",
+                 "props": {
+                  "expand": true,
+                  "vertical_alignment": {
+                   "enum": "CrossAxisAlignment",
+                   "value": "stretch"
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Row"
+                },
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "color": "#F5F2FF",
+                      "size": 13,
+                      "text_align": {
+                       "enum": "TextAlign",
+                       "value": "center"
+                      },
+                      "value": "Wrap lines"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "phone-select-wrap",
+                   "props": {
+                    "disabled": true,
+                    "expand": true,
+                    "height": 48,
+                    "tooltip": "Wrap lines"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  }
+                 ],
+                 "slot": "controls",
+                 "type": "Row"
+                },
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "color": "#B7AFDA",
+                      "size": 13,
+                      "text_align": {
+                       "enum": "TextAlign",
+                       "value": "center"
+                      },
+                      "value": "Copy visible screen"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "phone-select-copy-visible",
+                   "props": {
+                    "disabled": true,
+                    "expand": true,
+                    "height": 48,
+                    "tooltip": "Viewport snapshot support is pending; use Copy selection."
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "color": "#F5F2FF",
+                      "size": 13,
+                      "text_align": {
+                       "enum": "TextAlign",
+                       "value": "center"
+                      },
+                      "value": "Copy last 100 lines"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "phone-select-copy-last-100",
+                   "props": {
+                    "disabled": true,
+                    "expand": true,
+                    "height": 48,
+                    "tooltip": "Copy last 100 lines"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  }
+                 ],
+                 "slot": "controls",
+                 "type": "Row"
+                },
+                {
+                 "key": "phone-select-visible-unavailable",
+                 "props": {
+                  "color": "#F5F2FF",
+                  "size": 12,
+                  "value": "Visible-screen copy is unavailable. Use the other copy actions."
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "color": "#F5F2FF",
+                      "size": 13,
+                      "text_align": {
+                       "enum": "TextAlign",
+                       "value": "center"
+                      },
+                      "value": "Copy all"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "phone-select-copy-all",
+                   "props": {
+                    "disabled": true,
+                    "expand": true,
+                    "height": 48,
+                    "tooltip": "Copy all"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "color": "#B7AFDA",
+                      "size": 13,
+                      "text_align": {
+                       "enum": "TextAlign",
+                       "value": "center"
+                      },
+                      "value": "Copy selection"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "phone-select-copy-selection",
+                   "props": {
+                    "disabled": true,
+                    "expand": true,
+                    "height": 48,
+                    "tooltip": "Copy selection"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  }
+                 ],
+                 "slot": "controls",
+                 "type": "Row"
+                },
+                {
+                 "key": "phone-select-result",
+                 "props": {
+                  "color": "#F5F2FF",
+                  "semantics_label": "",
+                  "visible": false
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                }
+               ],
+               "props": {
+                "expand": true,
+                "horizontal_alignment": {
+                 "enum": "CrossAxisAlignment",
+                 "value": "stretch"
+                },
+                "spacing": 8
+               },
+               "slot": "content",
+               "type": "Column"
+              }
+             ],
+             "key": "phone-select-sheet",
+             "props": {
+              "bgcolor": "#191335",
+              "padding": 12,
+              "visible": false
+             },
+             "slot": "body",
+             "type": "Container"
+            }
+           ],
+           "slot": "controls",
+           "type": "Component:PhoneSelectionSheet"
+          }
+         ],
+         "key": "phone-select-stack",
+         "props": {
+          "expand": true,
+          "fit": {
+           "enum": "StackFit",
+           "value": "expand"
+          }
+         },
+         "slot": "body",
+         "type": "Stack"
+        }
+       ],
+       "slot": "content",
+       "type": "Component:ShellScreen"
+      }
+     ],
+     "key": "shell-picture-paste",
+     "props": {
+      "binding": "<hex>",
+      "expand": true,
+      "pictures": false
+     },
+     "slot": "body",
+     "type": "RelayDeckPicturePaste"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:mount_shell_screen"
+  }
+ ]
+}

@@ -1,0 +1,119 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "key": "terminal-connecting-dot-0",
+             "props": {
+              "bgcolor": "#7443F5",
+              "border_radius": 4.0,
+              "height": 8,
+              "offset": {
+               "@": "Offset"
+              },
+              "width": 8
+             },
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "key": "terminal-connecting-dot-1",
+             "props": {
+              "bgcolor": "#7443F5",
+              "border_radius": 4.0,
+              "height": 8,
+              "offset": {
+               "@": "Offset"
+              },
+              "width": 8
+             },
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "key": "terminal-connecting-dot-2",
+             "props": {
+              "bgcolor": "#7443F5",
+              "border_radius": 4.0,
+              "height": 8,
+              "offset": {
+               "@": "Offset"
+              },
+              "width": 8
+             },
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "props": {
+              "width": 4
+             },
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "props": {
+              "color": "#B7AFDA",
+              "size": 12,
+              "value": "Connecting…"
+             },
+             "slot": "controls",
+             "type": "Text"
+            }
+           ],
+           "props": {
+            "spacing": 6,
+            "tight": true
+           },
+           "slot": "content",
+           "type": "Row"
+          }
+         ],
+         "props": {
+          "bgcolor": "#2B2356",
+          "border_radius": 16.0,
+          "height": 32,
+          "padding": {
+           "@": "Padding",
+           "left": 14,
+           "right": 14
+          }
+         },
+         "slot": "content",
+         "type": "Container"
+        }
+       ],
+       "key": "terminal-connecting",
+       "props": {
+        "alignment": {
+         "@": "Alignment",
+         "x": 0.0,
+         "y": 1.0
+        },
+        "ignore_interactions": true,
+        "padding": {
+         "@": "Padding",
+         "bottom": 16
+        }
+       },
+       "slot": "body",
+       "type": "Container"
+      }
+     ],
+     "slot": "controls",
+     "type": "Component:ConnectingDots"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

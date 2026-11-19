@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from relaydeck.journal import digest_for
+from relaydeck.host.persistence.command_journal import digest_for
 
 NOW = 1_700_000_000_000
 

@@ -121,7 +121,8 @@ class PicturePasteSource {
             c.size == candidate.size &&
             c.mime == candidate.mime &&
             c.name == candidate.name)];
-        final requestId = 'p${DateTime.now().microsecondsSinceEpoch}-${_counter++}';
+        final requestId =
+            'p${DateTime.now().microsecondsSinceEpoch}-${_counter++}';
         _ledger.claim(requestId, region.ownerId);
         _retain(requestId, file, region.ownerId);
         region.onOffer(requestId, candidate.normalizedMime, candidate.size);
@@ -161,7 +162,8 @@ class PicturePasteSource {
         redirect: 'error',
         signal: controller.signal,
       );
-      final response = await web.window.fetch(target.toString().toJS, init).toDart;
+      final response =
+          await web.window.fetch(target.toString().toJS, init).toDart;
       return response.status == 204 ? 'ok' : 'rejected';
     } catch (_) {
       return _pending.containsKey(requestId) ? 'network' : 'aborted';

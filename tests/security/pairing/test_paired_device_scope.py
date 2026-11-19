@@ -8,7 +8,8 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 from relaydeck.contracts.pairing import DEVICE_CAPABILITIES
-from relaydeck.gateway.app import GatewayState, create_app
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
 from tests.security.helpers import auth
 from tests.support.pairing import ORIGIN, foundation, proof
 
