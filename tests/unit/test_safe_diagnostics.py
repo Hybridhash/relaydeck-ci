@@ -1,4 +1,4 @@
-"""Q3: callback failures log fixed categories only; the secret scanner never echoes matches."""
+"""Callback failures log fixed categories only; the secret scanner never echoes matches."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.diagnostics import failure_category, safe_stage
-from relaydeck.client.features.terminal.events import spawn
+from relaydeck.client.platform.diagnostics.client import failure_category, safe_stage
+from relaydeck.client.platform.flet.events import spawn
 
 MARKER = "SYNTHETIC-SECRET-MARKER-9f3c"
 
@@ -72,6 +72,49 @@ def test_ui_resume_incomplete_logs_fixed_reason_only(
     asyncio.run(scenario())
 
 
+def test_ui_resume_failure_logs_a_category_not_the_exception(
+    caplog: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from relaydeck.client.features.terminal.ui_resume import TerminalUIResumes
+    from tests.support.scripted_sessions import make_scripted_sessions
+    from tests.support.terminal.resume import _open_term
+
+    monkeypatch.setattr(logging.getLogger("relaydeck.client.typing_split"), "propagate", True)
+
+    async def scenario() -> None:
+        caplog.set_level("INFO", logger="relaydeck.client.typing_split")
+        _app, term, _conn, _channel = await _open_term()
+        scripted = make_scripted_sessions()
+        session = scripted.factory.make_agent(
+            host_id="mac", host_epoch="h1", agent_id="a", target="a"
+        )
+        session.open()
+        await session.confirm_takeover()
+        session.bind_view(term, write=lambda *_: True)
+
+        async def leaky(**kwargs: Any) -> None:
+            raise _Leaky()
+
+        monkeypatch.setattr(term, "rebind_resumed", leaky)
+        resumes = TerminalUIResumes()
+        try:
+            task = resumes.start(
+                session, transport=object(), current=lambda: True, closed=asyncio.Event()
+            )
+            assert task is not None
+            outcome = await task
+            assert outcome is not None and outcome.reason == "resume_failed"
+        finally:
+            await resumes.close()
+            await session.dispose()
+
+    asyncio.run(scenario())
+    failed = [r for r in caplog.records if r.getMessage().startswith("ui_resume_failed")]
+    assert [r.getMessage() for r in failed] == ["ui_resume_failed category=ValueError"]
+    assert all(r.exc_info is None and r.exc_text is None for r in failed)
+    assert MARKER not in _flatten(caplog)
+
+
 def test_failure_category_is_allowlisted_builtin_or_other() -> None:
     assert failure_category(_Leaky()) == "ValueError"
     assert failure_category(ConnectionResetError(MARKER)) == "ConnectionError"
@@ -119,7 +162,7 @@ def test_spawn_cancellation_still_silent(caplog: pytest.LogCaptureFixture) -> No
 
 
 def test_key_bar_action_failure_logs_category_only(caplog: pytest.LogCaptureFixture) -> None:
-    from relaydeck.client.components.design_system.terminal_window import MobileKeyBar
+    from relaydeck.client.widgets.terminal.window import MobileKeyBar
     from tests.support.host_harness import render_component, run
 
     caplog.set_level(logging.DEBUG)
@@ -277,7 +320,7 @@ def test_stage_labels_are_a_fixed_vocabulary() -> None:
 
 
 def test_clipboard_read_failure_logs_category_only(caplog: pytest.LogCaptureFixture) -> None:
-    from relaydeck.client.adapters.clipboard import ClipboardReadStatus, read_clipboard
+    from relaydeck.client.platform.flet.clipboard import ClipboardReadStatus, read_clipboard
 
     caplog.set_level(logging.DEBUG)
 

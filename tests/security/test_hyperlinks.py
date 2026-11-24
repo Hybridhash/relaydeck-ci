@@ -16,6 +16,8 @@ import asyncio
 import re
 from pathlib import Path
 
+import pytest
+
 from relaydeck.client.features.terminal.projection import TerminalProjection
 from relaydeck.client.features.terminal.stream import TerminalByteStream
 from relaydeck.contracts.wire import terminal as terminal_wire
@@ -56,20 +58,32 @@ def test_bare_urls_are_plain_text() -> None:
     # No opener exists on the intake path (structural: next test pins it).
 
 
-def test_no_url_or_command_sink_reachable_from_output() -> None:
-    """The output-intake and terminal/composer/shell features reference
-    no URL opener, shell, or dynamic-code sink at all."""
-    root = Path(__file__).resolve().parent.parent.parent / "src" / "relaydeck"
-    haystacks: list[str] = []
+def _output_sources(root: Path) -> list[Path]:
+    paths: list[Path] = []
     for rel in (
         "client/features/terminal",
         "client/features/composer",
-        "client/features/shell",
         "client/features/inventory",
+        "client/screens/terminal",
+        "client/screens/shell",
+        "client/widgets/terminal",
     ):
-        for path in sorted((root / rel).glob("*.py")):
-            haystacks.append(path.read_text())
-    hay = "\n".join(haystacks)
+        directory = root / rel
+        assert directory.is_dir(), f"missing output root: {rel}"
+        sources = sorted(directory.glob("*.py"))
+        assert sources, f"empty output root: {rel}"
+        paths.extend(sources)
+    for rel in (
+        "client/screens/terminal/screen.py",
+        "client/screens/shell/screen.py",
+        "client/widgets/terminal/screen.py",
+    ):
+        assert (root / rel).is_file(), f"missing output owner: {rel}"
+        assert root / rel in paths, f"unscanned output owner: {rel}"
+    return paths
+
+
+def _assert_no_output_sinks(hay: str) -> None:
     for sink in (
         "webbrowser",
         "launch_url",
@@ -88,6 +102,39 @@ def test_no_url_or_command_sink_reachable_from_output() -> None:
     # Builtins only: a method of the same name (re.compile, cursor.execute) is not a sink.
     for builtin in ("eval", "exec", "compile"):
         assert not re.search(rf"(?<![\w.]){builtin}\(", hay), f"output-reachable sink? {builtin}("
+
+
+def test_no_url_or_command_sink_reachable_from_output() -> None:
+    """Output features, screens and shared widgets contain no execution sink."""
+    root = Path(__file__).resolve().parent.parent.parent / "src" / "relaydeck"
+    hay = "\n".join(path.read_text() for path in _output_sources(root))
+    _assert_no_output_sinks(hay)
+
+
+@pytest.mark.parametrize(
+    "owner",
+    ("client/screens/shell/screen.py", "client/widgets/terminal/screen.py"),
+)
+def test_moved_output_owners_reject_injected_sink(
+    monkeypatch: pytest.MonkeyPatch, owner: str
+) -> None:
+    root = Path(__file__).resolve().parent.parent.parent / "src" / "relaydeck"
+    target = root / owner
+    assert target in _output_sources(root)
+    read_text = Path.read_text
+    inspected: list[Path] = []
+
+    def mutated_read(path: Path) -> str:
+        source = read_text(path)
+        if path == target:
+            inspected.append(path)
+            return source + "\n# launch_url\n"
+        return source
+
+    monkeypatch.setattr(Path, "read_text", mutated_read)
+    with pytest.raises(AssertionError, match=r"output-reachable sink\? launch_url"):
+        test_no_url_or_command_sink_reachable_from_output()
+    assert inspected == [target]
 
 
 def test_auth_opener_fires_only_for_self_built_authorize_url() -> None:

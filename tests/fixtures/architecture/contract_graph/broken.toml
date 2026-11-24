@@ -1,0 +1,9 @@
+[tool.importlinter]
+root_package = "fxgraph"
+
+[[tool.importlinter.contracts]]
+name = "Low does not import high"
+type = "forbidden"
+source_modules = ["fxgraph.low"]
+forbidden_modules = ["fxgraph.high"]
+unmatched_ignore_imports_alerting = "error"

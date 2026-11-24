@@ -1,0 +1,7 @@
+[tool.importlinter]
+root_package = "fxslices"
+
+[[tool.importlinter.contracts]]
+name = "Slices independent"
+type = "independence"
+modules = ["fxslices.features.a", "fxslices.features.b"]

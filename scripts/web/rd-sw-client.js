@@ -64,6 +64,13 @@
     return Array.prototype.map.call(bytes, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
   }
 
+  // One focus rule for every fixed bar on this page: while a text input has focus a bar
+  // must not cover it or its surroundings.
+  function inputFocused() {
+    var active = document.activeElement;
+    return !!active && (/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) || !!active.isContentEditable);
+  }
+
   // Hidden while the recovery dialog or the reconnect banner shows, while offline, or while a
   // text field has focus. Event-driven rechecks only; no timers.
   function hiddenNow() {
@@ -71,8 +78,7 @@
     if (recovery && recovery.open !== false) return true;
     if (document.getElementById('relaydeck-reconnect-banner')) return true;
     if (navigator.onLine === false) return true;
-    var active = document.activeElement;
-    return !!active && (/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) || !!active.isContentEditable);
+    return inputFocused();
   }
 
   function button(label) {
@@ -332,12 +338,19 @@
     document.body.appendChild(pushBar);
     return pushBar;
   }
+  var pushPending = null;  // {text, actions} for as long as the bar should be on screen
   function hidePushBar() {
+    pushPending = null;
     if (pushBar) pushBar.style.display = 'none';
+  }
+  function updatePushVisibility() {
+    if (!pushBar || !pushPending) return;
+    pushBar.style.display = inputFocused() || pushDismissedFor === pushChoice ? 'none' : 'flex';
   }
   // text: the message. actions: buttons to show before the dismiss control.
   function showPushBar(text, actions) {
     if (pushDismissedFor === pushChoice) return hidePushBar();
+    pushPending = { text: text, actions: actions };
     var bar = ensurePushBar();
     bar.textContent = '';
     var label = document.createElement('span');
@@ -351,7 +364,7 @@
       hidePushBar();
     });
     bar.appendChild(close);
-    bar.style.display = 'flex';
+    updatePushVisibility();
   }
 
   // The browser's subscription goes to the server with the session cookie and the CSRF token.
@@ -479,8 +492,10 @@
   window.addEventListener('load', function () {
     forgetLegacyDismissal();
     trackInput();
-    document.addEventListener('focusin', updateVisibility, true);
-    document.addEventListener('focusout', function () { setTimeout(updateVisibility, 0); }, true);
+    document.addEventListener('focusin', function () { updateVisibility(); updatePushVisibility(); }, true);
+    document.addEventListener('focusout', function () {
+      setTimeout(function () { updateVisibility(); updatePushVisibility(); }, 0);
+    }, true);
     window.addEventListener('online', function () {
       resetPushBackoff();
       if (pushStarted) pushBanner();

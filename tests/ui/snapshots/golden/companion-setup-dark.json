@@ -1,0 +1,112 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "props": {
+              "value": "Mac companion setup",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "bold"
+              }
+             },
+             "slot": "controls",
+             "type": "Text"
+            },
+            {
+             "children": [
+              {
+               "props": {
+                "color": "#F5F2FF",
+                "value": "Private address",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "bold"
+                }
+               },
+               "slot": "controls",
+               "type": "Text"
+              },
+              {
+               "props": {
+                "color": "#B7AFDA",
+                "selectable": true,
+                "value": "https://test-mac.synthetic.ts.net"
+               },
+               "slot": "controls",
+               "type": "Text"
+              }
+             ],
+             "key": "setup-Private address",
+             "props": {
+              "spacing": 4
+             },
+             "slot": "controls",
+             "type": "Column"
+            },
+            {
+             "children": [
+              {
+               "props": {
+                "color": "#F5F2FF",
+                "value": "Pairing",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "bold"
+                }
+               },
+               "slot": "controls",
+               "type": "Text"
+              },
+              {
+               "props": {
+                "color": "#B7AFDA",
+                "selectable": true,
+                "value": "Pair this Mac explicitly."
+               },
+               "slot": "controls",
+               "type": "Text"
+              }
+             ],
+             "key": "setup-Pairing",
+             "props": {
+              "spacing": 4
+             },
+             "slot": "controls",
+             "type": "Column"
+            }
+           ],
+           "slot": "content",
+           "type": "Column"
+          }
+         ],
+         "key": "companion-setup",
+         "props": {
+          "bgcolor": "#191335",
+          "padding": 16
+         },
+         "slot": "body",
+         "type": "Container"
+        }
+       ],
+       "slot": "controls",
+       "type": "Component:SetupPanel"
+      }
+     ],
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:Host"
+  }
+ ]
+}

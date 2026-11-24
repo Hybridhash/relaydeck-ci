@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # Run what .github/workflows/ci.yml runs, in the same order, and stop at the first failure.
 #   scripts/ci_local.sh            validate, Python tests, Flutter tests
-#   scripts/ci_local.sh --fast     validate only (lock, versions, lint, format, types, scans)
+#   scripts/ci_local.sh --fast     validate only (lock, versions, lint, format, types, import contracts, scans)
 #   scripts/ci_local.sh --stress   also run the timing-sensitive tests three times in parallel
 # FLUTTER overrides the Flutter binary (default: flutter on PATH, else ~/flutter/<pinned>/bin).
 set -euo pipefail
@@ -24,11 +24,11 @@ done
 
 # Timing-sensitive tests: budgets, polling, reconnect and refresh flows.
 STRESS_TESTS=(
-  tests/unit/test_gateway_metrics.py
-  tests/ui/test_server_health.py
+  tests/unit/gateway/http/test_gateway_metrics.py
+  tests/ui/client/screens/settings/test_server_health.py
   tests/unit/test_usage_pane_limits.py
-  tests/integration/test_flet_reconnect_continuity.py
-  tests/integration/test_session_store_threads.py
+  tests/integration/companion/app/hosted_web/test_flet_reconnect_continuity.py
+  tests/integration/gateway/app/test_session_store_threads.py
 )
 
 started=$SECONDS
@@ -53,6 +53,7 @@ step "pinned environment check" uv run python scripts/verify_versions.py
 step "lint" uv run ruff check --no-cache .
 step "format check" uv run ruff format --check --no-cache .
 step "static types" uv run mypy src
+step "import contracts" uv run lint-imports --config pyproject.toml
 step "secret scan" uv run python scripts/scan_release_secrets.py
 step "license inventory" uv run python scripts/license_inventory.py --out "$LOGS/sbom.json"
 step "dependency vulnerability audit" zsh -c 'uv export --locked --no-hashes --no-emit-project --extra companion --format requirements-txt > "$0" && uvx pip-audit==2.9.0 -r "$0" --no-deps --disable-pip' "$LOGS/requirements-audit.txt"
@@ -72,11 +73,17 @@ terminal=extensions/terminal/src/flutter/relaydeck_terminal
 notifications=extensions/notifications/src/flutter/relaydeck_notifications
 step "terminal extension pub get (lockfile)" \
   zsh -c "cd $terminal && '$FLUTTER' pub get --enforce-lockfile"
+step "terminal extension analyze" zsh -c "cd $terminal && '$FLUTTER' analyze --no-pub"
+step "terminal extension format" \
+  zsh -c "cd $terminal && '${FLUTTER:h}/dart' format --output=none --set-exit-if-changed lib test tool"
 step "terminal extension tests" zsh -c "cd $terminal && '$FLUTTER' test"
 step "flet paste menu test" \
   zsh -c "cd $terminal && '$FLUTTER' test --no-pub '$ROOT/tests/native/flet_paste_menu_test.dart'"
 step "notifications extension pub get (lockfile)" \
   zsh -c "cd $notifications && '$FLUTTER' pub get --enforce-lockfile"
+step "notifications extension analyze" zsh -c "cd $notifications && '$FLUTTER' analyze --no-pub"
+step "notifications extension format" \
+  zsh -c "cd $notifications && '${FLUTTER:h}/dart' format --output=none --set-exit-if-changed lib test"
 step "notifications extension tests" zsh -c "cd $notifications && '$FLUTTER' test"
 step "reconnect patch tests" env FLUTTER="$FLUTTER" bash patches/flet-reconnect-merge-patch/apply.sh --test
 

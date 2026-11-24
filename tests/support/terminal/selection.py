@@ -9,7 +9,7 @@ from typing import Any
 from relaydeck_terminal import protocol
 
 from relaydeck.client.features.terminal.agent_session import AgentSession
-from relaydeck.client.features.terminal.screen import SELECT_BUTTON_KEY
+from relaydeck.client.widgets.terminal.screen import SELECT_BUTTON_KEY
 from tests.support.host_harness import HostApp
 from tests.support.terminal.binding import _wait_for
 

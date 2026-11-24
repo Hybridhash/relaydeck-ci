@@ -43,7 +43,13 @@ def test_child_stderr_is_not_output_and_death_log_is_secret_free(caplog, code, c
                 while source._attached:
                     await source.wait_output_ready()
                     source.pump_attached(lambda _: "e1")
-            assert source.drain_terminal_resets() == {"synthetic": "e1"}
+            if category == "terminal_owned":
+                # Owned elsewhere: a typed refusal for the viewer, never a reset that respawns.
+                assert source.drain_terminal_resets() == {}
+                assert source.drain_attach_refusals() == {"synthetic": "e1"}
+            else:
+                assert source.drain_terminal_resets() == {"synthetic": "e1"}
+                assert source.drain_attach_refusals() == {}
             assert session.exit_status == 1 and session._fd is None
             assert session.diagnostic_fileno() is None
             assert len(session._stderr_prefix) <= 4096

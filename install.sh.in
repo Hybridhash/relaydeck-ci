@@ -1,0 +1,314 @@
+#!/bin/sh
+# RelayDeck installer: install uv when missing, install RelayDeck from the
+# release wheel named below, then run setup. Trust boundary: this script and
+# the wheel arrive over HTTPS from the release, and the wheel is checked
+# against the SHA-256 rendered inside this script. No signature is verified
+# here; the signed parts are the web app bundle and the update record, which
+# setup and the app verify separately.
+#
+# This file is a template; the release script renders the @-placeholders.
+# Everything happens in main(), called on the last line, so a truncated
+# download does nothing. Tools run by absolute path; children get a minimal
+# environment.
+#
+# Test only: with RELAYDECK_INSTALL_TEST=1, tools are taken from
+# RELAYDECK_INSTALL_TOOLS_DIR when present there, and RELAYDECK_INSTALL_TTY
+# names the terminal device. Neither is read otherwise.
+# Development: RELAYDECK_WHEEL=<path> installs a local wheel instead of
+# downloading it (still hash-checked; RELAYDECK_WHEEL_SHA256 overrides the
+# expected hash for a local wheel).
+set -eu
+
+VERSION="@VERSION@"
+WHEEL_NAME="@WHEEL@"
+WHEEL_SHA256="@WHEEL_SHA256@"
+UV_VERSION="@UV_VERSION@"
+# The oldest uv this installer uses: the 0.8 series is the first tested with
+# `tool install --managed-python`, `--force` and `tool dir --bin` together.
+# An older uv is skipped, never upgraded in place; the pinned one is used.
+MIN_UV_VERSION="0.8.0"
+RELEASE_URL="https://github.com/Hybridhash/relaydeck/releases/download/v$VERSION"
+UV_INSTALLER_URL="https://astral.sh/uv/$UV_VERSION/install.sh"
+
+WORK_DIR=""
+TTY_PATH="/dev/tty"
+
+die() {
+    printf '%s\n' "relaydeck install: $1" >&2
+    exit 1
+}
+
+say() {
+    printf '%s\n' "$1"
+}
+
+# say_tty: a path-bearing notice goes only to the controlling terminal (fd 3),
+# never to stdout/stderr, which carry fixed text only.
+say_tty() {
+    printf '%s\n' "$1" >&3
+}
+
+# tool <name> <absolute default>: the test override wins only in test mode.
+tool() {
+    if [ "${RELAYDECK_INSTALL_TEST:-}" = "1" ] && [ -n "${RELAYDECK_INSTALL_TOOLS_DIR:-}" ] \
+        && [ -x "$RELAYDECK_INSTALL_TOOLS_DIR/$1" ]; then
+        printf '%s' "$RELAYDECK_INSTALL_TOOLS_DIR/$1"
+    else
+        printf '%s' "$2"
+    fi
+}
+
+# writable_by_others <octal mode>: true when group or other may write.
+writable_by_others() {
+    _mode=$1
+    while [ "${#_mode}" -gt 3 ]; do _mode=${_mode#?}; done
+    _group=$(( (_mode / 10) % 10 ))
+    _other=$(( _mode % 10 ))
+    case $_group in 2|3|6|7) return 0 ;; esac
+    case $_other in 2|3|6|7) return 0 ;; esac
+    return 1
+}
+
+# check_one <path> <uid>: a path is trusted when it is owned by the user or
+# root and neither group nor other may write to it.
+check_one() {
+    _stat=$(tool stat /usr/bin/stat)
+    _owner=$("$_stat" -f %u "$1" 2>/dev/null) || return 1
+    _mode=$("$_stat" -f %Lp "$1" 2>/dev/null) || return 1
+    [ "$_owner" = "$2" ] || [ "$_owner" = "0" ] || return 1
+    ! writable_by_others "$_mode"
+}
+
+# resolve_checked <path> <uid>: print the physical path, resolving one
+# component at a time. Every component must pass check_one before it is
+# entered, and a symlink's target is spliced into the walk (from the root
+# when absolute, from the link's parent when relative) so each intermediate
+# target and its whole ancestry are checked before any further link is
+# followed. Symlink hops are bounded.
+resolve_checked() {
+    _rc_uid=$2
+    _rc_resolved=""
+    _rc_rest=$1
+    _rc_hops=0
+    _rc_steps=0
+    while [ -n "$_rc_rest" ]; do
+        _rc_steps=$((_rc_steps + 1))
+        [ "$_rc_steps" -le 1024 ] || return 1
+        case $_rc_rest in
+            */*) _rc_part=${_rc_rest%%/*}; _rc_rest=${_rc_rest#*/} ;;
+            *) _rc_part=$_rc_rest; _rc_rest="" ;;
+        esac
+        case $_rc_part in
+            ""|.) continue ;;
+            ..) _rc_resolved=${_rc_resolved%/*}; continue ;;
+        esac
+        _rc_candidate="$_rc_resolved/$_rc_part"
+        if [ -L "$_rc_candidate" ]; then
+            check_one "$_rc_candidate" "$_rc_uid" || return 1
+            _rc_hops=$((_rc_hops + 1))
+            [ "$_rc_hops" -le 16 ] || return 1
+            _rc_target=$(/usr/bin/readlink "$_rc_candidate" 2>/dev/null) || return 1
+            case $_rc_target in
+                /*) _rc_resolved="" ;;
+            esac
+            if [ -n "$_rc_rest" ]; then
+                _rc_rest="$_rc_target/$_rc_rest"
+            else
+                _rc_rest=$_rc_target
+            fi
+            continue
+        fi
+        [ -e "$_rc_candidate" ] || return 1
+        check_one "$_rc_candidate" "$_rc_uid" || return 1
+        _rc_resolved=$_rc_candidate
+    done
+    printf '%s' "${_rc_resolved:-/}"
+}
+
+# is_safe_path <path> <uid>: a regular executable file reached only through
+# trusted components (resolve_checked).
+is_safe_path() {
+    _path=$(resolve_checked "$1" "$2") || return 1
+    [ -f "$_path" ] && [ ! -L "$_path" ] && [ -x "$_path" ] || return 1
+    printf '%s' "$_path"
+}
+
+# is_safe_dir <path> <uid>: an existing directory reached only through
+# trusted components (resolve_checked).
+is_safe_dir() {
+    _path=$(resolve_checked "$1" "$2") || return 1
+    [ -d "$_path" ] || return 1
+    printf '%s' "$_path"
+}
+
+# check_destination <dir> <uid>: the destination directory may not exist yet;
+# its nearest existing parent (after resolving symlinks) and that ancestry
+# must be trusted before anything is installed into it.
+check_destination() {
+    _existing=$1
+    while [ ! -e "$_existing" ] && [ ! -L "$_existing" ]; do
+        _existing=${_existing%/*}
+        [ -n "$_existing" ] || _existing=/
+    done
+    is_safe_dir "$_existing" "$2" >/dev/null
+}
+
+# uv_version_ok <uv>: the found uv is at least the tested minimum.
+uv_version_ok() {
+    _line=$(run_clean "$1" --version 2>/dev/null) || return 1
+    _found=${_line#uv }
+    _found=${_found%% *}
+    case $_found in *[!0-9.]*) return 1 ;; esac
+    _f1=${_found%%.*}; _r=${_found#*.}
+    _f2=${_r%%.*}; _f3=${_r#*.}
+    case $_f3 in *.*) return 1 ;; esac
+    _m1=${MIN_UV_VERSION%%.*}; _r=${MIN_UV_VERSION#*.}
+    _m2=${_r%%.*}; _m3=${_r#*.}
+    [ "$_f1" -gt "$_m1" ] && return 0
+    [ "$_f1" -eq "$_m1" ] || return 1
+    [ "$_f2" -gt "$_m2" ] && return 0
+    [ "$_f2" -eq "$_m2" ] || return 1
+    [ "$_f3" -ge "$_m3" ]
+}
+
+# run_clean <cmd...>: run a child with only the minimal environment.
+run_clean() {
+    /usr/bin/env -i HOME="$HOME" PATH=/usr/bin:/bin LANG="${LANG:-en_US.UTF-8}" \
+        TMPDIR="${TMPDIR:-/tmp}" USER="${USER:-}" "$@"
+}
+
+# run_to_terminal <cmd...>: like run_clean, but the child's raw output goes to
+# the controlling terminal only, never to this script's stdout/stderr.
+run_to_terminal() {
+    run_clean "$@" >&3 2>&3
+}
+
+cleanup() {
+    if [ -n "$WORK_DIR" ] && [ -d "$WORK_DIR" ]; then
+        /bin/rm -rf "$WORK_DIR" 2>/dev/null
+    fi
+}
+
+main() {
+    umask 022
+    unset DYLD_LIBRARY_PATH DYLD_INSERT_LIBRARIES DYLD_FALLBACK_LIBRARY_PATH \
+        DYLD_FRAMEWORK_PATH PYTHONPATH PYTHONHOME PYTHONSTARTUP PYTHONEXECUTABLE \
+        UV_INDEX_URL UV_EXTRA_INDEX_URL UV_FIND_LINKS UV_NO_CACHE 2>/dev/null || true
+
+    _uname=$(tool uname /usr/bin/uname)
+    _id=$(tool id /usr/bin/id)
+    _curl=$(tool curl /usr/bin/curl)
+    _shasum=$(tool shasum /usr/bin/shasum)
+    _sh=$(tool sh /bin/sh)
+    _mktemp=$(tool mktemp /usr/bin/mktemp)
+
+    if [ "${RELAYDECK_INSTALL_TEST:-}" = "1" ] && [ -n "${RELAYDECK_INSTALL_TTY:-}" ]; then
+        TTY_PATH=$RELAYDECK_INSTALL_TTY
+    fi
+
+    # The terminal must open for both reading and writing before anything
+    # changes; it stays open on fd 3 for raw child output and notices.
+    ("$_sh" -c 'exec 3<>"$1"' _ "$TTY_PATH") 2>/dev/null \
+        || die "no terminal is available; run this from a terminal window"
+    exec 3<>"$TTY_PATH" || die "no terminal is available; run this from a terminal window"
+
+    [ "$("$_uname" -s 2>&3)" = "Darwin" ] || die "this installer is for macOS only"
+    _uid=$("$_id" -u 2>&3)
+    [ "$_uid" != "0" ] || die "run this as your normal user, not as root"
+
+    WORK_DIR=$("$_mktemp" -d 2>&3) || die "could not make a private work directory"
+    trap cleanup EXIT
+
+    # uv comes from fixed locations only, never a PATH search. The one in
+    # ~/.local/bin is both a candidate and the install destination: unsafe
+    # there refuses. The system candidates are only ever used when safe and
+    # new enough; an unsafe or too-old one is skipped, never executed,
+    # changed or upgraded in place. In test mode the system locations live
+    # under the test tools dir instead.
+    _brew_uv=/opt/homebrew/bin/uv
+    _local_uv=/usr/local/bin/uv
+    if [ "${RELAYDECK_INSTALL_TEST:-}" = "1" ] && [ -n "${RELAYDECK_INSTALL_TOOLS_DIR:-}" ]; then
+        _brew_uv="$RELAYDECK_INSTALL_TOOLS_DIR/brew/uv"
+        _local_uv="$RELAYDECK_INSTALL_TOOLS_DIR/local/uv"
+    fi
+    UV=""
+    _dest_uv="$HOME/.local/bin/uv"
+    if [ -e "$_dest_uv" ] || [ -L "$_dest_uv" ]; then
+        _found_uv=$(is_safe_path "$_dest_uv" "$_uid") \
+            || die "an existing uv is not in a trusted location; fix its permissions first"
+        if uv_version_ok "$_found_uv"; then
+            UV=$_found_uv
+        fi
+    fi
+    if [ -z "$UV" ]; then
+        for _candidate in "$_brew_uv" "$_local_uv"; do
+            if [ -e "$_candidate" ] || [ -L "$_candidate" ]; then
+                _found_uv=$(is_safe_path "$_candidate" "$_uid") || continue
+                uv_version_ok "$_found_uv" || continue
+                UV=$_found_uv
+                break
+            fi
+        done
+    fi
+    if [ -z "$UV" ]; then
+        # Nothing runs until the destination itself is trusted.
+        check_destination "$HOME/.local/bin" "$_uid" \
+            || die "the uv destination is not in a trusted location; fix its permissions first"
+        say "Installing uv $UV_VERSION ..."
+        run_to_terminal "$_curl" -fsSL -o "$WORK_DIR/uv-install.sh" "$UV_INSTALLER_URL" \
+            || die "the uv installer could not be downloaded"
+        run_to_terminal "$_sh" "$WORK_DIR/uv-install.sh" || die "the uv installer failed"
+        UV=$(is_safe_path "$_dest_uv" "$_uid") \
+            || die "uv was not installed where expected; install it from https://docs.astral.sh/uv/"
+    fi
+
+    # The wheel: downloaded (or given locally) and hash-checked before install.
+    _expected=${RELAYDECK_WHEEL_SHA256:-$WHEEL_SHA256}
+    if [ -n "${RELAYDECK_WHEEL:-}" ]; then
+        _wheel=$RELAYDECK_WHEEL
+        [ -f "$_wheel" ] || die "the local wheel does not exist"
+    else
+        _wheel="$WORK_DIR/$WHEEL_NAME"
+        say "Downloading RelayDeck $VERSION ..."
+        run_to_terminal "$_curl" -fsSL -o "$_wheel" "$RELEASE_URL/$WHEEL_NAME" \
+            || die "the RelayDeck wheel could not be downloaded"
+    fi
+    _sum_line=$(run_clean "$_shasum" -a 256 "$_wheel" 2>&3) || die "could not hash the wheel"
+    _sum=${_sum_line%% *}
+    [ "$_sum" = "$_expected" ] || die "the wheel does not match its expected SHA-256; nothing installed"
+
+    say "Installing RelayDeck $VERSION ..."
+    run_to_terminal "$UV" tool install --force --managed-python --python 3.13 \
+        "relaydeck[companion] @ file://$_wheel" || die "RelayDeck could not be installed"
+
+    _tool_bin=$(run_clean "$UV" tool dir --bin 2>&3) || die "could not find where uv installed RelayDeck"
+    _relaydeck=$(is_safe_path "$_tool_bin/relaydeck" "$_uid") \
+        || die "the installed relaydeck is not in a trusted location"
+
+    case ":${PATH:-}:" in
+        *":$_tool_bin:"*) ;;
+        *) say_tty "relaydeck is in $_tool_bin; open a new terminal window to use it" ;;
+    esac
+
+    # Setup and the companion need more than the installer's minimal path:
+    # the tool bin, ~/.local/bin, each safe Homebrew bin that exists, then the
+    # system directories. Installer children above keep the minimal one.
+    _app_path="$_tool_bin"
+    [ "$_tool_bin" = "$HOME/.local/bin" ] || _app_path="$_app_path:$HOME/.local/bin"
+    for _bin in "${_brew_uv%/*}" "${_local_uv%/*}"; do
+        if [ -d "$_bin" ] && is_safe_dir "$_bin" "$_uid" >/dev/null 2>&1; then
+            _app_path="$_app_path:$_bin"
+        fi
+    done
+    _app_path="$_app_path:/usr/bin:/bin:/usr/sbin:/sbin"
+
+    cleanup
+    trap - EXIT
+    # Hand over to setup on the terminal opened at the start (fd 3), arguments
+    # forwarded as given.
+    exec /usr/bin/env -i HOME="$HOME" PATH="$_app_path" LANG="${LANG:-en_US.UTF-8}" \
+        TMPDIR="${TMPDIR:-/tmp}" USER="${USER:-}" \
+        "$_relaydeck" setup "$@" <&3 >&3 2>&3
+}
+
+main "$@"

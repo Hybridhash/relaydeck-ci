@@ -13,16 +13,16 @@ import flet as ft
 import httpx
 import pytest
 
+from relaydeck.client.app.native.runtime import PackagedRuntime
+from relaydeck.client.app.state.sync import SyncController
 from relaydeck.client.features.auth.service import ACCESS_KEY, REFRESH_KEY
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.features.sync.sse import SseFrame, SseParser
-from relaydeck.client.features.sync.transport import TransportError
-from relaydeck.client.packaged_runtime import PackagedRuntime
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.backend import BackendError
-from relaydeck.gateway.metadata_follower import MAX_PENDING_METADATA
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal
+from relaydeck.client.platform.transport.sse import SseParser
+from relaydeck.client.ports.transport import SseFrame, TransportError
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.features.metadata.metadata_follower import MAX_PENDING_METADATA
+from relaydeck.gateway.ports import BackendError
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.security.helpers import ALL_CAPS, NOW, make_state
 from tests.support.fakes import FakeClipboard, FakeCredentialStore
 from tests.support.host_harness import render_component, run

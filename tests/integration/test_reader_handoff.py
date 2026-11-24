@@ -5,11 +5,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from relaydeck.client.features.sync.transport import TransportError
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.contracts.wire import terminal as terminal_wire
-from relaydeck.gateway.backend import BackendError
-from relaydeck.gateway.leases import READER_HANDOFF_TTL_MS
-from relaydeck.gateway.ring import VIEWER_QUEUE_MAX_BYTES
+from relaydeck.gateway.features.terminals.leases import READER_HANDOFF_TTL_MS
+from relaydeck.gateway.features.terminals.ring import VIEWER_QUEUE_MAX_BYTES
+from relaydeck.gateway.ports import BackendError
 from tests.support.host_harness import run
 from tests.support.terminal.lease_gateway import _attach, _client, _headers, _lease, _ticket, _token
 from tests.support.terminal.reader_handoff import _actor, _wait

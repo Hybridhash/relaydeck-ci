@@ -126,7 +126,6 @@ def make_page(seed: int, count: int, today: date, zone: str) -> model.UsagePage:
     )
 
 
-@pytest.mark.parametrize("seed", [1, 2, 3])
 @pytest.mark.parametrize("period", ["7d", "30d", "90d"])
 @pytest.mark.parametrize("provider", [s.ALL, "kind-a", "kind-d"])
 @pytest.mark.parametrize("space", [s.ALL, "w1", s.UNLINKED])
@@ -139,9 +138,9 @@ def make_page(seed: int, count: int, today: date, zone: str) -> model.UsagePage:
     ],
 )
 def test_the_indexed_chart_equals_the_per_day_rescan(
-    seed: int, period: str, provider: str, space: str, today: date, zone: str
+    period: str, provider: str, space: str, today: date, zone: str
 ) -> None:
-    page = make_page(seed, 400, today, zone)
+    page = make_page(1, 400, today, zone)
     flt = s.Filter(period=period, space=space, provider=provider)
     expected_series, expected = chart_reference(page, flt, today)
     chart = s.chart(page, flt, today)

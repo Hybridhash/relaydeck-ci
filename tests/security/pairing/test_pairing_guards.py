@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
 from relaydeck.contracts.pairing import DEVICE_CAPABILITIES
-from relaydeck.gateway.app import create_app
+from relaydeck.gateway.app.bootstrap import create_app
 from tests.security.helpers import auth
 from tests.support.pairing import ORIGIN, foundation, proof
 

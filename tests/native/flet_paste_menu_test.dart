@@ -1,6 +1,6 @@
 // Native half of the agent/shell paste-fallback contract. Python consumes the
 // resulting selection/change events in
-// tests/ui/terminal/test_compact_paste_fallback.py. Run from the
+// tests/ui/client/widgets/terminal/test_compact_paste_fallback.py. Run from the
 // terminal Flutter package with this file's absolute path and --no-pub.
 // This test does not connect to a companion or claim Safari clipboard proof.
 import 'dart:convert';

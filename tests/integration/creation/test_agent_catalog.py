@@ -11,15 +11,15 @@ from typing import Any
 import httpx
 import pytest
 
+from relaydeck.client.app.state.sync import snapshot_from_wire
 from relaydeck.client.features.create.components import StartAgentSheet
-from relaydeck.client.features.sync.controller import snapshot_from_wire
 from relaydeck.connector.catalog import discover_agent_catalog
 from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.connector.source import HerdrSource
 from relaydeck.contracts.schemas import SchemaError, validate
 from relaydeck.domain import reducers
 from relaydeck.domain.models import AppState
-from relaydeck.gateway.app import create_app
+from relaydeck.gateway.app.bootstrap import create_app
 from tests.security.helpers import auth, mint_token
 from tests.support.host_harness import render_component, run
 from tests.support.sync.transport_fixtures import _state
@@ -90,8 +90,11 @@ def test_real_source_reports_catalog_and_decode_preserves_host_identity(
     monkeypatch.setattr(
         catalog,
         "discover_agent_catalog",
-        lambda now, kinds=(): discover_agent_catalog(
-            now, kinds=KINDS, which=lambda name: "/synthetic/agent-b" if name == "agent-b" else None
+        lambda now, kinds=(), programs=None: discover_agent_catalog(
+            now,
+            kinds=KINDS,
+            programs=programs,
+            which=lambda name: "/synthetic/agent-b" if name == "agent-b" else None,
         ),
     )
     source = HerdrSource(HerdrAdapter(), clock=lambda: 1000, boot_tag="c4", agent_kinds=KINDS)

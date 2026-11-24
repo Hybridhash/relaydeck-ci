@@ -1,23 +1,14 @@
-"""Gateway operator CLI (no HTTP admin surface by design).
-
-Runs on the gateway host: issues pubkey-bound enrollment invitations,
-revokes hosts, and serves the app. `serve` binds loopback only and
-wires the durable journal + push stores when given database paths; without them it runs the
-in-memory demo store with a loud warning. `issue-enrollment --store` shares one invitation
-file with a serving `serve --enrollment-store` (the documented ceremony);
-`revoke-host --spool` queues a single-host revoke the serving process
-drains. `list-hosts` still needs serving-process memory (no channel).
+"""Operator CLI for gateway serving, public-key-bound enrollment and host revocation. Bind
+serving to loopback and make in-memory demo mode explicit.
 """
 
 from __future__ import annotations
 
 import argparse
-import os
-import secrets
 import sys
 import time
-from dataclasses import dataclass
-from typing import Any
+
+from relaydeck.gateway.app.config import ServeConfigError, build_serve_state, resolve_serve_options
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -59,7 +50,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     serve.add_argument("--cursor-secret-file", default="", help="File holding the cursor secret")
     serve.add_argument(
-        "--log-config", default="", help="Uvicorn logging config (query-token redaction)"
+        "--log-config",
+        default="",
+        help="Uvicorn logging config; the default turns framework records into content-free events",
     )
     serve.add_argument(
         "--enrollment-store",
@@ -72,159 +65,12 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
-MIN_SECRET_BYTES = 32
-
-
-class ServeConfigError(ValueError):
-    pass
-
-
-@dataclass(frozen=True)
-class ServeOptions:
-    host: str
-    port: int
-    origin: str
-    journal_path: str
-    push_path: str
-    cursor_secret: bytes
-    log_config: str
-    ephemeral_secret: bool
-    enrollment_store: str = ""
-    revoke_spool: str = ""
-    host_store: str = ""
-    fcm_credentials: str = ""
-    identity_config: str = ""
-    pairing_store: str = ""
-
-
-def resolve_serve_options(args: argparse.Namespace) -> ServeOptions:
-    """Validate `serve` flags. Raises ServeConfigError on usage errors."""
-    if args.host not in LOOPBACK_HOSTS:
-        raise ServeConfigError(f"refusing non-loopback bind {args.host!r} (loopback only)")
-    if not 1 <= args.port <= 65535:
-        raise ServeConfigError(f"bad port {args.port!r}")
-    secret_text = args.cursor_secret
-    if args.cursor_secret_file:
-        try:
-            with open(args.cursor_secret_file, encoding="utf-8") as handle:
-                secret_text = handle.read().strip()
-        except OSError as exc:
-            raise ServeConfigError(f"cannot read --cursor-secret-file: {exc}") from exc
-    if not secret_text:
-        secret_text = os.environ.get("RELAYDECK_CURSOR_SECRET", "")
-    ephemeral = not secret_text
-    if ephemeral:
-        secret = secrets.token_bytes(MIN_SECRET_BYTES)
-    else:
-        secret = secret_text.encode()
-        if len(secret) < MIN_SECRET_BYTES:
-            raise ServeConfigError("cursor secret must be >= 32 bytes")
-    return ServeOptions(
-        host=args.host,
-        port=args.port,
-        origin=args.origin,
-        journal_path=args.journal_path,
-        push_path=args.push_path,
-        cursor_secret=secret,
-        log_config=args.log_config,
-        ephemeral_secret=ephemeral,
-        enrollment_store=args.enrollment_store,
-        revoke_spool=args.revoke_spool,
-        host_store=args.host_store,
-        fcm_credentials=getattr(args, "fcm_credentials", ""),
-        identity_config=getattr(args, "identity_config", ""),
-        pairing_store=getattr(args, "pairing_store", ""),
-    )
-
-
-def build_serve_state(options: ServeOptions) -> Any:
-    """Build the serving GatewayState: JournalBackend + file-backed
-    PushStore when database paths are given, else the in-memory demo
-    store (loudly documented by the caller, never silent). With
-    --enrollment-store the invitation registry is the shared file the
-    operator CLI writes (the documented ceremony); otherwise HTTP-
-    created invitations stay in process memory."""
-    from contextlib import ExitStack
-    from pathlib import Path
-
-    from relaydeck.gateway.app import GatewayState
-    from relaydeck.gateway.hosts import HostStore
-    from relaydeck.gateway.identity import EnrollmentStore
-
-    with ExitStack() as cleanup:
-        if options.journal_path:
-            from relaydeck.gateway.production import JournalBackend
-            from relaydeck.journal import CommandJournal
-
-            journal = CommandJournal(options.journal_path)
-            cleanup.callback(journal.close)
-            backend: Any = JournalBackend(journal)
-        else:
-            from relaydeck.gateway.backend import FakeBackend
-
-            backend = FakeBackend(now_ms=lambda: int(time.time() * 1000))
-        if options.push_path:
-            from relaydeck.gateway.push import PushStore
-
-            push = PushStore(options.push_path)
-        else:
-            from relaydeck.gateway.push import PushStore
-
-            push = PushStore()
-        cleanup.callback(push.close)
-        provider = None
-        if options.fcm_credentials:
-            if not options.push_path:
-                raise ServeConfigError("FCM delivery requires a durable --push-path")
-            from relaydeck.gateway.fcm import FcmProvider
-
-            provider = FcmProvider.from_file(Path(options.fcm_credentials).expanduser())
-            cleanup.callback(provider.close)
-        enrollments = EnrollmentStore(
-            path=options.enrollment_store or None,
-        )
-        identity_provider = None
-        if options.identity_config:
-            from relaydeck.gateway.authorization import OidcProvider
-
-            identity_provider = OidcProvider.from_file(
-                Path(options.identity_config).expanduser(), lambda: int(time.time() * 1000)
-            )
-        pairing = None
-        if options.pairing_store:
-            from relaydeck.gateway.pairing import PairingStore
-
-            pairing = PairingStore(Path(options.pairing_store).expanduser())
-            pairing.start(options.origin)
-        state = GatewayState(
-            backend=backend,
-            cursor_secret=options.cursor_secret,
-            now_ms=lambda: int(time.time() * 1000),
-            public_origin=options.origin,
-            push=push,
-            push_provider=provider,
-            identity_provider=identity_provider,
-            pairing=pairing,
-            enrollments=enrollments,
-            revoke_spool=options.revoke_spool,
-            hosts=HostStore(path=Path(options.host_store) if options.host_store else None),
-        )
-
-        cleanup.pop_all()
-        return state
-
-
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "issue-enrollment":
-        from relaydeck.connector.pubkey import (
-            build_qr_payload,
-            fingerprint_of_raw,
-            openssh_to_raw,
-            raw_to_openssh,
-        )
-        from relaydeck.gateway.identity import EnrollmentStore
+        from relaydeck.contracts.enrollment import build_qr_payload
+        from relaydeck.contracts.pubkeys import fingerprint_of_raw, openssh_to_raw, raw_to_openssh
+        from relaydeck.gateway.features.access.api import EnrollmentStore
 
         try:
             raw = openssh_to_raw(args.pubkey)
@@ -274,7 +120,7 @@ def main(argv: list[str] | None = None) -> int:
         if not args.spool:
             print("revoke-host: pass --spool <dir> drained by the serving process.")
             return 2
-        from relaydeck.gateway.hosts import write_revoke_request
+        from relaydeck.gateway.features.access.api import write_revoke_request
 
         try:
             request_path = write_revoke_request(args.spool, args.host)
@@ -286,7 +132,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "serve":
         import uvicorn
 
-        from relaydeck.gateway.app import create_app
+        from relaydeck.gateway.app.bootstrap import create_app
 
         try:
             options = resolve_serve_options(args)
@@ -305,8 +151,11 @@ def main(argv: list[str] | None = None) -> int:
                 "(set --cursor-secret, --cursor-secret-file, or RELAYDECK_CURSOR_SECRET).",
                 file=sys.stderr,
             )
-        from relaydeck.gateway.bounds import GRACEFUL_SHUTDOWN_S, WS_MAX_SIZE
-        from relaydeck.logging_setup import logging_config
+        from relaydeck.gateway.app.bounds import GRACEFUL_SHUTDOWN_S, WS_MAX_SIZE
+        from relaydeck.host.observability.exceptions import install_exception_safety
+        from relaydeck.host.observability.logging import logging_config
+
+        install_exception_safety()
 
         state = build_serve_state(options)
         print(f"serving gateway on http://{options.host}:{options.port} (loopback only)")

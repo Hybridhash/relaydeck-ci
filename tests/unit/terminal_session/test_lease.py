@@ -1,4 +1,4 @@
-"""Q5c: LeaseRenewalOwner alone, driven through recording hooks (no session)."""
+"""LeaseRenewalOwner alone, driven through recording hooks (no session)."""
 
 from __future__ import annotations
 
@@ -9,11 +9,11 @@ from typing import Any, cast
 
 import pytest
 
-from relaydeck.client.features.shell.ops import LeaseInfo, ShellOpError
-from relaydeck.client.features.sync.transport import TransportError
 from relaydeck.client.features.terminal.controller import TerminalController
 from relaydeck.client.features.terminal.renewal import utc_stamp_in
 from relaydeck.client.features.terminal.session.lease import LeaseHooks, LeaseRenewalOwner
+from relaydeck.client.ports.terminal import LeaseInfo, ShellOpError
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.lease_diagnostics import LeaseTrace
 
 LOG = "relaydeck.lease_lifecycle"

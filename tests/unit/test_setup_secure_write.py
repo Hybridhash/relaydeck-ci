@@ -11,9 +11,12 @@ from pathlib import Path
 import pytest
 
 from relaydeck.companion import config_edit, setup
-from relaydeck.companion.detect import DetectReport
+from relaydeck.companion.inspection.detect import DetectReport
 from tests.support.companion.asgi_companion import config_file
+from tests.support.setup.legacy import run_legacy
 from tests.support.setup.prereqs import Serve, probes
+from tests.support.setup.private import private_steps
+from tests.support.setup.rig import SetupRig
 
 TARGET = "http://127.0.0.1:8125"
 HOSTPORT = "mac.synthetic.ts.net:8445"
@@ -66,57 +69,101 @@ def test_creation_still_makes_an_owner_only_config(tmp_path: Path) -> None:
     assert oct(os.stat(path.parent).st_mode & 0o777) == "0o700"
 
 
+# -- every ancestor is judged, not only the leaf -------------------------------
+
+
+@pytest.mark.parametrize("mode", [0o775, 0o777, 0o757])
+def test_an_ancestor_others_can_write_is_refused(tmp_path: Path, mode: int) -> None:
+    root = tmp_path.resolve()
+    loose = root / "loose"
+    leaf = loose / "relaydeck"
+    leaf.mkdir(parents=True, mode=0o700)
+    loose.chmod(mode)
+    with pytest.raises(ValueError, match="others can write"):
+        os.close(config_edit.pinned_dir_fd(leaf))
+    with pytest.raises(ValueError, match="others can write"):
+        os.close(config_edit.pinned_dir_fd(leaf, create_missing=True))
+
+
+def test_nothing_is_made_under_an_ancestor_others_can_write(tmp_path: Path) -> None:
+    root = tmp_path.resolve()
+    loose = root / "loose"
+    loose.mkdir()
+    loose.chmod(0o775)
+    with pytest.raises(ValueError, match="others can write"):
+        os.close(config_edit.pinned_dir_fd(loose / "a" / "b", create_missing=True))
+    assert list(loose.iterdir()) == []
+
+
+def test_a_replace_under_an_ancestor_others_can_write_is_refused(tmp_path: Path) -> None:
+    root = tmp_path.resolve()
+    loose = root / "loose"
+    loose.mkdir()
+    loose.chmod(0o775)
+    inner = loose / "inner"
+    inner.mkdir(mode=0o700)
+    path = _private_config(inner)
+    with pytest.raises(ValueError, match="others can write"):
+        config_edit.replace_if_match(
+            path, "port = 8125\n", "port = 1\n", backup_name="companion.toml.bak-t"
+        )
+    assert path.read_text(encoding="utf-8") == "port = 8125\n"
+
+
+def test_the_layouts_the_companion_uses_are_still_accepted(tmp_path: Path) -> None:
+    root = tmp_path.resolve()
+    home = root / "home"
+    home.mkdir(mode=0o755)
+    home.chmod(0o755)
+    config_dir = home / ".config" / "relaydeck"
+    fd = config_edit.pinned_dir_fd(config_dir, create_missing=True)
+    os.close(fd)
+    assert oct(os.stat(config_dir).st_mode & 0o777) == "0o700"
+    assert oct(os.stat(config_dir.parent).st_mode & 0o777) == "0o700"
+    os.close(config_edit.pinned_dir_fd(config_dir))
+    for ancestor_mode in (0o755, 0o750, 0o700):
+        home.chmod(ancestor_mode)
+        os.close(config_edit.pinned_dir_fd(config_dir))
+    config_dir.chmod(0o755)  # an existing leaf that is not writable by others is kept as is
+    os.close(config_edit.pinned_dir_fd(config_dir))
+
+
+def test_a_sticky_root_owned_temp_ancestor_is_accepted(tmp_path: Path) -> None:
+    # The pytest base directory sits under a root-owned sticky temp folder.
+    root = tmp_path.resolve()
+    (root / "cfg").mkdir(mode=0o700)
+    os.close(config_edit.pinned_dir_fd(root / "cfg"))
+
+
 # -- creation: separate consent ----------------------------------------------
 
 
 def _quiet_setup(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(setup, "detect_report", lambda _path: DetectReport((), "ok", "ok"))
+    monkeypatch.setattr(
+        setup.prerequisites, "detect_report", lambda _path: DetectReport((), "ok", "ok")
+    )
 
 
 def test_missing_config_is_not_created_without_consent_even_with_yes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    root = tmp_path.resolve()
-    (root / "socket").touch()
-    missing = root / "companion.toml"
-    serve = Serve(serve=_mapping())
-    _quiet_setup(monkeypatch)
-    asked: list[str] = []
-
-    def confirm(prompt: str) -> bool:
-        asked.append(prompt)
-        return False
-
-    report = setup.run_setup(
-        config_path=missing,
-        assume_yes=True,
-        confirm=confirm,
-        probes=probes(serve),
-        runner=serve,
-    )
+    rig = SetupRig(tmp_path, monkeypatch)
+    report = rig.run(steps=private_steps(), assume_yes=True)
     assert report.exit_code == 1
-    assert not missing.exists()
-    assert any("not authorized" in line for line in report.lines)
-    assert any("Create the owner-only config" in question for question in asked)
+    assert not rig.config_path.exists()
+    assert any("not authorized" in line for line in rig.said)
+    assert rig.answers.count("Create these private files") == 1
 
 
 def test_missing_config_is_created_once_consented(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    root = tmp_path.resolve()
-    (root / "socket").touch()
-    missing = root / "companion.toml"
-    serve = Serve(serve=_mapping())
-    _quiet_setup(monkeypatch)
-    report = setup.run_setup(
-        config_path=missing,
-        assume_yes=False,
-        confirm=lambda _: True,
-        probes=probes(serve),
-        runner=serve,
-    )
-    assert missing.is_file()
-    assert any("created" in line for line in report.lines)
+    rig = SetupRig(tmp_path, monkeypatch)
+    rig.answers.rules = {"Create these private files": True}
+    report = rig.run(steps=private_steps())
+    assert report.exit_code == 0, rig.text
+    assert rig.config_path.is_file()
+    assert any("config: created" in line for line in rig.said)
 
 
 def test_existing_config_never_prompts_for_creation(
@@ -134,7 +181,7 @@ def test_existing_config_never_prompts_for_creation(
         asked.append(prompt)
         return False
 
-    setup.run_setup(
+    run_legacy(
         config_path=profile,
         assume_yes=True,
         confirm=confirm,
@@ -187,12 +234,12 @@ def test_apply_reports_a_post_commit_receipt_failure_truthfully(
     def broken_receipt(*args: object, **kwargs: object) -> Path:
         raise OSError("receipt disk full")
 
-    monkeypatch.setattr(setup, "_receipt", broken_receipt)
+    monkeypatch.setattr(setup.files, "_receipt", broken_receipt)
     lines = setup.apply_text(path, before, after, action="add", entries=[])
     assert path.read_text(encoding="utf-8") == after
-    assert any("were written" in line for line in lines)
+    assert any("was written" in line for line in lines)
     assert any("Backup kept" in line for line in lines)
-    assert not any("no source was written" in line for line in lines)
+    assert not any("nothing was written" in line for line in lines)
 
 
 def test_an_edit_saved_during_staging_aborts_and_survives(

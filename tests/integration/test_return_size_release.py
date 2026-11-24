@@ -2,7 +2,7 @@
 
 import asyncio
 
-from relaydeck.gateway.terminal_epochs import reconcile_terminal_routes
+from relaydeck.gateway.app.terminal_epochs import reconcile_terminal_routes
 from tests.support.terminal.lease_gateway import _attach, _client, _headers, _lease, _ticket, _token
 
 
@@ -33,7 +33,7 @@ def test_explicit_release_and_tab_socket_close_switch_to_observe() -> None:
 def test_expiry_is_published_even_without_terminal_socket(monkeypatch) -> None:
     async def scenario() -> None:
         _client_obj, state, backend, clock = _client()
-        from relaydeck.gateway.hosts import HostRecord
+        from relaydeck.gateway.features.access.hosts import HostRecord
 
         record = HostRecord("home-mac", "Mac", "test", "acct-1")
         monkeypatch.setattr(state.hosts, "hosts", lambda: (record,))
@@ -57,7 +57,7 @@ def test_expiry_is_published_even_without_terminal_socket(monkeypatch) -> None:
             else:
                 raise asyncio.CancelledError
 
-        monkeypatch.setattr("relaydeck.gateway.app.asyncio.sleep", sleep)
+        monkeypatch.setattr("relaydeck.gateway.app.lifespan.asyncio.sleep", sleep)
         try:
             await reconcile_terminal_routes(state)
         except asyncio.CancelledError:

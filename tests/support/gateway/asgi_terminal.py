@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
+from relaydeck.client.ports.transport import TerminalSocket, TransportError
 from tests.support.asgi_socket import AsgiSocket
 
 

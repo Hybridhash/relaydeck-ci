@@ -8,8 +8,8 @@ from typing import Any
 import flet as ft
 import pytest
 
-from relaydeck.client.features.terminal.input_modes import WORKFLOW_AGENT_DIRECT
 from relaydeck.client.features.terminal.pictures import attach_button, use_picture_attachment
+from relaydeck.client.models.input.modes import WORKFLOW_AGENT_DIRECT
 from tests.support.host_harness import render_component, run
 from tests.support.pictures.attachments import IDENTIFIER, PATH, _Api, choose, install_picker
 from tests.support.pictures.paste_source import FakePasteSource

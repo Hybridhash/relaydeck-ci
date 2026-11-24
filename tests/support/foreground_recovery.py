@@ -6,8 +6,8 @@ import asyncio
 from collections.abc import Awaitable, Callable
 from typing import Any
 
+from relaydeck.client.app.sessions.retained import RetainedSession, RetainedSessions
 from relaydeck.client.features.terminal.foreground_recovery import ForegroundRecovery
-from relaydeck.client.retained_sessions import RetainedSession, RetainedSessions
 from tests.support.scripted_sessions import make_scripted_sessions
 from tests.support.ui.instant_open import jobs
 

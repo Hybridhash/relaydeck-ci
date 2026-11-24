@@ -10,7 +10,7 @@ import json
 import subprocess
 from typing import Any
 
-from relaydeck.companion import prereqs
+from relaydeck.companion.inspection import prereqs
 
 SYNTHETIC_DNS = "mac-a.synthetic-tailnet.example.ts.net."
 

@@ -16,12 +16,24 @@ import pytest
 from relaydeck_terminal import protocol
 from relaydeck_terminal.terminal import RelayDeckTerminal
 
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.resources import AppResources
-from relaydeck.client.retained_sessions import RetainedSessions
-from relaydeck.client.serve import WebSessionStore, build_web_app, make_relaydeck_main
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.client.app.resources import AppResources
+from relaydeck.client.app.sessions.retained import RetainedSessions
+from relaydeck.client.app.state.sync import SyncController
+from relaydeck.client.widgets.terminal.screen import deliver_output as _deliver_output
+from relaydeck.companion.app.hosted_web.serve import (
+    WebSessionStore,
+    build_web_app,
+    make_relaydeck_main,
+)
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.gateway.cookie_socket import CookieSocket, until
 from tests.support.scripted_sessions import make_scripted_sessions
 from tests.support.sync.scripted_sync import _ScriptedTransport
@@ -47,7 +59,7 @@ def test_verified_r1a_reuse_triggers_bound_native_probe_without_new_root_or_owne
         controller = domain.controller
         lease = domain.lease
         controller._set(replace(controller.state, status="live"))
-        store = WebSessionStore("http://test", b"s" * 32)
+        store = WebSessionStore("https://test", b"s" * 32)
         sid = store.create_session("synthetic", "device", "access", "refresh", 2_000_000)
         state = GatewayState(backend=FakeBackend(), cursor_secret=b"x" * 32)
         gateway = create_app(state)
@@ -70,7 +82,7 @@ def test_verified_r1a_reuse_triggers_bound_native_probe_without_new_root_or_owne
 
                 def bind() -> None:
                     native.append(term)
-                    domain.bind_view(term)
+                    domain.bind_view(term, write=_deliver_output)
 
                 ft.use_effect(bind, [])
                 return term
@@ -91,26 +103,26 @@ def test_verified_r1a_reuse_triggers_bound_native_probe_without_new_root_or_owne
             page.render(Surface)
             return resource
 
-        monkeypatch.setattr("relaydeck.client.app.run_app", run_app)
+        monkeypatch.setattr("relaydeck.client.app.root.run_app", run_app)
         main = make_relaydeck_main(
             store=store,
             gateway_state=state,
             gateway_app=gateway,
-            base_url="http://test",
+            base_url="https://test",
             host_id="mac",
         )
         app, _ = build_web_app(
             gateway_state=state,
             gateway_app=gateway,
             flet_main=main,
-            public_origin="http://test",
+            public_origin="https://test",
             cookie_secret=store.cookie_secret,
             store=store,
         )
         sockets: list[CookieSocket] = []
         async with app.router.lifespan_context(app):
             try:
-                cookie = "rd_session=" + store.sign_sid(sid)
+                cookie = "__Host-rd_session=" + store.sign_sid(sid)
                 old = await CookieSocket(app, cookie).open()
                 sockets.append(old)
                 fid = await old.register()

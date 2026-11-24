@@ -15,7 +15,7 @@ export PATH
 EXIT_USAGE=2
 EXIT_NOT_READY=3
 REPO_URL="https://github.com/Hybridhash/relaydeck"
-TAG="v0.2.5"
+TAG="v0.3.0"
 
 FIND=/usr/bin/find
 READLINK=/usr/bin/readlink
@@ -96,9 +96,8 @@ install_steps() {
     printf '%s\n' \
         "RelayDeck is not installed for this user." \
         "Install it once from a terminal, then run this again:" \
-        "  1. Install uv: https://docs.astral.sh/uv/" \
-        "  2. uv tool install --managed-python --python 3.13 \"relaydeck[companion] @ git+$REPO_URL@$TAG\"" \
-        "  3. relaydeck setup" \
+        "  d=\$(mktemp -d) && curl -fsSL -o \"\$d/install.sh\" $REPO_URL/releases/download/$TAG/install.sh && /bin/sh \"\$d/install.sh\"" \
+        "The installer checks and fixes what it safely can itself, including adding uv and installing the signed web bundle." \
         "Nothing was installed by this plugin."
 }
 

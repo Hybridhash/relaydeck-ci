@@ -39,11 +39,10 @@ def history_notice(text: str) -> NoticeModel:
 
 @dataclass(frozen=True)
 class SelectionState:
-    """Select Text sheet state. Selection mode is
-    separate from terminal input focus: opening, moving, copying, or
-    closing a selection never emits PTY input or touches the composer
-    draft. `anchor`/`focus` are flat str offsets into the sheet text;
-    None selects all."""
+    """Select Text sheet state. Selection mode is separate from terminal input focus: opening,
+    moving, copying, or closing a selection never emits PTY input or touches the composer
+    draft.
+    """
 
     open: bool = False
     anchor: int | None = None

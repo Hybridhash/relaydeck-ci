@@ -11,13 +11,13 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.features.composer.domain import (
+from relaydeck.client.features.composer.model import (
     SEND_DELIVERED_VIA_PROMPT,
     SEND_IGNORED,
 )
-from relaydeck.client.features.settings import prefs as prefs_store
-from relaydeck.client.features.settings.prefs import PREFS_KEY, TerminalPrefs
 from relaydeck.client.features.terminal import haptics
+from relaydeck.client.models import preferences as prefs_store
+from relaydeck.client.models.preferences import PREFS_KEY, TerminalPrefs
 
 
 class Recorder:

@@ -12,10 +12,10 @@ from collections import deque
 from dataclasses import dataclass, field
 from typing import Any
 
-from relaydeck.client.features.shell.ops import ScriptedShellGatewayOps
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
-from relaydeck.client.sessions import SessionFactory
+from relaydeck.client.app.sessions.factory import SessionFactory
+from relaydeck.client.ports.transport import TerminalSocket, TransportError
 from tests.support.fakes import FakeClipboard
+from tests.support.terminal.shell_ops import ScriptedShellGatewayOps
 
 
 class ScriptedTerminalSocket(TerminalSocket):
@@ -83,8 +83,10 @@ class RecordingSessionFactory(SessionFactory):
 
     created: list[Any] = field(default_factory=list)
 
-    def make_shell(self, *, host_id: str, host_epoch: str = "") -> Any:
-        session = super().make_shell(host_id=host_id, host_epoch=host_epoch)
+    def make_shell(self, *, host_id: str, host_epoch: str = "", terminal_id: str = "") -> Any:
+        session = super().make_shell(
+            host_id=host_id, host_epoch=host_epoch, terminal_id=terminal_id
+        )
         self.created.append(session)
         return session
 

@@ -1,0 +1,1 @@
+"""A widgets module."""

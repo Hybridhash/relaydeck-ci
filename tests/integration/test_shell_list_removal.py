@@ -8,15 +8,15 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from relaydeck.client.features.inventory.components.models import terminal_rows
-from relaydeck.client.features.inventory.selectors import space_rows
-from relaydeck.client.features.sync.controller import event_from_wire
+from relaydeck.client.app.shell.models import terminal_rows
+from relaydeck.client.app.state.sync import event_from_wire
+from relaydeck.client.models.inventory_selectors import space_rows
 from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.connector.source import HerdrSource, translate_event
 from relaydeck.contracts.schemas import validate_metadata_event
 from relaydeck.domain import reducers
 from relaydeck.domain.models import AppState, Pane, Snapshot, Tab, Workspace, scope_key
-from relaydeck.gateway.backend import prepare_event
+from relaydeck.gateway.features.metadata.events import prepare_event
 
 NOW = 1_700_000_000_000
 SECRET = b"s" * 32

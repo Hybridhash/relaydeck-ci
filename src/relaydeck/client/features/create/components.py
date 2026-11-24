@@ -1,10 +1,5 @@
-"""Creation sheets.
-
-Two strictly separate flows: Start Agent (agent.start with host,
-workspace, kind, argv and name) and New Terminal (shell.create with
-host, workspace and label). Drafts live in the sheet while open;
-validation is pure (`validation.py`); submission hands a validated
-draft to the parent, which maps it to a command (`commands.py`).
+"""Creation sheets. Two strictly separate flows: Start Agent (agent.start with host, workspace,
+kind, argv and name) and New Terminal (shell.create with host, workspace and label).
 """
 
 from __future__ import annotations
@@ -14,6 +9,11 @@ from typing import Any
 
 import flet as ft
 
+from relaydeck.client.design_system.buttons import Button
+from relaydeck.client.design_system.headers import ScreenHeader
+from relaydeck.client.design_system.inputs import TextInput
+from relaydeck.client.design_system.loading_spinner import Spinner
+from relaydeck.client.design_system.theme import FONT_SIZE, MIN_TOUCH, RADIUS, Palette, palette
 from relaydeck.client.features.create.validation import (
     AgentDraft,
     ShellDraft,
@@ -22,8 +22,7 @@ from relaydeck.client.features.create.validation import (
     validate_agent,
     validate_shell,
 )
-from relaydeck.client.features.terminal.events import event_text
-from relaydeck.client.theme import FONT_SIZE, MIN_TOUCH, RADIUS, palette
+from relaydeck.client.platform.flet.events import event_text
 from relaydeck.contracts.launch import AGENT_NAME_HELP, agent_name_error, default_agent_name
 
 START_AGENT_SHEET_KEY = "start-agent-sheet"
@@ -34,11 +33,8 @@ SHEET_ACTIONS_KEY = "sheet-actions"
 
 @ft.component
 def CreationSheetCard(body: Any, width: float, max_height: float) -> Any:
-    """Measure the natural body under the scroll view, then cap the card.
-
-    Pinned Flet's scroll Column fills its incoming height and ListView has
-    no public shrink-wrap switch. Measuring the non-flex child also avoids
-    asking Material dropdowns for unsupported intrinsic layout dimensions.
+    """Measure the natural body under the scroll view, then cap the card. Pinned Flet's scroll
+    Column fills its incoming height and ListView has no public shrink-wrap switch.
     """
     initial_height: float | None = None
     body_height, set_body_height = ft.use_state(initial_height)
@@ -93,7 +89,7 @@ def _workspace_controls(
             ],
             on_select=lambda e: set_mode(event_text(e)),
         ),
-        ft.TextField(
+        TextInput(
             key=f"{prefix}-workspace-directory",
             label="Directory (optional)",
             value=directory,
@@ -103,7 +99,7 @@ def _workspace_controls(
             error=errors.get("workspace_directory"),
             on_change=lambda e: set_directory(event_text(e)),
         ),
-        ft.TextField(
+        TextInput(
             key=f"{prefix}-workspace-label",
             label="Workspace label (optional)",
             value=label,
@@ -131,7 +127,7 @@ def _dropdown(**props: Any) -> ft.Row:
     )
 
 
-def _framed(tokens: dict[str, str], controls: list[Any]) -> Any:
+def _framed(tokens: Palette, controls: list[Any]) -> Any:
     """The Root card owns the frame; isolate dropdown arrows from chrome fill."""
     return ft.Container(
         key=SHEET_FRAME_KEY,
@@ -140,7 +136,7 @@ def _framed(tokens: dict[str, str], controls: list[Any]) -> Any:
                 style=ft.ButtonStyle(
                     bgcolor=ft.Colors.TRANSPARENT,
                     side=ft.BorderSide(0, ft.Colors.TRANSPARENT),
-                    color=tokens["text"],
+                    color=tokens.text,
                 )
             )
         ),
@@ -267,7 +263,7 @@ def StartAgentSheet(
             _framed(
                 tokens,
                 [
-                    ft.Text(
+                    ScreenHeader(
                         "Start agent",
                         key="sheet-title",
                         size=FONT_SIZE["headline"],
@@ -302,7 +298,7 @@ def StartAgentSheet(
                         set_workspace_label,
                         errors,
                     ),
-                    ft.TextField(
+                    TextInput(
                         key="agent-name",
                         label="Name (optional)",
                         hint_text=_default_name(kind, host_id, existing_names_by_host),
@@ -324,7 +320,7 @@ def StartAgentSheet(
                         on_select=lambda e: set_kind(event_text(e)),
                         disabled=not kinds,
                     ),
-                    ft.TextField(
+                    TextInput(
                         key="agent-argv",
                         label="Arguments (optional)",
                         value=argv_text,
@@ -340,12 +336,12 @@ def StartAgentSheet(
                         visible=not kinds,
                     ),
                     ft.Text(error, key="sheet-error", visible=bool(error)),
-                    ft.ProgressRing(key="sheet-spinner", visible=submitting),
+                    Spinner(key="sheet-spinner", visible=submitting),
                     ft.Row(
                         key=SHEET_ACTIONS_KEY,
                         alignment=ft.MainAxisAlignment.END,
                         controls=[
-                            ft.Button(
+                            Button(
                                 "Cancel",
                                 key="sheet-cancel",
                                 height=MIN_TOUCH,
@@ -353,7 +349,7 @@ def StartAgentSheet(
                                 disabled=submitting,
                                 on_click=lambda e: on_cancel(),
                             ),
-                            ft.Button(
+                            Button(
                                 "Start",
                                 key="sheet-submit",
                                 disabled=submitting or not kinds or bool(name_validation),
@@ -451,7 +447,7 @@ def NewTerminalSheet(
             _framed(
                 tokens,
                 [
-                    ft.Text(
+                    ScreenHeader(
                         "New terminal",
                         key="sheet-title",
                         size=FONT_SIZE["headline"],
@@ -486,7 +482,7 @@ def NewTerminalSheet(
                         set_workspace_label,
                         errors,
                     ),
-                    ft.TextField(
+                    TextInput(
                         key="shell-label",
                         label="Tab label (optional)",
                         value=label,
@@ -496,12 +492,12 @@ def NewTerminalSheet(
                     ),
                     ft.Text(command_status, key="sheet-status", visible=bool(command_status)),
                     ft.Text(error, key="sheet-error", visible=bool(error)),
-                    ft.ProgressRing(key="sheet-spinner", visible=submitting),
+                    Spinner(key="sheet-spinner", visible=submitting),
                     ft.Row(
                         key=SHEET_ACTIONS_KEY,
                         alignment=ft.MainAxisAlignment.END,
                         controls=[
-                            ft.Button(
+                            Button(
                                 "Cancel",
                                 key="sheet-cancel",
                                 height=MIN_TOUCH,
@@ -509,7 +505,7 @@ def NewTerminalSheet(
                                 disabled=submitting,
                                 on_click=lambda e: on_cancel(),
                             ),
-                            ft.Button(
+                            Button(
                                 "Create",
                                 key="sheet-submit",
                                 disabled=submitting,

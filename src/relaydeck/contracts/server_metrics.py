@@ -1,6 +1,6 @@
-"""Server health snapshot: numbers only, 15 one-minute slots, kept in memory by the companion."""
+"""Scoped server health: aggregate metrics and packaged release identity."""
 
-from typing import Any, TypedDict
+from typing import Any, NotRequired, TypedDict
 
 from relaydeck.contracts.pairing import document
 
@@ -94,6 +94,15 @@ SERVER_METRICS_SCHEMAS = {
 }
 
 
+# Optional so clients can still read snapshots from a server without build identification.
+SERVER_METRICS_SCHEMAS["relaydeck/gateway/v1/server-metrics"]["properties"].update(
+    {
+        "app_version": {"type": "string", "pattern": r"^[A-Za-z0-9][A-Za-z0-9._+!-]{0,63}$"},
+        "build_revision": {"type": "string", "pattern": r"^([0-9a-f]{40}|unknown)$"},
+    }
+)
+
+
 class ServerMetricsRequests(TypedDict):
     series: list[int]
     total: int
@@ -158,6 +167,8 @@ class ServerMetricsProcess(TypedDict):
 
 
 class ServerMetrics(TypedDict):
+    app_version: NotRequired[str]
+    build_revision: NotRequired[str]
     generated_ms: int
     started_ms: int
     slots_ms: list[int]

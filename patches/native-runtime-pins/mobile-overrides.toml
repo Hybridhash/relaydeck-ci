@@ -23,6 +23,7 @@ msgpack = "1.1.2"
 
 [flutter.dependency_overrides]
 # The Flet 1.0.3 template pins jni 1.0.0; jni_flutter 1.0.4+1 needs jni ^1.1.0.
+jni = "1.1.0"
 jni_flutter = "1.0.3"
 
 [build_environment]

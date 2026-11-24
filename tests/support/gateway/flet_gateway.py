@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from relaydeck.gateway.app import GatewayState
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.state import GatewayState
 
 
 def _gateway_state() -> GatewayState:

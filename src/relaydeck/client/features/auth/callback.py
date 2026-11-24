@@ -1,8 +1,5 @@
-"""App-link OAuth callback parsing.
-
-Accepts the custom-scheme callback and the verified https app link.
-State comparison is constant-time; any mismatch fails closed without
-touching stored tokens.
+"""App-link OAuth callback parsing. Accepts the custom-scheme callback and the verified https
+app link.
 """
 
 from __future__ import annotations

@@ -1,10 +1,5 @@
-"""Reconnect the visible terminal when the page returns, without a user action.
-
-One flight per entry. It only revives a terminal that was disconnected by the page lifecycle or
-the transport: a deliberate release, an exit, a revoked grant, a conflict or an exhausted budget
-stays as it is. Control is never forced; the existing conditional paths decide ownership. Every
-await of the reacquire runs under one validity guard, so a stale attempt publishes nothing and
-gives back whatever it acquired.
+"""Reconnect the visible terminal when the page returns, without a user action. One flight per
+entry.
 """
 
 from __future__ import annotations
@@ -15,12 +10,12 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
 from relaydeck.client.features.terminal.recovery_cause import (
     RECOVERY_LIFECYCLE,
     RECOVERY_TRANSPORT,
 )
 from relaydeck.client.features.terminal.ui_resume import terminal_transition
+from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
 
 MAX_ATTEMPTS = 2
 _RECOVERABLE = frozenset({RECOVERY_LIFECYCLE, RECOVERY_TRANSPORT})

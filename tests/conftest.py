@@ -1,19 +1,10 @@
-"""Suite-wide test defaults.
-
-Opening an agent takes control automatically in the product (Settings: "Take
-control when opening an agent"). Most UI tests pin the watch-first contract
-(open, watch, explicit Take over), so the automatic step is a no-op unless a test
-opts in with ``@pytest.mark.auto_takeover``. The automatic path itself is covered
-by tests that call it directly or opt in.
-
-A newly opened terminal also holds its size reports while its layout settles. Tests that drive a
-terminal right after opening it release that hold at once unless they opt in with
-``@pytest.mark.open_hold``; the hold itself has its own tests.
-"""
+"""Global theme and safety defaults, with opt-in hosted assets."""
 
 from __future__ import annotations
 
+import logging
 import os
+from collections.abc import Iterator
 from typing import Any
 
 import pytest
@@ -24,18 +15,33 @@ os.environ.setdefault("RELAYDECK_THEME", "default")
 
 
 @pytest.fixture(autouse=True)
-def _watch_first_unless_opted_in(request: pytest.FixtureRequest, monkeypatch: Any) -> None:
-    if request.node.get_closest_marker("auto_takeover") is not None:
-        return
+def _setup_remedies_change_nothing(monkeypatch: Any) -> None:
+    """A setup run built without explicit fakes must never download, open or spawn anything."""
 
-    async def watch_first(session: Any) -> None:
-        return None
+    def fake_tools() -> Any:
+        from tests.support.setup.remedies import FakeRemedies
 
-    monkeypatch.setattr("relaydeck.client.hooks.actions._auto_take_control", watch_first)
+        return FakeRemedies().tools()
+
+    monkeypatch.setattr("relaydeck.companion.setup.remediate.real_tools", fake_tools)
 
 
 @pytest.fixture(autouse=True)
-def _open_hold_released_unless_opted_in(request: pytest.FixtureRequest, monkeypatch: Any) -> None:
-    if request.node.get_closest_marker("open_hold") is not None:
-        return
-    monkeypatch.setattr("relaydeck.client.features.terminal.surfaces.agent_hooks.OPEN_HOLD_S", 0.0)
+def _process_logging_restored() -> Iterator[None]:
+    """Entry points install a process-wide record factory and root handlers; keep them per test."""
+    root = logging.getLogger()
+    factory = logging.getLogRecordFactory()
+    handlers, level = list(root.handlers), root.level
+    yield
+    logging.setLogRecordFactory(factory)
+    root.handlers[:] = handlers
+    root.setLevel(level)
+
+
+@pytest.fixture
+def hosted_web_bundle(tmp_path: Any, monkeypatch: Any) -> Any:
+    from tests.support.companion.web_assets import write_web_assets
+
+    root = write_web_assets(tmp_path / "hosted-web")
+    monkeypatch.setenv("FLET_WEB_PATH", str(root))
+    return root

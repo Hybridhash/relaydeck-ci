@@ -1,50 +1,5 @@
-"""Format "json-session-credits-v1": session credit consumption, never tokens.
-
-The root is the sessions directory. Two layouts under it, read as one source
-so resume dedupe sees both:
-
-- v2 `cli/<id>.json`: one JSON document per session, parsed whole. Per turn,
-  `metering_usage[]` carries credit entries; other units are skipped and
-  counted, and the file is marked with gap evidence (PARTIAL), never
-  converted. A turn with no credit total is not an event; a turn with no
-  metering data at all is quietly not an event.
-- v3 `<workspace>/sess_<id>/messages.jsonl`: streamed lines; rare
-  `usage_summary` lines carry `promptTurnSummaries[]` with credit usage.
-
-Turn identity (v2): `<session>:<loop_id>`. The `loop_id` object
-(`agent_id.name` + `rand`, plus the agent's own parent/rand when set) is
-digested and session-qualified; same-loop turns stay distinct by timestamp
-and message list, since loop ids alone are not unique per turn (three live
-pairs share one). A turn whose loop id is missing or invalid falls back to
-a positional key; that fallback moves under compaction or re-indexing,
-which is its documented limit. Stability was verified against recorded
-shapes: 264/264 real turns carry the dict form.
-
-Resume dedupe: when `sess_<X>` exists, V2 turns of X at or after the first V3
-summary are dropped (kiroku ADR 0021). V3 files are read before V2 files every
-pass and each V3 file pins its earliest summary time, so a fresh source never
-double counts; a session that resumes in V3 after its V2 turns were already
-read keeps those turns (absence never deletes), which is the documented
-residue of this rule.
-
-Fork dedupe: turns copied across V2 sessions with the same loop id and the
-same metering totals count once, kept by the earliest session (file mtime,
-then session, then path). A claim scan over the v2 layout runs before the
-v2 phase every pass, so the winner does not depend on pass order; each
-file also records the turns it won in its own context, and those standing
-claims veto later files even when the winner is no longer the earliest
-holder (an original that drops a turn still owns it via its stored events).
-Only files present in the pass take part: a fork first read after its
-original was deleted counts its turns anew, which is the documented
-residue. When the claim scan itself is truncated, winner checks degrade
-to standing claims only and the batch stays PARTIAL.
-
-Event keys: v2 `<session, loop digest, time, messages>` or positional
-fallback; v3 the line id or the byte offset. All digested; no raw text
-crosses.
-
-Coverage is UNAVAILABLE when files hold turns but no credits were ever read
-("credits not reported"). Tokens are never reported by this reader.
+"""Read credit events from bounded session snapshots and streamed summaries, deduplicating
+resumes and forks. Credit units remain separate from tokens and dollar estimates.
 """
 
 from __future__ import annotations
@@ -128,11 +83,8 @@ def _count(value: object) -> int:
 
 
 def _metering_total(entries: object) -> tuple[int | None, bool]:
-    """(total milli-credits, non-credit unit seen); None when the list is unusable.
-
-    Only the exact unit "credit" counts. A missing list is quietly zero (turns
-    predate metering); zero-value entries contribute nothing; negative,
-    non-finite, oversized or non-numeric credit values poison the turn.
+    """(total milli-credits, non-credit unit seen); None when the list is unusable. Only the
+    exact unit "credit" counts.
     """
     if entries is None:
         return 0, False
@@ -210,10 +162,9 @@ def _stamp(value: object) -> int | None:
 def _turn_key(
     turn: Mapping[str, object], index: int, session: str, occurred: int | None
 ) -> tuple[str, str | None]:
-    """(event key, loop digest or None). Loop turns key by `<session>:<loop_id>`;
-    same-loop turns stay distinct by time and messages, or by the index when
-    neither exists. Without a loop id the key is positional (the documented
-    limit: it moves under compaction or re-indexing)."""
+    """(event key, loop digest or None). Loop turns key by `<session>:<loop_id>`; same-loop
+    turns stay distinct by time and messages, or by the index when neither exists.
+    """
     digest = _loop_digest(turn)
     if digest is None:
         return key_text("v2turn-index", index, session), None
@@ -252,10 +203,9 @@ def _v2_turns(document: object) -> object:
 
 @dataclass(frozen=True)
 class _Forks:
-    """Fork comparison for one pass. `winners` maps each loop turn's claim
-    composite to its earliest holder (file mtime, session, rel); `scanned`
-    holds the rels the claim scan read. When the scan is incomplete, winner
-    checks degrade to standing claims only."""
+    """Fork comparison for one pass. `winners` maps each loop turn's claim composite to its
+    earliest holder (file mtime, session, rel); `scanned` holds the rels the claim scan read.
+    """
 
     winners: Mapping[str, tuple[int, str, str]]
     scanned: frozenset[str]
@@ -735,10 +685,10 @@ class _V3Handler(LineHandler):
 
 
 def _read_session_meta(root_fd: int, rel: str) -> tuple[object, str | None, int]:
-    """(model, first workspace path, bytes read) from the sibling session.json.
-
-    Best effort: a missing, oversized or malformed file yields (None, None).
-    Only the first workspace path is used, and only as a digest input."""
+    """Return model, first workspace path and byte-accounting count from bounded sibling
+    metadata. Accounting is zero for refused reads or malformed JSON, and file size for a
+    parsed non-object.
+    """
     parts = rel.split("/")
     meta_rel = "/".join([*parts[:-1], "session.json"])
     try:

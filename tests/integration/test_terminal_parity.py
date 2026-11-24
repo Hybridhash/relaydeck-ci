@@ -45,7 +45,17 @@ from unittest.mock import patch
 import httpx
 
 from relaydeck.client.features.create.commands import shell_create_command
-from relaydeck.client.features.shell import (
+from relaydeck.client.features.terminal.input_modes import (
+    ImeState,
+    InputModeState,
+    route_ime_commit,
+)
+from relaydeck.client.features.terminal.models import TerminalViewState
+from relaydeck.client.features.terminal.paste_review import REQUEST_REVIEW
+from relaydeck.client.features.terminal.pictures import PictureApi as PictureApiFactory
+from relaydeck.client.features.terminal.selection_model import open_selection
+from relaydeck.client.features.terminal.sessions import DRIVE_REFUSED_EXITED
+from relaydeck.client.features.terminal.shell_session import (
     DISCONNECT_MESSAGE,
     EXIT_MESSAGE,
     SELF_TAKEOVER_NOTICE,
@@ -53,38 +63,31 @@ from relaydeck.client.features.shell import (
     SHELL_DISCONNECTED,
     SHELL_EXITED,
     SHELL_LIVE,
-    HttpxShellGatewayOps,
     ShellSession,
     ShellViewState,
 )
-from relaydeck.client.features.shell.screen import (
+from relaydeck.client.features.terminal.stream import INCOMPLETE_HISTORY
+from relaydeck.client.models.input.modes import KEYBOARD_KEYS, KEYBOARD_TEXT, WORKFLOW_SHELL
+from relaydeck.client.models.input.paste_policy import BRACKET_END, BRACKET_START
+from relaydeck.client.platform.transport.shell_ops import HttpxShellGatewayOps
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
+)
+from relaydeck.client.platform.transport.transport import (
+    HttpxGatewayTransport,
+    WebsocketTerminalSocket,
+)
+from relaydeck.client.screens.shell.screen import (
     SHELL_CONFLICT_OWNER_KEY,
     SHELL_INPUT_ROW_KEY,
     SHELL_RECONNECT_KEY,
     SHELL_TAKEOVER_KEY,
     ShellScreen,
 )
-from relaydeck.client.features.sync.transport import (
-    HttpxGatewayTransport,
-    WebsocketTerminalSocket,
-)
-from relaydeck.client.features.terminal.input_modes import (
-    KEYBOARD_KEYS,
-    KEYBOARD_TEXT,
-    WORKFLOW_SHELL,
-    ImeState,
-    InputModeState,
-    route_ime_commit,
-)
-from relaydeck.client.features.terminal.keys import KEYS_DOCK_KEY
-from relaydeck.client.features.terminal.models import TerminalViewState
-from relaydeck.client.features.terminal.paste_policy import BRACKET_END, BRACKET_START
-from relaydeck.client.features.terminal.paste_review import REQUEST_REVIEW
-from relaydeck.client.features.terminal.selection_model import open_selection
-from relaydeck.client.features.terminal.stream import INCOMPLETE_HISTORY
-from relaydeck.client.features.terminal.surfaces import DRIVE_REFUSED_EXITED
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.client.widgets.terminal.tools_keys import KEYS_DOCK_KEY
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
 from tests.support.fakes import FakeClipboard
 from tests.support.host_harness import button_label, render_component, run
 from tests.support.live_server import LiveGateway
@@ -216,8 +219,18 @@ async def _run_shell_scenario(config: AdapterConfig) -> ScenarioOutcome:
 
         async with httpx.AsyncClient(base_url=live.base_url, timeout=10.0) as http:
             transport = HttpxGatewayTransport(base_url=live.base_url, token=token, client=http)
-            ops = HttpxShellGatewayOps(base_url=live.base_url, token=token, client=http)
-            other_ops = HttpxShellGatewayOps(base_url=live.base_url, token=other_token, client=http)
+            ops = HttpxShellGatewayOps(
+                base_url=live.base_url,
+                token=token,
+                client=http,
+                picture_api_factory=PictureApiFactory,
+            )
+            other_ops = HttpxShellGatewayOps(
+                base_url=live.base_url,
+                token=other_token,
+                client=http,
+                picture_api_factory=PictureApiFactory,
+            )
             # 1. Create: shell.create only, never agent.start.
             record = await transport.submit_command(
                 shell_create_command(
@@ -243,6 +256,7 @@ async def _run_shell_scenario(config: AdapterConfig) -> ScenarioOutcome:
                 )
 
             session = ShellSession(
+                stream_factory=_terminal_stream_factory,
                 ops=ops,
                 host_id="home-mac",
                 # The app always passes the host epoch; closing the pane needs it.
@@ -619,8 +633,18 @@ def test_ownership_conflict_discloses_owner_end_to_end() -> None:
                 return access2
 
             async with httpx.AsyncClient(base_url=live.base_url, timeout=10.0) as http:
-                ops1 = HttpxShellGatewayOps(base_url=live.base_url, token=token1, client=http)
-                ops2 = HttpxShellGatewayOps(base_url=live.base_url, token=token2, client=http)
+                ops1 = HttpxShellGatewayOps(
+                    base_url=live.base_url,
+                    token=token1,
+                    client=http,
+                    picture_api_factory=PictureApiFactory,
+                )
+                ops2 = HttpxShellGatewayOps(
+                    base_url=live.base_url,
+                    token=token2,
+                    client=http,
+                    picture_api_factory=PictureApiFactory,
+                )
                 box: dict[str, ShellSession] = {}
 
                 def factory(ticket: str) -> WebsocketTerminalSocket:
@@ -632,6 +656,7 @@ def test_ownership_conflict_discloses_owner_end_to_end() -> None:
                     )
 
                 first = ShellSession(
+                    stream_factory=_terminal_stream_factory,
                     ops=ops1,
                     host_id="home-mac",
                     device_id="dev-1",
@@ -647,6 +672,7 @@ def test_ownership_conflict_discloses_owner_end_to_end() -> None:
                     raise AssertionError("conflict must precede streaming")
 
                 second = ShellSession(
+                    stream_factory=_terminal_stream_factory,
                     ops=ops2,
                     host_id="home-mac",
                     device_id="dev-2",

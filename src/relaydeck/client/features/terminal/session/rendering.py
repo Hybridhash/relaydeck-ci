@@ -1,7 +1,6 @@
-"""One renderer binding per terminal session.
-
-Owns output sinks, viewer-reopen detection and explicit recovery. Optional
-callbacks handle workflow-specific steps without a session back-reference."""
+"""One renderer binding per terminal session. Owns output sinks, viewer-reopen detection and
+explicit recovery.
+"""
 
 from __future__ import annotations
 
@@ -119,18 +118,12 @@ class RendererBinding:
                 pass
 
     # -- view mount ---------------------------------------------------------
-    def bind_view(self, term: Any, *, write: Callable[[Any, bytes], bool] | None = None) -> int:
-        """Mount a renderer view: rebind input sessions to the live
-        controller (dropping stale callbacks), register the output sink,
-        and restart lease renewal. Replaces any previous mount: one
-        mounted renderer per session. Returns the sink token. `write`
-        defaults to `screen.deliver_output` (lazy import keeps this
-        module Flet-free)."""
+    def bind_view(self, term: Any, *, write: Callable[[Any, bytes], bool]) -> int:
+        """Mount a renderer view: rebind input sessions to the live controller (dropping stale
+        callbacks), register the output sink, and restart lease renewal. Replaces any
+        previous mount: one mounted renderer per session.
+        """
         hooks = self._hooks
-        if write is None:
-            from relaydeck.client.features.terminal.screen import deliver_output
-
-            write = deliver_output
         if self._view_token is not None:
             self.unbind_renderer(self._view_token)
             self._view_token = None

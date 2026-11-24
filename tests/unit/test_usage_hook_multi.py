@@ -14,11 +14,11 @@ from typing import Any
 
 import pytest
 
-from relaydeck.usage import hook_install
 from relaydeck.usage.contracts import Budget, Cursor, LimitStatus
-from relaydeck.usage.hook_install import install_hook
-from relaydeck.usage.hook_resource import hook_bytes
-from relaydeck.usage.hook_setup import HOOK_FILENAME, HOOK_SHA256, PREVIOUS_HOOK_SHA256
+from relaydeck.usage.hooks import install as hook_install
+from relaydeck.usage.hooks.install import install_hook
+from relaydeck.usage.hooks.resource import hook_bytes
+from relaydeck.usage.hooks.setup import HOOK_FILENAME, HOOK_SHA256, PREVIOUS_HOOK_SHA256
 from relaydeck.usage.limits.json_statusline_limits import JsonStatuslineLimitsReader
 from relaydeck.usage.resources import statusline_limits_hook as hook
 

@@ -24,7 +24,6 @@ import httpx
 import pytest
 
 from relaydeck.connector.attach import AttachSession
-from relaydeck.connector.fixture import FixtureAdapter
 from relaydeck.connector.herdr import HerdrAdapter, HerdrProtocolError
 from relaydeck.connector.journal import ConnectorDispatch
 from relaydeck.connector.link import ConnectorLink, LinkConfig, TunnelTransport
@@ -35,10 +34,12 @@ from relaydeck.connector.source import (
     translate_snapshot,
 )
 from relaydeck.contracts.schemas import GATEWAY_PROTOCOL, validate
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import prepare_event
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal, digest_for
+from relaydeck.devtools.fakes.connector import FixtureAdapter
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.features.metadata.events import prepare_event
+from relaydeck.host.persistence.command_journal import CommandJournal, digest_for
 from tests.support.agent_kinds import allow_kinds
 from tests.support.live_server import LiveGateway
 

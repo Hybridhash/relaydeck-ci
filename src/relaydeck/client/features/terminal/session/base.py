@@ -1,7 +1,6 @@
-"""Shared identity, lifecycle and input generations for terminal sessions.
-
-Teardown fences input before awaiting; workflow hooks keep composer routing
-agent-only. Collaborators receive explicit callbacks, not the session."""
+"""Shared identity, lifecycle and input generations for terminal sessions. Teardown fences input
+before awaiting; workflow hooks keep composer routing agent-only.
+"""
 
 from __future__ import annotations
 
@@ -9,22 +8,12 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
-from relaydeck.client import open_timing
-from relaydeck.client.features.composer.domain import ComposerStore
-from relaydeck.client.features.shell.ops import (
-    AttachmentInfo,
-    LeaseInfo,
-    ShellGatewayOps,
-    ShellOpError,
-)
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
-from relaydeck.client.features.terminal.controller import TerminalController
+from relaydeck.client.features.composer.api import ComposerStore
+from relaydeck.client.features.terminal.controller import EXTERNAL_HOLDER_LABEL, TerminalController
+from relaydeck.client.features.terminal.gap_recovery import DRIVE_REACQUIRE
 from relaydeck.client.features.terminal.models import TerminalViewState
 from relaydeck.client.features.terminal.output_log import BoundedOutputLog
-from relaydeck.client.features.terminal.recovery_cause import (
-    RECOVERY_LIFECYCLE,
-    RECOVERY_TRANSPORT,
-)
+from relaydeck.client.features.terminal.recovery_cause import RECOVERY_LIFECYCLE, RECOVERY_TRANSPORT
 from relaydeck.client.features.terminal.session.facade import SessionFacade
 from relaydeck.client.features.terminal.session.hooks import (
     key_hooks,
@@ -37,25 +26,22 @@ from relaydeck.client.features.terminal.session.hooks import (
 from relaydeck.client.features.terminal.session.keys import KeyHooks, KeyInput
 from relaydeck.client.features.terminal.session.lease import LeaseHooks, LeaseRenewalOwner
 from relaydeck.client.features.terminal.session.paste import PasteFlow, PasteHooks
-from relaydeck.client.features.terminal.session.recovery_state import DRIVE_REACQUIRE, RecoveryState
-from relaydeck.client.features.terminal.session.rendering import (
-    RendererBinding,
-    RendererHooks,
-)
-from relaydeck.client.features.terminal.session.selection import (
-    SelectionController,
-    SelectionHooks,
-)
-from relaydeck.client.features.terminal.stream import EMULATOR_FRESH
-from relaydeck.client.features.terminal.surfaces import (
+from relaydeck.client.features.terminal.session.recovery_state import RecoveryState
+from relaydeck.client.features.terminal.session.rendering import RendererBinding, RendererHooks
+from relaydeck.client.features.terminal.session.selection import SelectionController, SelectionHooks
+from relaydeck.client.features.terminal.sessions import (
     DRIVE_REFUSED_EXITED,
     EXIT_DETAILS,
     SnoopingTerminalSocket,
     drive_recovery,
 )
+from relaydeck.client.features.terminal.stream import EMULATOR_FRESH
+from relaydeck.client.platform.diagnostics import open_timing
+from relaydeck.client.ports.terminal import AttachmentInfo, LeaseInfo, ShellGatewayOps, ShellOpError
+from relaydeck.client.ports.transport import TerminalSocket, TerminalStreamFactory, TransportError
 
 if TYPE_CHECKING:
-    from relaydeck.client.features.terminal.surfaces import DetailSessions
+    from relaydeck.client.features.terminal.sessions import DetailSessions
 
 
 class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
@@ -77,6 +63,7 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
         host_id: str,
         device_id: str,
         socket_factory: Callable[[str], TerminalSocket],
+        stream_factory: TerminalStreamFactory,
         clipboard: Any | None,
         on_bytes: Callable[[bytes], None] | None,
         sessions: DetailSessions,
@@ -87,6 +74,7 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
         self._host_id = host_id
         self._device_id = device_id
         self._socket_factory = socket_factory
+        self._stream_factory = stream_factory
         self._clipboard = clipboard
         self._sink = on_bytes
         self._sessions = sessions
@@ -108,6 +96,8 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
         self._interaction_generation = 0
         self.output_log = BoundedOutputLog()
         self._listeners: list[Callable[[Any], None]] = []
+        self._term_notify_handle = None
+        self._last_term_notify = 0.0
         self.cached_screen = ""
         # The five capabilities, composed from explicit hooks.
         self._renderer = RendererBinding(self._renderer_hooks())
@@ -173,6 +163,7 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
             return snoop
 
         controller = TerminalController(
+            stream_factory=self._stream_factory,
             gap_recovery=self.gap_recovery,
             diagnostics=self._lease_trace(lease),
             socket_factory=factory,
@@ -203,6 +194,10 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
             self._enter_exited(self._EXIT_MESSAGE)
             return self._phase
         controller = self._controller
+        if controller is not None and controller.owned_elsewhere:  # typed refusal: holder panel
+            self._owner_label, self._phase = EXTERNAL_HOLDER_LABEL, self._PHASE_CONFLICT
+            self._notify()
+            return self._phase
         if (
             controller is not None
             and (controller.reattach_needed or controller.pending_resume is not None)
@@ -223,7 +218,7 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
 
     async def drive_recovery(self) -> str:
         """Resume a valid reader, or reacquire under the session recovery budget."""
-        if self._phase == self._PHASE_EXITED or self._controller is None:
+        if self._phase in (self._PHASE_EXITED, self._PHASE_CONFLICT) or self._controller is None:
             return DRIVE_REFUSED_EXITED
         controller = self._controller
         generation = self._interaction_generation
@@ -317,9 +312,9 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
         return self._phase
 
     async def disconnect(self, *, keep_recovery: bool = False) -> str:
-        """Back/leave: drop the live writer, release the lease and stop the
-        local stream. The attachment and its remote process survive;
-        reconnect resumes. Never marks exit."""
+        """Back/leave: drop the live writer, release the lease and stop the local stream. The
+        attachment and its remote process survive; reconnect resumes.
+        """
         self._bump_generation("disconnect")
         if not keep_recovery:
             self._recovery_cause = None  # a deliberate leave is never revived on its own
@@ -380,12 +375,11 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
         self._on_attach_lost()
 
     async def pause(self) -> str:
-        """App-background pause: invalidate the
-        writer IMMEDIATELY (pause policy), stop the local stream, and
-        release the lease best-effort (a failed release is covered by the
-        60s server-side expiry). The attachment and its remote process
-        survive; resume via `resume_after_pause()`. Never marks exit; a
-        no-op on `exited` (nothing live to invalidate)."""
+        """App-background pause: invalidate the writer IMMEDIATELY (pause policy), stop the
+        local stream, and release the lease best-effort (a failed release is covered by the
+        60s server-side expiry). The attachment and its remote process survive; resume via
+        `resume_after_pause()`.
+        """
         if self._phase == self._PHASE_EXITED:
             return self._phase
         # Hiding must not turn a deliberate stop into something recoverable.
@@ -458,14 +452,13 @@ class TerminalSessionBase(RecoveryState, SessionFacade, ABC):
         await self.disconnect()
 
     async def dispose(self, clear_sensitive: bool = False) -> None:
-        """End the session: stop renewal, unmount the view, and detach.
-        The remote process keeps running; this object must not be reused.
-        Ordinary leave (Back/route/offline) keeps object contents: Root
-        recreates sessions after Back. Pass `clear_sensitive=True` only
-        for revoke/logout closes: cached output bytes, any
-        composer draft, the selection snapshot, and notices are wiped
-        instead of relying on GC."""
+        """End the session: stop renewal, unmount the view, and detach. The remote process keeps
+        running; this object must not be reused.
+        """
         self._disposed = True
+        if self._term_notify_handle is not None:
+            self._term_notify_handle.cancel()
+            self._term_notify_handle = None
         self._cancel_background_recovery()
         await self.stop_lease_renewal()
         self.unbind_view()

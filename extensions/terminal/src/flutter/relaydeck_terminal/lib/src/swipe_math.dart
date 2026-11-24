@@ -12,14 +12,8 @@ class SwipeFlush {
   final double remainder;
 }
 
-/// Decides what an idle flush sends and what stays in the run.
-///
-/// A one-shot run (touch, direction flip) emits `round(|pixels| / lineHeight)`
-/// lines and keeps nothing, as before. With [keepRemainder] (a wheel's idle flush)
-/// only whole lines are emitted and the rest stays in the run: slow scrolling
-/// accumulates, never advances faster than the pixels travelled, and the
-/// remainder always keeps the run's sign, so a following same-direction delta is
-/// never mistaken for a reversal.
+/// Round a one-shot run to whole lines and clear its pixels. With keepRemainder, emit only
+/// complete lines and retain the signed fraction for slow wheel accumulation.
 SwipeFlush swipeFlushAccount(
   double pixels,
   double lineHeight, {

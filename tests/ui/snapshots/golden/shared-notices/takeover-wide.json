@@ -1,0 +1,344 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "key": "terminal-takeover-title",
+             "props": {
+              "style": {
+               "@": "TextStyle",
+               "color": "#F5F2FF",
+               "font_family": "Bricolage Grotesque ExtraBold",
+               "font_family_fallback": [
+                "Noto Sans Symbols 2"
+               ],
+               "height": 1.3333333333333333,
+               "size": 18,
+               "weight": {
+                "enum": "FontWeight",
+                "value": "w800"
+               }
+              },
+              "value": "Example ownership"
+             },
+             "slot": "controls",
+             "type": "Text"
+            },
+            {
+             "key": "terminal-takeover-message",
+             "props": {
+              "style": {
+               "@": "TextStyle",
+               "color": "#D9D3F2",
+               "font_family": "Bricolage Grotesque",
+               "font_family_fallback": [
+                "Noto Sans Symbols 2"
+               ],
+               "height": 1.4285714285714286,
+               "size": 14,
+               "weight": {
+                "enum": "FontWeight",
+                "value": "normal"
+               }
+              },
+              "value": "Example consequences"
+             },
+             "slot": "controls",
+             "type": "Text"
+            }
+           ],
+           "props": {
+            "spacing": 4,
+            "tight": true
+           },
+           "slot": "content",
+           "type": "Column"
+          }
+         ],
+         "props": {
+          "expand": true
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "props": {
+                  "no_wrap": true,
+                  "style": {
+                   "@": "TextStyle",
+                   "color": "#C4B0FF",
+                   "font_family": "Bricolage Grotesque Bold",
+                   "font_family_fallback": [
+                    "Noto Sans Symbols 2"
+                   ],
+                   "height": 1.2,
+                   "size": 14,
+                   "weight": {
+                    "enum": "FontWeight",
+                    "value": "bold"
+                   }
+                  },
+                  "value": "Keep watching"
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                }
+               ],
+               "props": {
+                "spacing": 8,
+                "tight": true
+               },
+               "slot": "content",
+               "type": "Row"
+              }
+             ],
+             "props": {
+              "alignment": {
+               "@": "Alignment",
+               "x": 0.0,
+               "y": 0.0
+              },
+              "border": {
+               "@": "Border",
+               "bottom": {
+                "@": "BorderSide",
+                "color": "#A98BFF"
+               },
+               "left": {
+                "@": "BorderSide",
+                "color": "#A98BFF"
+               },
+               "right": {
+                "@": "BorderSide",
+                "color": "#A98BFF"
+               },
+               "top": {
+                "@": "BorderSide",
+                "color": "#A98BFF"
+               }
+              },
+              "border_radius": {
+               "@": "BorderRadius",
+               "bottom_left": 24,
+               "bottom_right": 24,
+               "top_left": 24,
+               "top_right": 24
+              },
+              "padding": {
+               "@": "Padding",
+               "left": 16,
+               "right": 16
+              }
+             },
+             "slot": "content",
+             "type": "Container"
+            }
+           ],
+           "key": "terminal-keep-watching",
+           "props": {
+            "expand": false,
+            "height": 48,
+            "style": {
+             "@": "ButtonStyle",
+             "bgcolor": "transparent",
+             "overlay_color": {
+              "ControlState.DEFAULT": "transparent",
+              "ControlState.FOCUSED": "#33FFFFFF"
+             },
+             "padding": 0,
+             "shape": {
+              "@": "RoundedRectangleBorder",
+              "radius": 24
+             },
+             "side": {
+              "ControlState.DEFAULT": {
+               "@": "BorderSide",
+               "color": "transparent",
+               "width": 3
+              },
+              "ControlState.FOCUSED": {
+               "@": "BorderSide",
+               "color": "#F5F2FF",
+               "width": 3
+              }
+             }
+            },
+            "tooltip": "Keep watching"
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "props": {
+                  "no_wrap": true,
+                  "style": {
+                   "@": "TextStyle",
+                   "color": "#FFFFFF",
+                   "font_family": "Bricolage Grotesque Bold",
+                   "font_family_fallback": [
+                    "Noto Sans Symbols 2"
+                   ],
+                   "height": 1.2,
+                   "size": 14,
+                   "weight": {
+                    "enum": "FontWeight",
+                    "value": "bold"
+                   }
+                  },
+                  "value": "Take over"
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                }
+               ],
+               "props": {
+                "spacing": 8,
+                "tight": true
+               },
+               "slot": "content",
+               "type": "Row"
+              }
+             ],
+             "props": {
+              "alignment": {
+               "@": "Alignment",
+               "x": 0.0,
+               "y": 0.0
+              },
+              "bgcolor": "#7443F5",
+              "border_radius": {
+               "@": "BorderRadius",
+               "bottom_left": 24,
+               "bottom_right": 24,
+               "top_left": 24,
+               "top_right": 24
+              },
+              "padding": {
+               "@": "Padding",
+               "left": 16,
+               "right": 16
+              }
+             },
+             "slot": "content",
+             "type": "Container"
+            }
+           ],
+           "key": "terminal-take-over",
+           "props": {
+            "expand": false,
+            "height": 48,
+            "style": {
+             "@": "ButtonStyle",
+             "bgcolor": "transparent",
+             "overlay_color": {
+              "ControlState.DEFAULT": "transparent",
+              "ControlState.FOCUSED": "#33FFFFFF"
+             },
+             "padding": 0,
+             "shape": {
+              "@": "RoundedRectangleBorder",
+              "radius": 24
+             },
+             "side": {
+              "ControlState.DEFAULT": {
+               "@": "BorderSide",
+               "color": "transparent",
+               "width": 3
+              },
+              "ControlState.FOCUSED": {
+               "@": "BorderSide",
+               "color": "#F5F2FF",
+               "width": 3
+              }
+             }
+            },
+            "tooltip": "Example consequences"
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          }
+         ],
+         "key": "terminal-prompt-actions",
+         "props": {
+          "spacing": 8,
+          "tight": true
+         },
+         "slot": "controls",
+         "type": "Row"
+        }
+       ],
+       "props": {
+        "spacing": 20
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "terminal-takeover-panel",
+     "props": {
+      "bgcolor": "#1F1840",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#7443F5"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#7443F5"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#7443F5"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#7443F5"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 20,
+       "bottom_right": 20,
+       "top_left": 20,
+       "top_right": 20
+      },
+      "padding": {
+       "@": "Padding",
+       "bottom": 16,
+       "left": 18,
+       "right": 18,
+       "top": 16
+      }
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:TakeoverPanel"
+  }
+ ]
+}

@@ -1,8 +1,4 @@
-"""Limits plane: provider protocol, scheduler, and format registry.
-
-`PROVIDERS` maps a `[[usage.limits]]` format id to its provider singleton.
-The registry is wiring, not provider state: providers themselves stay pure.
-"""
+"""Wire stateless numeric-allowance providers by configured format ID."""
 
 from relaydeck.usage.limits_plane.contracts import (
     FetchContext,

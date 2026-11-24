@@ -166,17 +166,6 @@ def test_reset_clears_wheel_block():
     assert term.wheel_blocked is False
 
 
-def test_transport_generation_change_clears_wheel_block():
-    term = RelayDeckTerminal()
-    sent: list[bytes] = []
-    term._test_mark_ready(sent)
-    term._test_inject_dart_message(protocol.encode_scroll_cancelled(0))
-    term.cancel_scroll()
-    assert term.wheel_blocked is True
-    term.invalidate_transport(term._transport_generation + 1)
-    assert term.wheel_blocked is False
-
-
 def test_block_survives_non_wheel_input():
     term = RelayDeckTerminal()
     sent: list[bytes] = []

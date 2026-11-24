@@ -11,8 +11,17 @@ from typing import Any
 
 import pytest
 
-from relaydeck import cli, webbundle
-from relaydeck.companion import service as service_agent
+from relaydeck import cli
+from relaydeck.companion.adapters import launchd as service_agent
+from relaydeck.releases import bundles as webbundle
+from relaydeck.releases import web as webrelease
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
+from tests.support.companion.web_assets import write_bundle_manifest
 
 GOOD_JS = (
     '"touchend";' * 4
@@ -20,6 +29,7 @@ GOOD_JS = (
     + '"abort";' * 3
     + '"flet_reconnect_merge_rd1";'
     + '"flet_reconnect_wake_rd1";'
+    + '"item_extents";'
 )
 
 
@@ -34,7 +44,7 @@ def test_help_lists_the_companion_and_install_commands(capsys: pytest.CaptureFix
 
 def test_companion_commands_are_delegated_with_argv_unchanged(monkeypatch: Any) -> None:
     seen: list[list[str]] = []
-    monkeypatch.setattr(cli.companion_cli, "main", lambda argv: seen.append(list(argv)) or 0)
+    monkeypatch.setattr("relaydeck.companion.cli.main", lambda argv: seen.append(list(argv)) or 0)
     assert cli.main(["--config", "/tmp/x.toml", "pairing", "list"]) == 0
     assert cli.main(["start", "--connect-herdr"]) == 0
     assert seen == [
@@ -62,10 +72,36 @@ def test_web_install_then_list_shows_the_current_bundle(
     source = tmp_path / "src"
     (source).mkdir()
     (source / "main.dart.js").write_text(GOOD_JS)
+    (source / "index.html").write_text("<html>app</html>")
+    write_bundle_manifest(source)
     assert cli.main(["web", "install", str(source)]) == 0
     assert "Installed" in capsys.readouterr().out
     assert cli.main(["web", "list"]) == 0
     assert "current" in capsys.readouterr().out
+
+
+def test_web_fetch_installs_the_signed_bundle_and_reports_refusals_by_code(
+    tmp_path: Path, monkeypatch: Any, capsys: pytest.CaptureFixture[str]
+) -> None:
+    bundle = tmp_path / "signed" / ("a" * 64)
+    seen: list[str] = []
+
+    def fetch(version: str) -> webrelease.SignedBundle:
+        seen.append(version)
+        return webrelease.SignedBundle(version, bundle, "a" * 64)
+
+    monkeypatch.setattr(webrelease, "fetch_release", fetch)
+    assert cli.main(["web", "fetch", "--version", "1.2.3"]) == 0
+    assert seen == ["1.2.3"]
+    assert "signature verified" in capsys.readouterr().out
+
+    def refused(version: str) -> webrelease.SignedBundle:
+        raise webrelease.ReleaseError("signature")
+
+    monkeypatch.setattr(webrelease, "fetch_release", refused)
+    assert cli.main(["web", "fetch", "--version", "1.2.3"]) == 1
+    assert capsys.readouterr().out.strip() == "web fetch refused: signature"
+    assert cli.main(["web", "fetch", "--archive", "only.tar.gz"]) == 2
 
 
 def test_service_install_without_yes_writes_nothing(

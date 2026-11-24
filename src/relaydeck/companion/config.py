@@ -13,51 +13,15 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from relaydeck.companion.private import read_private
 from relaydeck.contracts.catalog import AGENT_KIND, MAX_AGENT_KINDS
 from relaydeck.contracts.endpoints import origin
+from relaydeck.gateway.features.notifications.api import valid_vapid_subject
+from relaydeck.host.files.private import read_private
+from relaydeck.usage.api import UsageConfig, UsageLimitsConfig, UsageSourceConfig
 
 DEFAULT_STATE = "~/Library/Application Support/RelayDeck"
 DEFAULT_CONFIG = "~/.config/relaydeck/companion.toml"
 LOG = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True)
-class UsageSourceConfig:
-    kind: str
-    format: str
-    root: Path
-    display_name: str
-    limits_format: str | None = None
-    limits_settings: Path | None = None
-    limits_cache: Path | None = None
-
-
-@dataclass(frozen=True)
-class UsageLimitsConfig:
-    """One owner-configured `[[usage.limits]]` entry for the limits plane."""
-
-    kind: str
-    format: str
-    command: tuple[str, ...]
-    min_interval_seconds: int = 300
-    timeout_seconds: int = 15
-    enabled: bool = True
-    # manual-only blocks are never time-due (min_interval ignored).
-    on_demand: bool = False
-    # An on-demand block is also read in the background, at most this often and only when its tool
-    # was used after the last reading; 0 = manual only.
-    auto_interval_seconds: int = 0
-
-
-@dataclass(frozen=True)
-class UsageConfig:
-    timezone: str
-    sources: tuple[UsageSourceConfig, ...]
-    price_tables: tuple[Path, ...] = ()
-    retention_days: int = 90
-    limits: tuple[UsageLimitsConfig, ...] = ()
-    inferred_linking: bool = True
 
 
 _LIMITS_FORMAT = re.compile(r"[A-Za-z0-9_.-]+")
@@ -159,9 +123,13 @@ def usage_from(value: Any, kinds: tuple[str, ...]) -> UsageConfig | None:
     if value is None:
         return None
     try:
-        from relaydeck.usage.contracts import MAX_KEY_CHARS, MAX_SOURCES, RETENTION_DAYS
-        from relaydeck.usage.limits import LIMITS_READERS
-        from relaydeck.usage.readers import READERS
+        from relaydeck.usage.api import (
+            LIMITS_READERS,
+            MAX_KEY_CHARS,
+            MAX_SOURCES,
+            READERS,
+            RETENTION_DAYS,
+        )
 
         if not isinstance(value, dict) or set(value) - USAGE_KEYS:
             raise ValueError
@@ -320,35 +288,8 @@ def agent_kinds_from(value: Any) -> tuple[str, ...]:
     return tuple(kinds)
 
 
-# A reserved, non-personal example domain. Push services reject placeholder domains such as
-# .invalid and localhost (a live check against web.push.apple.com returned BadJwtToken for them).
+# A reserved, non-personal default: push services reject .invalid and localhost contacts.
 VAPID_SUBJECT_DEFAULT = "https://example.com/relaydeck"
-# TLDs and names that are never valid VAPID subjects (placeholders or local-only names).
-_UNROUTABLE_SUFFIXES = (".invalid", ".localhost", ".local", ".test")
-
-
-def valid_vapid_subject(value: object) -> bool:
-    """A mailto: address on a routable domain, or an https: URL. Placeholder domains are refused."""
-    if (
-        not isinstance(value, str)
-        or not value
-        or len(value) > 256
-        or any(char.isspace() for char in value)
-    ):
-        return False
-    if value.startswith("https://"):
-        host = value.removeprefix("https://").split("/", 1)[0].split("?", 1)[0].lower()
-        return "@" not in host and "." in host and not host.endswith(_UNROUTABLE_SUFFIXES)
-    if not value.startswith("mailto:"):
-        return False
-    address = value.removeprefix("mailto:")
-    local, at, domain = address.partition("@")
-    if not at or not local or "@" in domain or "." not in domain:
-        return False
-    domain = domain.lower()
-    if domain == "localhost" or domain.endswith(_UNROUTABLE_SUFFIXES):
-        return False
-    return all(label and not label.startswith("-") for label in domain.split("."))
 
 
 @dataclass(frozen=True)
@@ -382,6 +323,48 @@ def notifications_from(value: Any) -> NotificationsConfig:
 
 
 @dataclass(frozen=True)
+class TerminalConfig:
+    """`[terminal]`: how the connector attaches to Herdr terminals."""
+
+    # True sizes a controlled pane from the viewer's grid through Herdr's controller viewport;
+    # false keeps the raw attach client, which leaves the pane at the Herdr window's size.
+    controller_viewport: bool = False
+
+
+def terminal_from(value: Any) -> TerminalConfig:
+    if value is None:
+        return TerminalConfig()
+    if not isinstance(value, dict):
+        raise ValueError("terminal must be a table")
+    if set(value) - {"controller_viewport"}:
+        raise ValueError("unknown terminal configuration field")
+    flag = value.get("controller_viewport", False)
+    if type(flag) is not bool:
+        raise ValueError("terminal.controller_viewport must be true or false")
+    return TerminalConfig(controller_viewport=flag)
+
+
+@dataclass(frozen=True)
+class UpdatesConfig:
+    """`[updates]`: the daily check for a newer signed release. On unless turned off."""
+
+    check: bool = True
+
+
+def updates_from(value: Any) -> UpdatesConfig:
+    if value is None:
+        return UpdatesConfig()
+    if not isinstance(value, dict):
+        raise ValueError("updates must be a table")
+    if set(value) - {"check"}:
+        raise ValueError("unknown updates configuration field")
+    flag = value.get("check", True)
+    if type(flag) is not bool:
+        raise ValueError("updates.check must be true or false")
+    return UpdatesConfig(check=flag)
+
+
+@dataclass(frozen=True)
 class CompanionConfig:
     advertised_origin: str
     cookie_secret_file: Path
@@ -405,6 +388,8 @@ class CompanionConfig:
     agent_kinds: tuple[str, ...] = ()
     usage: UsageConfig | None = None
     notifications: NotificationsConfig = field(default_factory=NotificationsConfig)
+    terminal: TerminalConfig = field(default_factory=TerminalConfig)
+    updates: UpdatesConfig = field(default_factory=UpdatesConfig)
 
     @property
     def local_endpoint(self) -> str:
@@ -441,6 +426,8 @@ def load_config(path: Path, resolve_origin: Callable[[int], str] | None = None) 
         "agent_kinds",
         "usage",
         "notifications",
+        "terminal",
+        "updates",
     }
     if set(raw) - permitted:
         raise ValueError("unknown companion configuration field")
@@ -454,7 +441,7 @@ def load_config(path: Path, resolve_origin: Callable[[int], str] | None = None) 
         raise ValueError("tailscale_https_port must be an integer from 1 to 65535")
     if flags["tailscale_auto"] and "advertised_origin" not in raw:
         if resolve_origin is None:
-            from relaydeck.companion.tailscale import private_origin
+            from relaydeck.companion.adapters.tailscale import private_origin
 
             resolve_origin = private_origin
         raw["advertised_origin"] = resolve_origin(https_port)
@@ -469,6 +456,8 @@ def load_config(path: Path, resolve_origin: Callable[[int], str] | None = None) 
         "agent_kinds",
         "usage",
         "notifications",
+        "terminal",
+        "updates",
     }:
         if key in raw and (not isinstance(raw[key], str) or not raw[key]):
             raise ValueError(f"{key} must be nonempty text")
@@ -499,6 +488,8 @@ def load_config(path: Path, resolve_origin: Callable[[int], str] | None = None) 
         agent_kinds=kinds,
         usage=usage_from(raw.get("usage"), kinds),
         notifications=notifications_from(raw.get("notifications")),
+        terminal=terminal_from(raw.get("terminal")),
+        updates=updates_from(raw.get("updates")),
     )
     _ = config.local_endpoint  # Strict loopback validation, including manual configs.
     return config

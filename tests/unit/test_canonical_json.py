@@ -11,11 +11,13 @@ import httpx
 import pytest
 from cryptography.hazmat.primitives.asymmetric import ec
 
-from relaydeck.companion import persistence
 from relaydeck.connector.journal import result_digest_for
-from relaydeck.gateway import cursors, inventory, webpush
-from relaydeck.gateway.push import ProviderOutcome
-from relaydeck.journal import CommandJournal, canonical_body, digest_for
+from relaydeck.gateway import cursors
+from relaydeck.gateway.features.metadata import inventory
+from relaydeck.gateway.features.notifications.adapters import webpush
+from relaydeck.gateway.features.notifications.service import ProviderOutcome
+from relaydeck.host.persistence import sqlite_store as persistence
+from relaydeck.host.persistence.command_journal import CommandJournal, canonical_body, digest_for
 from relaydeck.usage import contracts, store
 from relaydeck.usage.limits_plane.refresh_state import RefreshState, session_scope
 from relaydeck.usage.readers import _files

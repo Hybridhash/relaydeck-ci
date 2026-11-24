@@ -1,0 +1,87 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "props": {
+        "color": "#5CCBFF",
+        "icon": 69577,
+        "size": 20
+       },
+       "slot": "controls",
+       "type": "Icon"
+      },
+      {
+       "props": {
+        "expand": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#D9D3F2",
+         "font_family": "Bricolage Grotesque",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.4285714285714286,
+         "size": 14,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "normal"
+         }
+        },
+        "value": "Example input notice"
+       },
+       "slot": "controls",
+       "type": "Text"
+      }
+     ],
+     "props": {
+      "spacing": 12
+     },
+     "slot": "content",
+     "type": "Row"
+    }
+   ],
+   "key": "terminal-direct-strip",
+   "props": {
+    "bgcolor": "#1F1840",
+    "border": {
+     "@": "Border",
+     "bottom": {
+      "@": "BorderSide",
+      "color": "#5A4F96"
+     },
+     "left": {
+      "@": "BorderSide",
+      "color": "#5A4F96"
+     },
+     "right": {
+      "@": "BorderSide",
+      "color": "#5A4F96"
+     },
+     "top": {
+      "@": "BorderSide",
+      "color": "#5A4F96"
+     }
+    },
+    "border_radius": {
+     "@": "BorderRadius",
+     "bottom_left": 27,
+     "bottom_right": 27,
+     "top_left": 27,
+     "top_right": 27
+    },
+    "padding": {
+     "@": "Padding",
+     "bottom": 8,
+     "left": 18,
+     "right": 18,
+     "top": 8
+    }
+   },
+   "slot": "root",
+   "type": "Container"
+  }
+ ]
+}

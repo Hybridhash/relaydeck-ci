@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from relaydeck.companion.detect import CatalogEntry, DetectReport, DetectRow, load_catalog
+from relaydeck.companion.inspection.detect import (
+    CatalogEntry,
+    DetectReport,
+    DetectRow,
+    load_catalog,
+)
 
 ORIGIN = "https://mac.example-tailnet.ts.net"
 

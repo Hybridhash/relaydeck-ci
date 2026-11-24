@@ -1,16 +1,5 @@
-"""Herdr NDJSON adapter.
-
-One request per Unix-socket connection:
-connect, send one JSON line, read one reply line, close. Subscriptions
-hold a dedicated connection open and yield event lines until cancelled.
-
-Bootstrap subscribes first so no event is missed,
-buffers events that arrive while the snapshot reads run, then hands
-the live subscription back with the buffered prefix.
-
-No method names are invented: every method string here exists in the
-frozen 0.9.1 export (tests/contracts/test_upstream_schema.py). Protocol
-must be 22 or the adapter refuses to proceed (fail closed on drift).
+"""Bounded Herdr NDJSON requests and owned event subscriptions. Bootstrap subscribes before
+snapshot reads and refuses incompatible protocol versions.
 """
 
 from __future__ import annotations
@@ -18,11 +7,13 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
 from typing import Any
 
-EXPECTED_PROTOCOL = 22
+from relaydeck.contracts.protocol import EXPECTED_PROTOCOL
+
 DEFAULT_SOCKET = "~/.config/herdr/herdr.sock"
 READ_LIMIT = 8 * 1024 * 1024
 
@@ -64,6 +55,17 @@ class HerdrError(Exception):
 
 class HerdrProtocolError(HerdrError):
     pass
+
+
+_CODE_SHAPE = re.compile(r"[a-z_]{1,64}")
+
+
+def error_label(exc: BaseException) -> str:
+    """A log-safe description of a failure: a well-formed Herdr code (else "other"), or the
+    exception type name. Never the message, which can carry paths or terminal text."""
+    if isinstance(exc, HerdrError):
+        return exc.code if _CODE_SHAPE.fullmatch(exc.code) else "other"
+    return type(exc).__name__[:64]
 
 
 def resolve_socket(path: str = DEFAULT_SOCKET) -> str:
@@ -157,6 +159,15 @@ class Subscription:
             await self._writer.wait_closed()
         except Exception:  # noqa: S110 - close is best-effort
             pass
+
+
+async def _retire(sub: Subscription, collector: asyncio.Task[None]) -> None:
+    """Stop the collector and wait for it, then close the subscription, even if cancelled."""
+    collector.cancel()
+    try:
+        await asyncio.wait({collector})
+    finally:
+        await sub.aclose()
 
 
 @dataclass(frozen=True)
@@ -376,10 +387,8 @@ class HerdrAdapter:
         return (await self.call("workspace.close", {"workspace_id": workspace_id})).result
 
     async def _open_subscription(self, subscriptions: list[dict[str, Any]]) -> Subscription:
-        """Open a subscription connection and await the acknowledgement.
-
-        Raises HerdrError for typed upstream rejections (e.g. an invalid
-        pane subscription) and HerdrProtocolError for ack mismatch.
+        """Open a subscription and await its acknowledgment. Raise HerdrError for an upstream
+        refusal or HerdrProtocolError for a mismatched acknowledgment.
         """
         rid = self._next_id("sub")
         line = (
@@ -403,7 +412,7 @@ class HerdrAdapter:
             ack = parse_reply(raw, expect_id=rid)
             if ack.result.get("type") != "subscription_started":
                 raise HerdrProtocolError("bad_envelope", "subscribe not acked")
-        except Exception:
+        except BaseException:
             writer.close()
             try:
                 await writer.wait_closed()
@@ -413,12 +422,9 @@ class HerdrAdapter:
         return Subscription(reader, writer)
 
     async def open_subscription(self, subscriptions: list[dict[str, Any]]) -> Subscription:
-        """Open one held subscription connection (ack awaited).
-
-        The caller owns the returned subscription (multiplexed drains,
-        per-pane re-subscription) and must `aclose` it. Raises
-        HerdrError for typed upstream rejections and HerdrProtocolError
-        for ack mismatch."""
+        """Open one held subscription connection (ack awaited). The caller owns the returned
+        subscription (multiplexed drains, per-pane re-subscription) and must `aclose` it.
+        """
         return await self._open_subscription(subscriptions)
 
     async def subscribe(
@@ -434,13 +440,9 @@ class HerdrAdapter:
             await sub.aclose()
 
     async def bootstrap(self, subscriptions: list[dict[str, Any]]) -> BootstrapResult:
-        """Subscribe, snapshot, and buffer concurrently.
-
-        The subscription is acknowledged before any snapshot read runs;
-        events arriving during the reads are buffered and returned ahead
-        of the live stream. EOF on the subscription mid-bootstrap means
-        the daemon went away: fail closed with upstream_closed so the
-        caller retries the whole bootstrap.
+        """Subscribe, snapshot, and buffer concurrently. The subscription is acknowledged before
+        any snapshot read runs; events arriving during the reads are buffered and returned
+        ahead of the live stream.
         """
         await self.ping()
         sub = await self._open_subscription(subscriptions)
@@ -460,23 +462,18 @@ class HerdrAdapter:
         try:
             snapshot = await self.session_snapshot()
             agents = await self.agent_list()
-        except Exception:
+            # Yield so events already in flight are collected before we stop.
+            await asyncio.sleep(0)
             collector.cancel()
-            await sub.aclose()
+            await asyncio.wait({collector})
+            if not collector.cancelled() and (failure := collector.exception()) is not None:
+                raise failure
+            if closed:
+                raise HerdrProtocolError("upstream_closed", "daemon closed subscription")
+        except BaseException:
+            # Failure or cancellation at any point before the handoff: nothing may outlive this.
+            await _retire(sub, collector)
             raise
-        # Yield so events already in flight are collected before we stop.
-        await asyncio.sleep(0)
-        collector.cancel()
-        try:
-            await collector
-        except asyncio.CancelledError:
-            pass
-        except Exception:
-            await sub.aclose()
-            raise
-        if closed:
-            await sub.aclose()
-            raise HerdrProtocolError("upstream_closed", "daemon closed subscription")
         return BootstrapResult(
             snapshot=snapshot, agents=agents, buffered=buffered, subscription=sub
         )

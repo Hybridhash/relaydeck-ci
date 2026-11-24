@@ -1,4 +1,4 @@
-"""Q5e: KeyInput alone, over the real generation-bound KeyInputSession."""
+"""KeyInput alone, over the real generation-bound KeyInputSession."""
 
 from __future__ import annotations
 
@@ -8,18 +8,20 @@ from typing import Any
 import pytest
 from relaydeck_terminal.protocol import ORIGIN_KEY, ORIGIN_MOUSE, ORIGIN_TEXT
 
-from relaydeck.client.features.composer.domain import ComposerStore
+from relaydeck.client.features.composer.model import ComposerStore
 from relaydeck.client.features.terminal.input_modes import (
     ROUTE_DRAFT,
     ROUTE_DROPPED,
     ROUTE_PTY,
-    WORKFLOW_AGENT_COMPOSER,
-    WORKFLOW_AGENT_DIRECT,
-    WORKFLOW_SHELL,
     InputModeState,
 )
 from relaydeck.client.features.terminal.keys import KeyInputSession
 from relaydeck.client.features.terminal.session.keys import KeyHooks, KeyInput
+from relaydeck.client.models.input.modes import (
+    WORKFLOW_AGENT_COMPOSER,
+    WORKFLOW_AGENT_DIRECT,
+    WORKFLOW_SHELL,
+)
 
 
 async def _submit(_command: dict[str, Any]) -> dict[str, Any]:

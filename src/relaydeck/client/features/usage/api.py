@@ -1,9 +1,6 @@
-"""Usage client API: the query, whole-report pagination and the gateway adapter.
-
-The fetch is injected as `fetch(query) -> document`, so this module never reaches into a
-transport's internals (see `source.py` for the gateway adapter). A page is parsed and validated
-before it is used. Totals are published only after the final page: a partial report is never shown
-as a total.
+"""Usage client API: the query, whole-report pagination and the gateway adapter. The fetch is
+injected as `fetch(query) -> document`, so this module never reaches into a transport's
+internals (see `source.py` for the gateway adapter).
 """
 
 from __future__ import annotations
@@ -11,7 +8,82 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, replace
 
-from relaydeck.client.features.usage.model import UsageDocError, UsagePage, parse_usage_page
+from relaydeck.client.features.usage.loop import STATUS_LOADING
+from relaydeck.client.features.usage.model import (
+    CoverageEntry,
+    Kind,
+    LimitsRefresh,
+    Row,
+    UsageDocError,
+    UsagePage,
+    host_day,
+    parse_usage_page,
+)
+from relaydeck.client.features.usage.presentation import (
+    STATE_CAPACITY,
+    STATE_DISABLED,
+    STATE_LOADING,
+    STATE_NO_PROVIDERS,
+    STATE_OFFLINE,
+    STATE_PAGE_TOO_LARGE,
+    STATE_READY,
+    STATE_UNAVAILABLE,
+    as_of,
+    money,
+    relative,
+    reset,
+    screen_state,
+    zone_label,
+)
+from relaydeck.client.features.usage.selectors import (
+    ALL,
+    NEAR_LIMIT_PERCENT,
+    RANK_COMPACT,
+    RANK_REGULAR,
+    STATUS_CONFLICT,
+    STATUS_NEAR_LIMIT,
+    STATUS_NO_READING,
+    STATUS_NOT_REPORTED,
+    STATUS_OK,
+    STATUS_READING_UNAVAILABLE,
+    STATUS_SETUP_NEEDED,
+    STATUS_STALE,
+    STATUS_UNMANAGED,
+    STATUS_WINDOW_ENDED,
+    UNLINKED,
+    Attention,
+    Bucket,
+    Chart,
+    Counts,
+    Filter,
+    LimitWindow,
+    ProviderLimits,
+    Usage,
+    attention,
+    chart,
+    console_card,
+    counts,
+    credit_chart_page,
+    credit_space_buckets,
+    credits_by_kind,
+    credits_chart_text,
+    credits_text,
+    date_range,
+    filtered_rows,
+    latest_limit,
+    limits,
+    monogram,
+    providers,
+    rank,
+    share,
+    space_buckets,
+    tokens_chart_text,
+    tokens_text,
+    totals,
+    usage_of,
+    window_bounds,
+    window_label,
+)
 
 MAX_PAGES = 50
 MAX_DAYS = 90
@@ -41,10 +113,7 @@ class StaleUsageRequest(Exception):
 @dataclass(frozen=True)
 class UsageQuery:
     """Either `days` (the host's last N days, 1..90) or an explicit inclusive range, never both.
-
-    `hour` asks for host-local hourly buckets. It needs exactly one day, and it is part of
-    the
-    query's identity: an hourly page is never reused as a daily one, or the reverse.
+    `hour` asks for host-local hourly buckets.
     """
 
     host_id: str
@@ -54,6 +123,7 @@ class UsageQuery:
     space_id: str | None = None
     cursor: str | None = None
     hour: bool = False
+    report_id: str | None = None
 
     def __post_init__(self) -> None:
         explicit = self.start is not None or self.end is not None
@@ -107,6 +177,7 @@ async def fetch_usage(
     *,
     is_current: IsCurrent,
     max_pages: int = MAX_PAGES,
+    previous: UsagePage | None = None,
 ) -> UsagePage:
     """Every page of one report, in order, as one complete UsagePage.
 
@@ -119,11 +190,31 @@ async def fetch_usage(
     for _ in range(max_pages):
         if not is_current():
             raise StaleUsageRequest
-        document = await fetch(replace(query, cursor=cursor))
+        document = await fetch(
+            replace(
+                query,
+                cursor=cursor,
+                report_id=previous.report_id if previous is not None and cursor is None else None,
+            )
+        )
         if not is_current():
             raise StaleUsageRequest
+        if document.get("not_modified") is True:
+            if (
+                previous is None
+                or previous.report_id is None
+                or previous.host_id != query.host_id
+                or cursor is not None
+                or document.get("report_id") != previous.report_id
+            ):
+                raise UsageFetchError("malformed_page")
+            return previous
         try:
-            page = parse_usage_page(document)
+            report_id = document.get("report_id")
+            page = replace(
+                parse_usage_page(document),
+                report_id=report_id if isinstance(report_id, str) else None,
+            )
         except UsageDocError as error:
             raise UsageFetchError("malformed_page") from error
         if page.host_id != query.host_id:
@@ -136,3 +227,76 @@ async def fetch_usage(
             return _merge(pages)
         cursor = page.next_cursor
     raise UsageFetchError("too_many_pages")
+
+
+__all__ = [
+    "ALL",
+    "Attention",
+    "Bucket",
+    "Chart",
+    "Counts",
+    "CoverageEntry",
+    "Filter",
+    "Kind",
+    "LimitWindow",
+    "LimitsRefresh",
+    "NEAR_LIMIT_PERCENT",
+    "ProviderLimits",
+    "RANK_COMPACT",
+    "RANK_REGULAR",
+    "Row",
+    "STATE_CAPACITY",
+    "STATE_DISABLED",
+    "STATE_LOADING",
+    "STATE_NO_PROVIDERS",
+    "STATE_OFFLINE",
+    "STATE_PAGE_TOO_LARGE",
+    "STATE_READY",
+    "STATE_UNAVAILABLE",
+    "STATUS_CONFLICT",
+    "STATUS_LOADING",
+    "STATUS_NEAR_LIMIT",
+    "STATUS_NOT_REPORTED",
+    "STATUS_NO_READING",
+    "STATUS_OK",
+    "STATUS_READING_UNAVAILABLE",
+    "STATUS_SETUP_NEEDED",
+    "STATUS_STALE",
+    "STATUS_UNMANAGED",
+    "STATUS_WINDOW_ENDED",
+    "UNLINKED",
+    "Usage",
+    "UsageFetch",
+    "UsagePage",
+    "as_of",
+    "attention",
+    "chart",
+    "console_card",
+    "counts",
+    "credit_chart_page",
+    "credit_space_buckets",
+    "credits_by_kind",
+    "credits_chart_text",
+    "credits_text",
+    "date_range",
+    "filtered_rows",
+    "host_day",
+    "latest_limit",
+    "limits",
+    "money",
+    "monogram",
+    "providers",
+    "rank",
+    "relative",
+    "reset",
+    "screen_state",
+    "share",
+    "space_buckets",
+    "tokens_chart_text",
+    "tokens_text",
+    "totals",
+    "usage_of",
+    "window_bounds",
+    "window_label",
+    "zone_label",
+]

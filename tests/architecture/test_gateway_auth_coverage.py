@@ -6,9 +6,10 @@ from __future__ import annotations
 from fastapi.dependencies.models import Dependant
 from fastapi.routing import APIRoute
 
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
-from relaydeck.gateway.deps import require_session
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.http.auth import require_session
 
 Route = tuple[str, str]
 

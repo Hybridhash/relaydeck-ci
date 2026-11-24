@@ -8,8 +8,14 @@ from pathlib import Path
 import pytest
 
 from relaydeck.companion import cli
-from relaydeck.gateway import webpush
-from relaydeck.gateway.webpush_store import WebPushStore
+from relaydeck.gateway.features.notifications.adapters import webpush
+from relaydeck.gateway.features.notifications.adapters.webpush_store import WebPushStore
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.companion.setup_sources import setup_home
 
 

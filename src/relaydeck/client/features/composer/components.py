@@ -1,26 +1,5 @@
-"""Declarative composer box.
-
-`ComposerBox` is fully controlled: immutable props plus callbacks, no
-sockets, no timers, no direct store access. It renders the draft field,
-staged markers, Send enablement, error/unknown/blocked notices, and the
-multiline blocked-review surface.
-
-Mount contract (screen owner):
-- Own one `ComposerStore` per agent detail and pass props shaped as
-  `draft=store.draft`, `markers=store.markers`,
-  `can_send=store.can_send`, `blockers=store.send_blockers()`,
-  `submission=store.submission`, `error=store.error`,
-  `review=store.pending_blocked.review if store.pending_blocked else None`,
-  `input_mode=store.input_mode`.
-- Route `on_draft_change` to `store.replace_draft`, `on_send` to an async
-  task calling `store.send()`, `on_confirm_blocked` to
-  `store.confirm_blocked_insert()`, `on_cancel_blocked` to
-  `store.cancel_blocked_insert()`, and `on_clear_error` to
-  `store.clear_error()`.
-- When `input_mode` becomes `"tools-keys"` after blocked delivery, mount
-  the keys UI; this component only announces the handoff.
-- Nothing mounts `ComposerBox` yet; like the paste review sheet, first
-  mounting lands with the screen work.
+"""Declarative composer box. `ComposerBox` is fully controlled: immutable props plus callbacks,
+no sockets, no timers, no direct store access.
 """
 
 from __future__ import annotations
@@ -31,12 +10,16 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.components.appearance import chrome_style
-from relaydeck.client.components.design_system import tokens as T
-from relaydeck.client.components.design_system.surfaces import SurfaceFrame
-from relaydeck.client.features.composer.domain import (
+from relaydeck.client.design_system import tokens as T
+from relaydeck.client.design_system.appearance import chrome_style
+from relaydeck.client.design_system.buttons import Button
+from relaydeck.client.design_system.inputs import TextInput
+from relaydeck.client.design_system.surfaces import SurfaceFrame
+from relaydeck.client.design_system.theme import FONT_SIZE, MIN_TOUCH, Palette, palette
+from relaydeck.client.features.composer.draft_field import NativeDraftField, use_draft_editor
+from relaydeck.client.features.composer.keyboard_toggle import keep_focus, keyboard_toggle
+from relaydeck.client.features.composer.model import (
     BLOCKER_EMPTY,
-    INPUT_MODE_TOOLS_KEYS,
     SUBMISSION_BLOCKED_INSERTED,
     SUBMISSION_FAILED,
     SUBMISSION_PROGRESS,
@@ -44,13 +27,12 @@ from relaydeck.client.features.composer.domain import (
     SUBMISSION_UNKNOWN,
     StagedMarker,
 )
-from relaydeck.client.features.composer.draft_field import use_draft_value
-from relaydeck.client.features.composer.keyboard_toggle import keep_focus, keyboard_toggle
 from relaydeck.client.features.composer.shortcut import use_send_shortcut
-from relaydeck.client.features.terminal.events import click, spawn, value_change
-from relaydeck.client.features.terminal.paste_policy import PasteReview
-from relaydeck.client.flet_invokes import focus_control
-from relaydeck.client.theme import FONT_SIZE, MIN_TOUCH, palette
+from relaydeck.client.models.commands.wording import KEPT_NOTICE
+from relaydeck.client.models.input.modes import INPUT_MODE_TOOLS_KEYS
+from relaydeck.client.models.input.paste_policy import PasteReview
+from relaydeck.client.platform.flet.events import click, spawn, value_change
+from relaydeck.client.platform.flet.invokes import focus_control
 
 COMPOSER_KEY = "composer-box"
 DRAFT_KEY = "composer-draft"
@@ -70,7 +52,6 @@ REVIEW_FRAME_KEY = "composer-review-frame"
 FOOTER_KEY = "composer-footer"
 
 
-SEND_LABEL = "Send"
 CONFIRM_LABEL = "Insert into terminal"
 CANCEL_LABEL = "Cancel"
 REVIEW_TITLE = "Review blocked insertion"
@@ -82,18 +63,18 @@ BLOCKED_NOTICE = (
     "Inserted into the live terminal without submitting. "
     "Use the tools keyboard to press Enter or Esc yourself."
 )
-UNKNOWN_NOTICE = "Delivery is uncertain. The draft was kept and nothing was retried."
+UNKNOWN_NOTICE = KEPT_NOTICE
 
 
 WORKING_SHIMMER_MS = 1600
 
 
-def working_shimmer(text: str, tokens: dict[str, str], **style: Any) -> Any:
+def working_shimmer(text: str, tokens: Palette, **style: Any) -> Any:
     """Busy text with the theme's accent colours sweeping through it."""
     return ft.Shimmer(
         period=WORKING_SHIMMER_MS,
         gradient=ft.LinearGradient(
-            colors=[tokens["muted"], tokens["accent_text"], tokens["success"], tokens["muted"]],
+            colors=[tokens.muted, tokens.accent_text, tokens.success, tokens.muted],
         ),
         content=ft.Text(text, **style),
     )
@@ -116,6 +97,16 @@ def markers_line(markers: tuple[StagedMarker, ...]) -> str:
         f"{m.token} (ready)" if m.resolved else f"{m.token} (resolving\u2026)" for m in markers
     ]
     return "Staged: " + ", ".join(parts)
+
+
+def _check_now(error: str) -> list[Any]:
+    """The Check now button, when this error is waiting on a status read."""
+    check = getattr(error, "check", None)
+    if check is None:
+        return []
+    return [
+        Button("Check now", key="composer-error-check", height=MIN_TOUCH, on_click=click(check))
+    ]
 
 
 @ft.component
@@ -142,8 +133,9 @@ def ComposerBox(
     working: bool = True,
     keyboard: str = "",
     hide_requests: int = 0,
+    focusable: bool = True,
 ) -> Any:
-    """Render the stable draft field and send controls without changing editor identity.
+    """Keep native identity within each eligible editing lifetime.
     Advancing hide_requests drops focus; only the latest live hide request re-enables the field.
     """
     tokens = palette(dark)
@@ -153,7 +145,6 @@ def ComposerBox(
     send_disabled = not can_send or busy or review is not None
     # a parent render between a native paste and its on_change must not
     # send the older draft back into the field (same guard as the phone composer).
-    draft_value, remember_draft = use_draft_value(draft, focusable=True)
     shortcut, shortcut_hint = use_send_shortcut(
         draft=draft, can_send=not send_disabled, send=lambda: on_send()
     )
@@ -163,10 +154,16 @@ def ComposerBox(
     alive = ft.use_ref(True)
     hide_round: Any = ft.use_ref(0)
     hide_handled: Any = ft.use_ref(hide_requests)
+    editor, draft_value = use_draft_editor(
+        draft, on_draft_change, enabled=focusable and not closing
+    )
+    lifetime = editor.owner.generation
 
     def hide_keyboard() -> None:
         # A brief disable is what drops focus (and the keyboard) on iOS. Only the latest
         # round re-enables, and never after this box is gone.
+        focus_changed(False)
+        editor.fence()
         hide_round.current += 1
         current = hide_round.current
         set_closing(True)
@@ -195,18 +192,25 @@ def ComposerBox(
             spawn(focus_control(field_ref.current), label="Show composer keyboard")
 
     def focus_changed(focused: bool) -> None:
+        if not editor.focus(focused, lifetime):
+            return
         shortcut.focus(focused)
         if on_focus_change is not None:
             on_focus_change(focused)
 
     def draft_changed(text: str) -> Any:
-        return None if shortcut.swallows(text) else on_draft_change(text)
+        if not editor.is_current(lifetime):
+            return None
+        return None if shortcut.swallows(text) else editor.change(text, lifetime)
 
-    draft_control = ft.TextField(
+    draft_control = TextInput(
         key=DRAFT_KEY,
         ref=field_ref,
         expand=True,
-        disabled=closing,
+        disabled=not editor.owner.eligible,
+        can_request_focus=editor.owner.eligible,
+        autofocus=editor.autofocus,
+        selection=editor.selection_value(),
         suffix_icon=keyboard_toggle(keyboard, False, hide_keyboard, show_keyboard),
         on_tap_outside=keep_focus if keyboard else None,
         value=draft_value,
@@ -215,27 +219,28 @@ def ComposerBox(
         max_lines=fill_lines or 5,
         label="Agent draft",
         hint_text="Message the agent…",
-        color=tokens["text"],
-        label_style=ft.TextStyle(color=tokens["muted"]),
+        color=tokens.text,
+        label_style=ft.TextStyle(color=tokens.muted),
         text_size=16,
-        cursor_color=tokens["accent_text"],
+        cursor_color=tokens.accent_text,
         filled=True,
-        fill_color=tokens["raised"],
+        fill_color=tokens.raised,
         content_padding=8,
         border={
             ft.ControlState.DEFAULT: ft.OutlineInputBorder(
-                border_radius=T.RADIUS_KEY, side=ft.BorderSide(1, tokens["outline"])
+                border_radius=T.RADIUS_KEY, side=ft.BorderSide(1, tokens.outline)
             ),
             ft.ControlState.FOCUSED: ft.OutlineInputBorder(
-                border_radius=T.RADIUS_KEY, side=ft.BorderSide(2, tokens["accent_text"])
+                border_radius=T.RADIUS_KEY, side=ft.BorderSide(2, tokens.accent_text)
             ),
         },
         on_change=value_change(draft_changed),
         on_focus=lambda _e: focus_changed(True),
         on_blur=lambda _e: focus_changed(False),
+        on_selection_change=lambda event: editor.select(event.selection, lifetime),
     )
-    remember_draft(draft_control)
-    frame_controls: list[Any] = [draft_control]
+    editor.bind(draft_control)
+    frame_controls: list[Any] = [NativeDraftField(draft_control, key=editor.key)]
     if staged:
         frame_controls.append(ft.Text(staged, key=MARKERS_KEY, size=FONT_SIZE["small"]))
     if fill_lines is not None:
@@ -257,7 +262,8 @@ def ComposerBox(
                 wrap=True,
                 controls=[
                     ft.Text(error, key=ERROR_KEY),
-                    ft.Button(
+                    *_check_now(error),
+                    Button(
                         "Dismiss",
                         key="composer-error-dismiss",
                         height=MIN_TOUCH,
@@ -354,13 +360,13 @@ def ComposerBox(
                         ft.Row(
                             wrap=True,
                             controls=[
-                                ft.Button(
+                                Button(
                                     CANCEL_LABEL,
                                     key=REVIEW_CANCEL_KEY,
                                     height=MIN_TOUCH,
                                     on_click=click(on_cancel_blocked),
                                 ),
-                                ft.Button(
+                                Button(
                                     CONFIRM_LABEL,
                                     key=REVIEW_CONFIRM_KEY,
                                     height=MIN_TOUCH,
@@ -399,7 +405,6 @@ __all__ = [
     "REVIEW_PREVIEW_KEY",
     "REVIEW_TITLE",
     "SEND_KEY",
-    "SEND_LABEL",
     "UNKNOWN_NOTICE",
     "UNRESOLVED_HINT",
     "VALIDATION_KEY",

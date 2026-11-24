@@ -1,0 +1,139 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "key": "changes-ask-title",
+         "props": {
+          "color": "#F5F2FF",
+          "size": 18,
+          "value": "Ask about this file"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "changes-ask-context",
+         "props": {
+          "color": "#D9D3F2",
+          "max_lines": 2,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "value": "example.py · Working"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "changes-ask-question",
+         "props": {
+          "max_lines": 3,
+          "min_lines": 2,
+          "multiline": true,
+          "value": "Example question"
+         },
+         "slot": "controls",
+         "type": "TextField"
+        },
+        {
+         "children": [
+          {
+           "key": "changes-ask-preset-0",
+           "props": {
+            "content": "Why this change?",
+            "height": 48
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          },
+          {
+           "key": "changes-ask-preset-1",
+           "props": {
+            "content": "Any risk?",
+            "height": 48
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          },
+          {
+           "key": "changes-ask-preset-2",
+           "props": {
+            "content": "Is it tested?",
+            "height": 48
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          }
+         ],
+         "props": {
+          "spacing": 4,
+          "wrap": true
+         },
+         "slot": "controls",
+         "type": "Row"
+        },
+        {
+         "key": "changes-ask-reason",
+         "props": {
+          "color": "#D9D3F2",
+          "visible": false
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "key": "changes-ask-send",
+           "props": {
+            "content": "Send to Example recipient",
+            "height": 48
+           },
+           "slot": "controls",
+           "type": "FilledButton"
+          },
+          {
+           "key": "changes-ask-cancel",
+           "props": {
+            "content": "Cancel",
+            "height": 48
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          }
+         ],
+         "slot": "controls",
+         "type": "Row"
+        }
+       ],
+       "props": {
+        "scroll": {
+         "enum": "ScrollMode",
+         "value": "auto"
+        }
+       },
+       "slot": "content",
+       "type": "Column"
+      }
+     ],
+     "key": "changes-ask-sheet",
+     "props": {
+      "bgcolor": "#2B2356",
+      "height": 400,
+      "padding": 16
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:AskSheet"
+  }
+ ]
+}

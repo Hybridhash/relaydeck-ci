@@ -1,17 +1,6 @@
-"""Ordered terminal output assembly and the recovery model.
-
-`TerminalByteStream` accepts wire v2 output chunks in order only: the
-transport (TCP/WebSocket) is ordered, so any epoch change or offset gap
-is an explicit event, never silently reordered, padded, or dropped.
-`decide_recovery` maps every discontinuity to one action:
-
-- resume: same epoch, emulator state preserved -> reconnect with
-  (epoch, offset) and continue exact bytes while retained.
-- reattach: epoch rotated, retention lost, or a fresh emulator that did
-  not replay from byte 0 -> new attachment plus an incomplete-history
-  notice. A truncated byte tail is never presented as a complete screen.
-
-Flet-free.
+"""Assemble ordered terminal output and map discontinuities to explicit resume or reattach
+recovery. Epoch changes, offset gaps and fresh-emulator uncertainty never become silent
+continuation.
 """
 
 from __future__ import annotations
@@ -94,11 +83,10 @@ def decide_recovery(
     emulator: str,
     start_offset: int = 0,
 ) -> RecoveryDecision:
-    """Map a stream event to resume/reattach. `emulator` is preserved when
-    the live emulator kept its state across the reconnect (same process)
-    and fresh after an app restart or a brand-new viewer. `start_offset`
-    is the first byte offset of a fresh emulator: nonzero means the
-    stream started mid-history."""
+    """Map a stream event to resume/reattach. `emulator` is preserved when the live emulator
+    kept its state across the reconnect (same process) and fresh after an app restart or a
+    brand-new viewer.
+    """
     if event.kind == EVENT_RESET:
         return RecoveryDecision(ACTION_REATTACH, INCOMPLETE_HISTORY)
     if event.kind == EVENT_GAP:

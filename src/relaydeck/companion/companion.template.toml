@@ -1,6 +1,5 @@
-# Mac primary profile template. No credentials are included or generated.
-# Copy to ~/.config/relaydeck/companion.toml, owner-only (0600).
-# Set the exact HTTPS address shown by your explicitly configured Tailscale Serve.
+# `relaydeck setup` writes this credential-free, owner-only Mac profile with its private HTTPS origin.
+# For manual setup, copy it to ~/.config/relaydeck/companion.toml and set the exact Tailscale Serve origin.
 advertised_origin = "https://your-mac.your-tailnet.ts.net"
 bind_host = "127.0.0.1"
 port = 8125
@@ -19,6 +18,16 @@ web_ui = true
 # Herdr agent kinds this Mac may start (see `herdr agent start --help` for the
 # supported names); each must also be on PATH.
 agent_kinds = []
+
+# Terminal attachment. controller_viewport = true sizes a controlled pane from the phone's grid
+# (Herdr's controller viewport); false keeps the raw attach client and the Herdr window's size.
+# [terminal]
+# controller_viewport = false
+
+# Once a day RelayDeck can look for a newer signed release by downloading a small public file and
+# its signature from GitHub (see the README's Privacy section). false turns the check off.
+# [updates]
+# check = true
 
 # Optional, local numeric usage collection. Only explicitly listed kind/root pairs are read.
 # [usage]
@@ -42,9 +51,8 @@ agent_kinds = []
 # on_demand = true
 # timeout_seconds = 90 # total bound for one refresh, 30..300
 
-# Notifications. Web push is the default route for browsers and home-screen apps. Each companion has
-# its own VAPID keys; RelayDeck runs no push server. The browser's push service receives delivery
-# metadata and an encrypted message. The lock screen shows generic text unless lock_screen_detail is true.
+# Deliver generic notifications through per-companion Web Push keys without a RelayDeck push server.
+# The browser push service sees metadata and encrypted bytes; lock_screen_detail adds a host label.
 # [notifications]
 # web_push = true # false turns web push off; the packaged Android route is separate
 # lock_screen_detail = false # true adds the host name to the lock-screen text

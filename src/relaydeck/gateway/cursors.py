@@ -1,7 +1,5 @@
-"""Opaque, tamper-evident stream cursors.
-
-Cursor = base64url(json).base64url(HMAC-SHA256(secret, json)). Hosts and
-sequences inside are authenticated; clients treat cursors as opaque.
+"""Authenticate opaque host/sequence cursors with HMAC-SHA256. Clients return the cursor
+unchanged rather than decoding its contents.
 """
 
 from __future__ import annotations

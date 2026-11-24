@@ -107,10 +107,23 @@ def test_rebind_transport_logs_a_failed_resolution(
     async def scenario() -> None:
         term = RelayDeckTerminal()
         term._channel_id = 42
+
+        def unavailable(channel_id: int) -> object:
+            raise RuntimeError("PRIVATE_CHANNEL_/synthetic/device?token=secret")
+
+        monkeypatch.setattr(term, "_resolve_channel", unavailable)
         with caplog.at_level(logging.WARNING, logger="relaydeck.client.typing_split"):
             assert term.rebind_transport() is False
         record = caplog.records[-1]
-        assert record.getMessage() == f"term_rebind_failed term={id(term) % 100000} id=42"
-        assert record.exc_info is not None and record.exc_info[0] is RuntimeError
+        # Only the client's own handler is attached: the record itself carries no exception.
+        assert record.name == "relaydeck.client.typing_split"
+        assert record.levelno == logging.WARNING
+        assert record.getMessage() == (
+            f"term_rebind_failed term={id(term) % 100000} id=42 category=RuntimeError"
+        )
+        assert record.exc_info is None and record.exc_text is None
+        output = logging.Formatter("%(message)s").format(record)
+        assert "PRIVATE_CHANNEL" not in output and "token=secret" not in output
+        assert "Traceback" not in output
 
     asyncio.run(scenario())

@@ -7,15 +7,10 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from relaydeck.client.adapters.ports import (
-    ClipboardPort,
-    ConnectivityPort,
-    ConnectivityState,
-    CredentialStore,
-    NotificationPort,
-    PushPermission,
-    PushTap,
-)
+from relaydeck.client.ports.clipboard import ClipboardPort
+from relaydeck.client.ports.notifications import NotificationPort, PushPermission, PushTap
+from relaydeck.contracts.storage import CredentialStore
+from tests.support.lifecycle.connectivity import ConnectivityPort, ConnectivityState
 
 
 class FakeCredentialStore(CredentialStore):

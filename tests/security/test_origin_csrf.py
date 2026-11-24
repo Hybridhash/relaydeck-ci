@@ -24,8 +24,18 @@ from typing import Any
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
-from relaydeck.client.serve import COOKIE_NAME, FletGuardMiddleware, WebSessionStore
+from relaydeck.companion.app.hosted_web.serve import (
+    COOKIE_NAME,
+    FletGuardMiddleware,
+    WebSessionStore,
+)
 from tests.security.helpers import attach, auth, command_body, lease, make_client, mint_token
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 
 ORIGINS: tuple[str | None, ...] = (None, "", "null", "https://evil.example")
 

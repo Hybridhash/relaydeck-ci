@@ -7,8 +7,14 @@ from pathlib import Path
 
 import pytest
 
-from relaydeck.client.serve import WebSessionStore, build_web_app
-from relaydeck.gateway.app import create_app
+from relaydeck.companion.app.hosted_web.serve import WebSessionStore, build_web_app
+from relaydeck.gateway.app.bootstrap import create_app
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.companion.pairing_harness import Harness
 from tests.support.pairing import ORIGIN
 

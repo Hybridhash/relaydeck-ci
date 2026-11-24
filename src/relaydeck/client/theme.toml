@@ -1,13 +1,41 @@
-# RelayDeck theme — single source of the app's look.
-# Resolved by client/theme.py at import; edit values here, never in code.
-# Provenance: palette + console constants transcribed from the mock
-# design; deviations recorded in tokens history stay documented
-# in client/components/design_system/tokens.py (now an adapter).
+# Define primitive scales, semantic roles and component colours for the client.
+# Resolve them through the design-system theme and token adapters.
 
 [meta]
 version = 1
 
-[palette.dark]
+[primitive.scales]
+spacing = [4, 8, 12, 16, 24, 32]
+radius = [4, 8, 12]
+min_touch = 48
+
+[primitive.scales.console]
+radius_card = 18
+radius_tile = 20
+radius_pane = 24
+radius_terminal = 18
+radius_key = 12
+card_pad_v = 12
+card_pad_h = 14
+gap_card = 10
+gap_section = 14
+gap_chip = 8
+pad_phone = 16
+pad_web = 28
+pane_pad = 20
+pane_gap = 20
+select_outline_width = 3
+
+[primitive.font_size]
+eyebrow = 12
+meta = 12
+small = 13
+body = 15
+base = 14
+title = 20
+headline = 22
+
+[semantic.palette.dark]
 bg = "#130F26"
 surface = "#191335"
 raised = "#2B2356"
@@ -32,7 +60,7 @@ terminal_text = "#F5F2FF"
 terminal_muted = "#8E86B8"
 terminal_attention = "#FF8A3D"
 
-[palette.light]
+[semantic.palette.light]
 bg = "#F5F5F7"
 surface = "#FFFFFF"
 raised = "#E9EAEE"
@@ -57,11 +85,11 @@ terminal_text = "#DEDFE4"
 terminal_muted = "#B5B7C0"
 terminal_attention = "#EDC77F"
 
-[status]
+[semantic.status]
 colors = { idle = "#70757A", working = "#1A73E8", blocked = "#D93025", done = "#188038", unknown = "#70757A" }
 banner_tones = { error = "#D93025", warning = "#E8710A", info = "#1A73E8" }
 
-[agent]
+[semantic.agent]
 triples = [
   ["#E08A6A", "#B4532F", "#904226"],
   ["#5CC8B8", "#127A6C", "#0E6256"],
@@ -74,7 +102,11 @@ light_ink_fallback = "#524E6E"
 # Space chips: soft tints, picked by a stable hash of the space name (same space, same colour).
 space_tints = ["#FFC48A", "#A9C7FF", "#B8E986", "#F2A7C3", "#E3D27A", "#C6B3FF"]
 
-[console]
+[semantic.overlay]
+scrim = "black"
+context_text_muted = "#A9A2C8"
+
+[semantic.console]
 ground = "#130F26"
 dot = "#241D48"
 card = "#1F1840"
@@ -103,10 +135,13 @@ working = "#5CCBFF"
 working_text = "#06202E"
 done = "#C8F03C"
 done_text = "#1A2400"
+graph_lane_one = "#5CCBFF"
+graph_lane_two = "#FF8A3D"
+graph_lane_three = "#E58BF5"
 idle_fill = "#B7AFDA"
 idle_text = "#1F1840"
 unknown_text = "#B7AFDA"
-# Roles that replaced scattered literals (same values, named by meaning).
+# Name colours by presentation role.
 focus_wash = "#33FFFFFF"
 on_primary = "#FFFFFF"
 chip_ink = "#E9E5FA"
@@ -120,8 +155,97 @@ light_surface = "#F8F6FC"
 scroll_thumb_bg = "#343434"
 shell_disabled = "#8E86B8"
 toast_action = "#4B33B0"
+# Code changes: washes for whole rows, stronger washes for changed words, signs in full colour.
+diff_add_bg = "#262EA043"
+diff_add_mark = "#662EA043"
+diff_add_sign = "#3FB950"
+diff_delete_bg = "#24F85149"
+diff_delete_mark = "#59F85149"
+diff_delete_sign = "#FF7B72"
+diff_hunk_bg = "#1E1838"
+diff_hunk_text = "#B4A9F0"
+diff_gutter_text = "#8E86B8"
 
-[console.usage.dark]
+[semantic.type.type_agent_title]
+size = 22
+weight = 800
+height = 1.1818181818181819
+
+[semantic.type.type_button]
+size = 14
+weight = 700
+height = 1.2
+
+[semantic.type.type_button_idle]
+size = 14
+weight = 600
+height = 1.2
+
+[semantic.type.type_card_line]
+size = 13.5
+weight = 500
+height = 1.3333333333333333
+
+[semantic.type.type_card_line_strong]
+size = 13.5
+weight = 600
+height = 1.3333333333333333
+
+[semantic.type.type_card_title]
+size = 17
+weight = 700
+height = 1.2941176470588236
+
+[semantic.type.type_count_label]
+size = 12.5
+weight = 700
+height = 1.28
+
+[semantic.type.type_count_number]
+size = 32
+weight = 800
+height = 1.0625
+
+[semantic.type.type_eyebrow]
+size = 11.5
+weight = 400
+height = 1.2173913043478262
+
+[semantic.type.type_meta]
+size = 11.5
+weight = 400
+height = 1.391304347826087
+
+[semantic.type.type_nav_label]
+size = 12
+weight = 500
+height = 1.2
+
+[semantic.type.type_nav_label_active]
+size = 12
+weight = 700
+height = 1.2
+
+[semantic.type.type_pill]
+size = 11.5
+weight = 700
+height = 1.9130434782608696
+
+[semantic.type.type_tile_initials]
+size = 13
+weight = 700
+height = 1.2
+
+[semantic.type.type_title]
+size = 34
+weight = 800
+height = 1.1176470588235294
+
+[semantic.a11y]
+surface_light_ref = "#FFFFFF"
+surface_dark_ref = "#121212"
+
+[component.usage.dark]
 bg = "#13101F"
 bg_deep = "#0B0914"
 surface = "#1C1730"
@@ -148,7 +272,7 @@ warn_bg = "#3A2A12"
 danger = "#FF7A85"
 danger_bg = "#3A1620"
 
-[console.usage.light]
+[component.usage.light]
 bg = "#F5F3FA"
 bg_deep = "#DCD8E6"
 surface = "#FFFFFF"
@@ -175,121 +299,9 @@ warn_bg = "#FFF0D2"
 danger = "#B3212F"
 danger_bg = "#FCE3E6"
 
-[scales]
-spacing = [4, 8, 12, 16, 24, 32]
-radius = [4, 8, 12]
-min_touch = 48
-
-[scales.console]
-radius_card = 18
-radius_tile = 20
-radius_pane = 24
-radius_terminal = 18
-radius_key = 12
-card_pad_v = 12
-card_pad_h = 14
-gap_card = 10
-gap_section = 14
-gap_chip = 8
-pad_phone = 16
-pad_web = 28
-pane_pad = 20
-pane_gap = 20
-select_outline_width = 3
-
-[type.font_size]
-eyebrow = 12
-meta = 12
-small = 13
-body = 15
-base = 14
-title = 20
-headline = 22
-
-[type.type_agent_title]
-size = 22
-weight = 800
-height = 1.1818181818181819
-
-[type.type_button]
-size = 14
-weight = 700
-height = 1.2
-
-[type.type_button_idle]
-size = 14
-weight = 600
-height = 1.2
-
-[type.type_card_line]
-size = 13.5
-weight = 500
-height = 1.3333333333333333
-
-[type.type_card_line_strong]
-size = 13.5
-weight = 600
-height = 1.3333333333333333
-
-[type.type_card_title]
-size = 17
-weight = 700
-height = 1.2941176470588236
-
-[type.type_count_label]
-size = 12.5
-weight = 700
-height = 1.28
-
-[type.type_count_number]
-size = 32
-weight = 800
-height = 1.0625
-
-[type.type_eyebrow]
-size = 11.5
-weight = 400
-height = 1.2173913043478262
-
-[type.type_meta]
-size = 11.5
-weight = 400
-height = 1.391304347826087
-
-[type.type_nav_label]
-size = 12
-weight = 500
-height = 1.2
-
-[type.type_nav_label_active]
-size = 12
-weight = 700
-height = 1.2
-
-[type.type_pill]
-size = 11.5
-weight = 700
-height = 1.9130434782608696
-
-[type.type_tile_initials]
-size = 13
-weight = 700
-height = 1.2
-
-[type.type_title]
-size = 34
-weight = 800
-height = 1.1176470588235294
-
-[a11y]
-surface_light_ref = "#FFFFFF"
-surface_dark_ref = "#121212"
-
 [themes]
-# Seasonal overlays. An overlay may replace only decorative colours (grounds, surfaces,
-# borders, accent and primary fills); status, text and terminal colours are refused.
-# active: "auto" applies the overlay whose window holds today, "default" applies none,
-# or name an overlay to force it. RELAYDECK_THEME overrides this for one process.
+# Seasonal overlays change decorative colours only; status, text and terminal roles are protected.
+# Name an overlay, or use auto or default; RELAYDECK_THEME overrides the choice for one process.
 active = "auto"
 
 [themes.christmas]

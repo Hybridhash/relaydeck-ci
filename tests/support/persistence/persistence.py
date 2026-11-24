@@ -6,8 +6,8 @@ import secrets
 from dataclasses import dataclass
 from pathlib import Path
 
-from relaydeck import persistence_contracts as limits
-from relaydeck.persistence_contracts import KeyUnavailable, Record, Table
+from relaydeck.host.persistence import contracts as limits
+from relaydeck.host.persistence.contracts import KeyUnavailable, Record, Table
 
 
 @dataclass(frozen=True)

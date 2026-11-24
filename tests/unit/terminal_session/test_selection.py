@@ -1,4 +1,4 @@
-"""Q5d: SelectionController alone, over the pure selection reducers."""
+"""SelectionController alone, over the pure selection reducers."""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.adapters.ports import ClipboardPort
 from relaydeck.client.features.terminal.models import TerminalViewState
 from relaydeck.client.features.terminal.session.selection import (
     SelectionController,
     SelectionHooks,
 )
+from relaydeck.client.ports.clipboard import ClipboardPort
 
 
 class Clipboard(ClipboardPort):

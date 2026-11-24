@@ -23,14 +23,18 @@ from typing import Any
 from relaydeck_terminal import protocol
 from relaydeck_terminal.terminal import RelayDeckTerminal
 
-from relaydeck.client.features.shell import ScriptedShellGatewayOps, ShellSession
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
 from relaydeck.client.features.terminal.agent_session import AGENT_LIVE, AgentSession
 from relaydeck.client.features.terminal.output_log import OUTPUT_LOG_LIMIT
-from relaydeck.client.features.terminal.paste_policy import BRACKET_END, BRACKET_START
+from relaydeck.client.features.terminal.shell_session import ShellSession
+from relaydeck.client.models.input.paste_policy import BRACKET_END, BRACKET_START
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
+)
+from relaydeck.client.ports.transport import TerminalSocket, TransportError
 from relaydeck.contracts.wire import terminal as terminal_wire
 from tests.support.fakes import FakeClipboard
 from tests.support.host_harness import run
+from tests.support.terminal.shell_ops import ScriptedShellGatewayOps
 
 PROBE_BYTES = 12 * 1024 * 1024
 
@@ -88,6 +92,7 @@ def _agent_session(
         return {"ok": True}
 
     session = AgentSession(
+        stream_factory=_terminal_stream_factory,
         ops=ops,
         host_id="home-mac",
         device_id=ops.device_id,
@@ -107,6 +112,7 @@ def _agent_session(
 def _shell_session(factory: _SocketFactory, renew: Any = None) -> ShellSession:
     ops = ScriptedShellGatewayOps()
     return ShellSession(
+        stream_factory=_terminal_stream_factory,
         ops=ops,
         host_id="home-mac",
         device_id=ops.device_id,
@@ -358,6 +364,7 @@ def test_saved_send_after_dispose_cannot_submit() -> None:
 
         factory = _SocketFactory()
         session = AgentSession(
+            stream_factory=_terminal_stream_factory,
             ops=ops,
             host_id="home-mac",
             device_id=ops.device_id,
@@ -413,8 +420,8 @@ def test_retryable_failures_end_at_lease_expiry() -> None:
     async def scenario() -> None:
         from dataclasses import replace
 
-        from relaydeck.client.features.shell.ops import LeaseInfo
         from relaydeck.client.features.terminal.renewal import utc_stamp_in
+        from relaydeck.client.ports.terminal import LeaseInfo
 
         class _ShortLeaseOps(ScriptedShellGatewayOps):
             async def acquire_lease(self, attachment_id: str, mode: str) -> LeaseInfo:
@@ -430,6 +437,7 @@ def test_retryable_failures_end_at_lease_expiry() -> None:
 
         factory = _SocketFactory()
         session = ShellSession(
+            stream_factory=_terminal_stream_factory,
             ops=ops,
             host_id="home-mac",
             device_id=ops.device_id,

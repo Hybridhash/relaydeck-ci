@@ -12,9 +12,9 @@ from typing import Any
 from relaydeck.connector.attach import AttachSession
 from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.connector.source import HerdrSource
-from relaydeck.gateway.app import GatewayState
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.security.helpers import NOW, SECRET
 from tests.support.paths import TESTS_DIR
 
@@ -97,7 +97,9 @@ class RecordingSource(HerdrSource):
         self._output_changed.set()
         return held
 
-    def attach_shell(self, terminal_id: str, *, cols: int = 80, rows: int = 24) -> AttachSession:
+    def attach_shell(
+        self, terminal_id: str, *, cols: int = 80, rows: int = 24, takeover: bool = False
+    ) -> AttachSession:
         return self._attach(terminal_id, "shell")
 
     def attach_agent(self, target: str, *, cols: int = 80, rows: int = 24) -> AttachSession:
@@ -112,7 +114,7 @@ class RecordingSource(HerdrSource):
     async def wait_output_ready(self) -> None:
         # The queue wakes instead of an OS fd; production still uses fd readers.
         if any(
-            held.running and held.output
+            isinstance(held, RecordingPty) and held.running and held.output
             for held, terminal, _ in self._attached.values()
             if self._epoch_for(terminal)
         ):
@@ -122,6 +124,10 @@ class RecordingSource(HerdrSource):
 
     async def collect_live(self, timeout: float) -> list[dict[str, Any]]:
         return []
+
+    async def wait_metadata_ready(self) -> None:
+        # This fixture has no metadata producer, like a quiet held subscription.
+        await asyncio.Future()
 
     async def resync(self) -> None:
         pass

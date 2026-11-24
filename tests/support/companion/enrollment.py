@@ -5,7 +5,7 @@ from __future__ import annotations
 import base64
 from typing import Any
 
-from relaydeck.connector.pubkey import sign_proof
+from relaydeck.host.security.enrollment import sign_proof
 
 
 def _redeem_body(

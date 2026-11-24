@@ -6,7 +6,7 @@ import asyncio
 import json
 from typing import Any
 
-from relaydeck.client.features.sync.transport import TransportError
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.contracts.wire import terminal as terminal_wire
 
 

@@ -1,6 +1,6 @@
 [project]
 name = "relaydeck"
-version = "0.2.5"
+version = "0.3.0"
 description = "Watch and drive your Herdr terminal sessions from phone, tablet and browser"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
@@ -26,6 +26,7 @@ companion = [
   "cryptography>=48.0.1",
   "uvicorn>=0.34,<0.36",
   "flet-web==1.0.3",
+  "httpcore>=1.0.9,<2",
   "Pillow>=13.0.0,<14",
   "qrcode==8.2",
   "msgpack>=1.1,<2",
@@ -60,6 +61,7 @@ dev = [
   "pytest>=9.0.3,<9.1",
   "ruff>=0.11,<0.13",
   "mypy>=1.15,<2",
+  "import-linter==2.15",
 ]
 
 [project.scripts]
@@ -123,3 +125,636 @@ markers = [
   "auto_takeover: run with automatic control-on-open enabled (UI default is watch-first in tests)",
   "open_hold: keep the open hold of a new terminal (UI default releases it at once in tests)",
 ]
+
+# Import rules, checked by `lint-imports` (also from tests/architecture and CI). Type-only imports
+# count, so the cycle checks see them. Ignored edges are exact and fail when no longer used.
+[tool.importlinter]
+root_packages = ["relaydeck", "scripts"]
+include_external_packages = true
+exclude_type_checking_imports = false
+
+[[tool.importlinter.contracts]]
+name = "Shared kernel is stdlib only"
+type = "forbidden"
+source_modules = [
+    "relaydeck.contracts",
+    "relaydeck.domain",
+    "relaydeck.version",
+    "relaydeck.lease_diagnostics",
+]
+forbidden_modules = [
+    "relaydeck.cli",
+    "relaydeck.client",
+    "relaydeck.companion",
+    "relaydeck.connector",
+    "relaydeck.devtools",
+    "relaydeck.gateway",
+    "relaydeck.git",
+    "relaydeck.host",
+    "relaydeck.releases",
+    "relaydeck.usage",
+    "PIL",
+    "anyio",
+    "cryptography",
+    "fastapi",
+    "flet",
+    "flet_secure_storage",
+    "flet_web",
+    "httpcore",
+    "httpx",
+    "msgpack",
+    "qrcode",
+    "relaydeck_notifications",
+    "relaydeck_terminal",
+    "starlette",
+    "uvicorn",
+    "websockets",
+]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Client excludes host code"
+type = "forbidden"
+source_modules = [
+    "relaydeck.client",
+]
+forbidden_modules = [
+    "relaydeck.companion",
+    "relaydeck.devtools",
+    "relaydeck.gateway",
+    "relaydeck.connector",
+    "relaydeck.git",
+    "relaydeck.host",
+    "relaydeck.usage",
+    "relaydeck.releases",
+    "fastapi",
+    "starlette",
+    "flet_web",
+    "uvicorn",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Host capabilities exclude client"
+type = "forbidden"
+source_modules = [
+    "relaydeck.gateway",
+    "relaydeck.connector",
+    "relaydeck.git",
+    "relaydeck.usage",
+    "relaydeck.host",
+    "relaydeck.releases",
+    "relaydeck.companion.updates.schedule",
+]
+forbidden_modules = [
+    "relaydeck.client",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Host foundations exclude application policy"
+type = "forbidden"
+source_modules = [
+    "relaydeck.host",
+]
+forbidden_modules = [
+    "relaydeck.gateway",
+    "relaydeck.connector",
+    "relaydeck.git",
+    "relaydeck.usage",
+    "relaydeck.client",
+    "relaydeck.releases",
+    "relaydeck.companion",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Lower contexts exclude companion"
+type = "forbidden"
+source_modules = [
+    "relaydeck.gateway",
+    "relaydeck.connector",
+    "relaydeck.git",
+    "relaydeck.usage",
+    "relaydeck.releases",
+]
+forbidden_modules = [
+    "relaydeck.companion",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Gateway and connector independent"
+type = "independence"
+modules = [
+    "relaydeck.gateway",
+    "relaydeck.connector",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Git and usage independent"
+type = "independence"
+modules = [
+    "relaydeck.git",
+    "relaydeck.usage",
+]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Client features independent except recorded edges"
+type = "independence"
+modules = [
+    "relaydeck.client.features.web_push",
+    "relaydeck.client.features.update_notice",
+    "relaydeck.client.features.auth",
+    "relaydeck.client.features.composer",
+    "relaydeck.client.features.commands",
+    "relaydeck.client.features.changes",
+    "relaydeck.client.features.ask_agent",
+    "relaydeck.client.features.create",
+    "relaydeck.client.features.inventory",
+    "relaydeck.client.features.management",
+    "relaydeck.client.features.pairing",
+    "relaydeck.client.features.rename",
+    "relaydeck.client.features.sync",
+    "relaydeck.client.features.terminal",
+    "relaydeck.client.features.usage",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+    "relaydeck.client.features.terminal.sessions -> relaydeck.client.features.composer.api",  # Permanent: terminal policy uses the declared composer entry
+    "relaydeck.client.features.terminal.session.context -> relaydeck.client.features.composer.api",  # Permanent: terminal callback capabilities use the declared composer entry
+    "relaydeck.client.features.ask_agent.handoff -> relaydeck.client.features.changes.api",  # Permanent: Ask reads the declared Changes selection entry
+    "relaydeck.client.features.ask_agent.target -> relaydeck.client.features.changes.api",  # Permanent: Ask reads the declared Changes selection entry
+    "relaydeck.client.features.terminal.draft_preparation -> relaydeck.client.features.composer.api",  # Permanent: terminal policy uses the declared composer entry
+    "relaydeck.client.features.create.observation -> relaydeck.client.features.commands.api",  # Permanent: create observes command outcomes through the declared commands entry
+    "relaydeck.client.features.rename.rename -> relaydeck.client.features.commands.api",  # Permanent: rename observes command outcomes through the declared commands entry
+    "relaydeck.client.features.terminal.agent_session -> relaydeck.client.features.composer.api",  # Permanent: terminal policy uses the declared composer entry
+    "relaydeck.client.features.terminal.input_modes -> relaydeck.client.features.composer.api",  # Permanent: terminal policy uses the declared composer entry
+    "relaydeck.client.features.terminal.session.base -> relaydeck.client.features.composer.api",  # Permanent: terminal policy uses the declared composer entry
+    "relaydeck.client.features.terminal.session.keys -> relaydeck.client.features.composer.api",  # Permanent: terminal policy uses the declared composer entry
+]
+
+[[tool.importlinter.contracts]]
+name = "Generic controls exclude product layers"
+type = "forbidden"
+source_modules = [
+    "relaydeck.client.components",
+    "relaydeck.client.design_system",
+]
+forbidden_modules = [
+    "relaydeck.client.screens",
+    "relaydeck.client.app",
+    "relaydeck.client.app.hooks",
+    "relaydeck.client.features",
+    "relaydeck.client.adapters",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Domain over contracts"
+type = "layers"
+containers = [
+    "relaydeck",
+]
+layers = [
+    "domain",
+    "contracts",
+]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "relaydeck siblings acyclic"
+type = "acyclic_siblings"
+ancestors = [
+    "relaydeck",
+]
+depth = 10
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+    "relaydeck.connector.bootstrap -> relaydeck.devtools.fakes.connector",  # Permanent: fixture composition only
+    "relaydeck.gateway.app.config -> relaydeck.devtools.fakes.gateway",  # Permanent fixture mode loads FakeBackend lazily, for explicit fixture composition.
+]
+
+[[tool.importlinter.contracts]]
+name = "relaydeck.client.features siblings acyclic"
+type = "acyclic_siblings"
+ancestors = [
+    "relaydeck.client.features",
+]
+depth = 0
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Production code does not import devtools"
+type = "forbidden"
+source_modules = [
+    "relaydeck.cli",
+    "relaydeck.client",
+    "relaydeck.companion",
+    "relaydeck.connector",
+    "relaydeck.contracts",
+    "relaydeck.domain",
+    "relaydeck.gateway",
+    "relaydeck.git",
+    "relaydeck.host",
+    "relaydeck.lease_diagnostics",
+    "relaydeck.releases",
+    "relaydeck.usage",
+    "relaydeck.version",
+]
+forbidden_modules = ["relaydeck.devtools"]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+    "relaydeck.gateway.app.config -> relaydeck.devtools.fakes.gateway",  # Permanent fixture mode loads FakeBackend lazily, for explicit fixture composition.
+    "relaydeck.companion.app.hosted_web.serve -> relaydeck.devtools.dev_server",  # Permanent: dev login loads demo data
+    "relaydeck.connector.bootstrap -> relaydeck.devtools.fakes.connector",  # Permanent: explicit fixture mode
+    "relaydeck.companion.app.herdr_link -> relaydeck.devtools.fakes.connector",  # Permanent: explicit fixture mode
+]
+
+[[tool.importlinter.contracts]]
+name = "Runtime never imports scripts"
+type = "forbidden"
+source_modules = ["relaydeck"]
+forbidden_modules = ["scripts"]
+unmatched_ignore_imports_alerting = "error"
+
+
+[[tool.importlinter.contracts]]
+name = "Client layer order"
+type = "layers"
+containers = ["relaydeck.client"]
+layers = ["main:app", "screens", "widgets", "features", "design_system:components:adapters", "platform", "ports", "models:asset_paths"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Client foundations exclude application policy"
+type = "forbidden"
+source_modules = ["relaydeck.client.models", "relaydeck.client.ports", "relaydeck.client.platform"]
+forbidden_modules = [
+    "relaydeck.client.screens",
+    "relaydeck.client.app",
+    "relaydeck.client.app.hooks",
+    "relaydeck.client.features",
+    "relaydeck.client.components",
+    "relaydeck.client.adapters",
+    "relaydeck.client.design_system",
+    "relaydeck.client.widgets",
+]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Client models and ports exclude frameworks"
+type = "forbidden"
+source_modules = ["relaydeck.client.models", "relaydeck.client.ports"]
+forbidden_modules = ["flet", "httpx", "websockets", "relaydeck_terminal", "relaydeck_notifications"]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Design system imports only platform helpers"
+type = "forbidden"
+source_modules = ["relaydeck.client.design_system"]
+forbidden_modules = [
+    "relaydeck.client.screens",
+    "relaydeck.client.adapters",
+    "relaydeck.client.app",
+    "relaydeck.client.components",
+    "relaydeck.client.features",
+    "relaydeck.client.app.hooks",
+    "relaydeck.client.platform.storage",
+    "relaydeck.client.ports",
+    "relaydeck.companion.app.hosted_web.serve",
+    "relaydeck.client.widgets",
+    "relaydeck.companion",
+    "relaydeck.connector",
+    "relaydeck.contracts",
+    "relaydeck.devtools",
+    "relaydeck.domain",
+    "relaydeck.gateway",
+    "relaydeck.git",
+    "relaydeck.host",
+    "relaydeck.usage",
+]
+allow_indirect_imports = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Product widgets exclude application owners"
+type = "forbidden"
+source_modules = [
+    "relaydeck.client.widgets",
+]
+forbidden_modules = [
+    "relaydeck.client.screens",
+    "relaydeck.client.app",
+    "relaydeck.client.app.hooks",
+    "relaydeck.client.adapters",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Feature sources exclude concrete transports"
+type = "forbidden"
+source_modules = [
+    "relaydeck.client.features.update_notice",
+    "relaydeck.client.features.web_push",
+    "relaydeck.client.features.management",
+    "relaydeck.client.features.inventory.paging",
+    "relaydeck.client.features.inventory.source",
+    "relaydeck.client.features.rename",
+    "relaydeck.client.features.usage.source",
+]
+forbidden_modules = [
+    "relaydeck.client.platform.transport",
+]
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+[[tool.importlinter.contracts]]
+name = "Companion application owners are acyclic"
+type = "acyclic_siblings"
+ancestors = ["relaydeck.companion.app"]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Companion reaches the client only from hosted_web"
+type = "forbidden"
+source_modules = [
+    "relaydeck.companion.adapters",
+    "relaydeck.companion.app.bindings",
+    "relaydeck.companion.app.herdr_link",
+    "relaydeck.companion.app.herdr_retry",
+    "relaydeck.companion.app.lifecycle",
+    "relaydeck.companion.app.maintenance",
+    "relaydeck.companion.app.runtime",
+    "relaydeck.companion.cli",
+    "relaydeck.companion.config",
+    "relaydeck.companion.config_edit",
+    "relaydeck.companion.inspection",
+    "relaydeck.companion.pairing",
+    "relaydeck.companion.setup",
+    "relaydeck.companion.updates",
+]
+forbidden_modules = ["relaydeck.client"]
+allow_indirect_imports = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Companion owners exclude the composition root"
+type = "forbidden"
+source_modules = [
+    "relaydeck.companion.app.bindings",
+    "relaydeck.companion.app.herdr_link",
+    "relaydeck.companion.app.herdr_retry",
+    "relaydeck.companion.app.hosted_web",
+    "relaydeck.companion.app.lifecycle",
+    "relaydeck.companion.app.maintenance",
+]
+forbidden_modules = ["relaydeck.companion.app.runtime"]
+unmatched_ignore_imports_alerting = "error"
+
+
+[[tool.importlinter.contracts]]
+name = "Git consumers use the public entry"
+type = "forbidden"
+source_modules = ["relaydeck.cli", "relaydeck.client", "relaydeck.companion", "relaydeck.connector", "relaydeck.devtools", "relaydeck.gateway", "relaydeck.host", "relaydeck.releases", "relaydeck.usage", "scripts"]
+forbidden_modules = [
+    "relaydeck.git.base_store",
+    "relaydeck.git.cache",
+    "relaydeck.git.comparison",
+    "relaydeck.git.config_guard",
+    "relaydeck.git.content",
+    "relaydeck.git.flights",
+    "relaydeck.git.graph",
+    "relaydeck.git.graph_cache",
+    "relaydeck.git.graph_inputs",
+    "relaydeck.git.graph_probe",
+    "relaydeck.git.graph_reader",
+    "relaydeck.git.locator",
+    "relaydeck.git.manifest",
+    "relaydeck.git.parser",
+    "relaydeck.git.polling",
+    "relaydeck.git.probe",
+    "relaydeck.git.reader",
+    "relaydeck.git.refs",
+    "relaydeck.git.results",
+    "relaydeck.git.runner",
+    "relaydeck.git.safe_fs",
+    "relaydeck.git.secret_policy",
+    "relaydeck.git.service"
+]
+allow_indirect_imports = true
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+]
+
+
+[[tool.importlinter.contracts]]
+name = "Usage consumers use the public entry"
+type = "forbidden"
+source_modules = ["relaydeck.cli", "relaydeck.client", "relaydeck.companion", "relaydeck.connector", "relaydeck.devtools", "relaydeck.gateway", "relaydeck.host", "relaydeck.releases", "relaydeck.git", "scripts"]
+forbidden_modules = [
+    "relaydeck.usage.collector",
+    "relaydeck.usage.config",
+    "relaydeck.usage.contracts",
+    "relaydeck.usage.hooks",
+    "relaydeck.usage.hooks.cli",
+    "relaydeck.usage.hooks.doctor",
+    "relaydeck.usage.hooks.files",
+    "relaydeck.usage.hooks.install",
+    "relaydeck.usage.hooks.repair",
+    "relaydeck.usage.hooks.resource",
+    "relaydeck.usage.hooks.setup",
+    "relaydeck.usage.limits",
+    "relaydeck.usage.limits.json_statusline_limits",
+    "relaydeck.usage.limits_plane",
+    "relaydeck.usage.limits_plane.contracts",
+    "relaydeck.usage.limits_plane.herdr_seam",
+    "relaydeck.usage.limits_plane.probe",
+    "relaydeck.usage.limits_plane.providers",
+    "relaydeck.usage.limits_plane.providers.jsonrpc_rate_limits_stdio",
+    "relaydeck.usage.limits_plane.providers.tui_usage_pane",
+    "relaydeck.usage.limits_plane.refresh_state",
+    "relaydeck.usage.limits_plane.scheduler",
+    "relaydeck.usage.limits_plane.trust_store",
+    "relaydeck.usage.linking",
+    "relaydeck.usage.linking.digests",
+    "relaydeck.usage.linking.process",
+    "relaydeck.usage.pricing",
+    "relaydeck.usage.readers",
+    "relaydeck.usage.readers._files",
+    "relaydeck.usage.readers._read",
+    "relaydeck.usage.readers._session_index",
+    "relaydeck.usage.readers.json_session_credits",
+    "relaydeck.usage.readers.json_session_turns",
+    "relaydeck.usage.readers.jsonl_cumulative_rollout",
+    "relaydeck.usage.readers.jsonl_event_usage",
+    "relaydeck.usage.readers.jsonl_message_usage",
+    "relaydeck.usage.readers.sqlite_session_usage",
+    "relaydeck.usage.resources",
+    "relaydeck.usage.resources.statusline_limits_hook",
+    "relaydeck.usage.store"
+]
+allow_indirect_imports = true
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+    "scripts.statusline_limits_hook -> relaydeck.usage.resources.statusline_limits_hook",  # Permanent: the development shim re-exports the packaged standalone hook.
+]
+
+[[tool.importlinter.contracts]]
+name = "Client screens are independent"
+type = "independence"
+modules = [
+    "relaydeck.client.screens.terminal",
+    "relaydeck.client.screens.shell",
+    "relaydeck.client.screens.changes",
+    "relaydeck.client.screens.pairing",
+    "relaydeck.client.screens.settings",
+    "relaydeck.client.screens.usage",
+    "relaydeck.client.screens.console",
+]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Client features exclude screens"
+type = "forbidden"
+source_modules = ["relaydeck.client.features"]
+forbidden_modules = ["relaydeck.client.screens"]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Client screens exclude application owners and transports"
+type = "forbidden"
+source_modules = ["relaydeck.client.screens"]
+forbidden_modules = [
+    "relaydeck.client.app",
+    "relaydeck.client.app.hooks",
+    "relaydeck.client.adapters",
+    "relaydeck.client.platform.transport",
+]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway access layer order"
+type = "layers"
+containers = ["relaydeck.gateway.features.access"]
+layers = ["(adapters)", "api", "authorization:enrollment_service:hosts:identity:pairing:(service)", "(ports)", "(model)"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway commands layer order"
+type = "layers"
+containers = ["relaydeck.gateway.features.commands"]
+layers = ["(adapters)", "api", "(service)", "(ports)", "policy:(model)"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway git_read layer order"
+type = "layers"
+containers = ["relaydeck.gateway.features.git_read"]
+layers = ["(adapters)", "api", "service", "(ports)", "(model)"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway metadata layer order"
+type = "layers"
+containers = ["relaydeck.gateway.features.metadata"]
+layers = ["(adapters)", "api", "events:inventory:metadata_follower:metadata_streams:(service)", "(ports)", "metadata_state:(model)"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway notifications layer order"
+type = "layers"
+containers = ["relaydeck.gateway.features.notifications"]
+layers = ["adapters", "api", "service:worker:outbox_io:transitions", "ports", "model"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+    "relaydeck.gateway.features.notifications.api -> relaydeck.gateway.features.notifications.adapters.fcm",  # Permanent public entry exposes the declared adapter objects.
+    "relaydeck.gateway.features.notifications.api -> relaydeck.gateway.features.notifications.adapters.sqlite_store",  # Permanent public entry exposes the declared adapter objects.
+    "relaydeck.gateway.features.notifications.api -> relaydeck.gateway.features.notifications.adapters.webpush",  # Permanent public entry exposes the declared adapter objects.
+    "relaydeck.gateway.features.notifications.api -> relaydeck.gateway.features.notifications.adapters.webpush_store",  # Permanent public entry exposes the declared adapter objects.
+]
+
+[[tool.importlinter.contracts]]
+name = "Gateway pictures layer order"
+type = "layers"
+containers = ["relaydeck.gateway.features.pictures"]
+layers = ["adapters", "api", "(service)", "(ports)", "(model)"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+ignore_imports = [
+    "relaydeck.gateway.features.pictures.api -> relaydeck.gateway.features.pictures.adapters.storage",  # Permanent public entry exposes the declared adapter objects.
+]
+
+[[tool.importlinter.contracts]]
+name = "Gateway terminals layer order"
+type = "layers"
+containers = ["relaydeck.gateway.features.terminals"]
+layers = ["(adapters)", "api", "cleanup:leases:ring:sockets:(service)", "(ports)", "bounds:(model)"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway usage_read layer order"
+type = "layers"
+containers = ["relaydeck.gateway.features.usage_read"]
+layers = ["(adapters)", "api", "service", "(ports)", "model"]
+exhaustive = true
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway features independent"
+type = "independence"
+modules = ["relaydeck.gateway.features.access", "relaydeck.gateway.features.commands", "relaydeck.gateway.features.git_read", "relaydeck.gateway.features.metadata", "relaydeck.gateway.features.notifications", "relaydeck.gateway.features.pictures", "relaydeck.gateway.features.terminals", "relaydeck.gateway.features.usage_read"]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway features exclude HTTP and composition"
+type = "forbidden"
+source_modules = ["relaydeck.gateway.features.access", "relaydeck.gateway.features.commands", "relaydeck.gateway.features.git_read", "relaydeck.gateway.features.metadata", "relaydeck.gateway.features.notifications", "relaydeck.gateway.features.pictures", "relaydeck.gateway.features.terminals", "relaydeck.gateway.features.usage_read"]
+forbidden_modules = ["relaydeck.gateway.app", "relaydeck.gateway.http", "fastapi", "starlette", "uvicorn"]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Gateway HTTP excludes composition"
+type = "forbidden"
+source_modules = ["relaydeck.gateway.http"]
+forbidden_modules = ["relaydeck.gateway.app"]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Client excludes the component catalog"
+type = "forbidden"
+source_modules = ["relaydeck.client"]
+forbidden_modules = [
+    "relaydeck.devtools.catalog",
+    "relaydeck.devtools.catalog_model",
+    "relaydeck.devtools.catalog_controls",
+    "relaydeck.devtools.catalog_renderer",
+    "relaydeck.devtools.catalog_screenshots",
+]
+unmatched_ignore_imports_alerting = "error"

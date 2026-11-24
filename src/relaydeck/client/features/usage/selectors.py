@@ -1,15 +1,4 @@
-"""Usage selectors. Pure: parsed page in, values out. No Flet, no
-I/O.
-
-- One total selector for every screen: all spaces = the `overall` rows plus the `not_linked` rows,
-  each row counted once. A selected space = its `workspace` rows. "Not linked" = its `not_linked`
-  rows.
-- Cost is never inferred client-side. The server's per-event priced and unpriced token counts decide
-  zero, priced, partial and all-unpriced. An older server (no per-event fields) gives UNKNOWN.
-- Limits ignore the period and the space, but respect the provider filter. A provider's windows come
-  only from its latest reading, and are labelled by duration.
-- Formatting follows. Every name shown comes from the page's display names.
-"""
+"""Usage selectors. Pure: parsed page in, values out."""
 
 from __future__ import annotations
 
@@ -20,7 +9,20 @@ from decimal import ROUND_HALF_UP, Decimal
 from zoneinfo import ZoneInfo
 
 from relaydeck.client.features.usage import model
-from relaydeck.client.features.usage.model import Row, UsagePage
+from relaydeck.client.features.usage.model import (
+    LIMIT_FRESH,
+    ConsoleCard,
+    ConsolePick,
+    Row,
+    UsagePage,
+    _beats,
+    _display,
+    current_limits,
+    effective_window_status,
+    host_day,
+    page_today,
+    reading_stale,
+)
 
 ALL = "all"
 UNLINKED = "unlinked"
@@ -31,7 +33,7 @@ NEAR_LIMIT_PERCENT = 80
 COMPACT_ATTENTION = 3
 SUPPORTED_SORTS = ("most_tokens", "a_z", "recent")
 
-# Provider status per.3 and the usage review. Blocking first, then stale, then near-limit.
+# Provider status order: blocking first, then stale, then near-limit.
 STATUS_UNMANAGED = "unmanaged"  # no managed limits hook: not broken, not an attention item
 STATUS_NOT_REPORTED = "not_reported"  # the format has no verified limit source
 STATUS_SETUP_NEEDED = "setup_needed"
@@ -95,8 +97,9 @@ def _in_period(page: UsagePage, flt: Filter, today: date) -> tuple[Row, ...]:
 
 
 def filtered_rows(page: UsagePage, flt: Filter, today: date) -> tuple[Row, ...]:
-    """Period, then space, then provider. All spaces is overall plus not-linked, each row once; a
-    space is its workspace rows; not-linked is its own rows. Limits are not computed here."""
+    """Period, then space, then provider. All spaces is overall plus not-linked, each row once;
+    a space is its workspace rows; not-linked is its own rows.
+    """
     selected = []
     for row in _in_period(page, flt, today):
         if flt.space == ALL:
@@ -309,8 +312,9 @@ def _sum_usage(values: Sequence[Usage]) -> Usage:
 
 def space_buckets(page: UsagePage, flt: Filter, today: date) -> dict[str, Usage]:
     """Usage per space for the filter's period and provider: one entry per workspace id, plus
-    "unlinked". The space filter is ignored here, so the buckets partition the all-spaces total.
-    An over-capacity report has no buckets at all (it is unavailable, not empty)."""
+    "unlinked". The space filter is ignored here, so the buckets partition the all-spaces
+    total.
+    """
     if not report_available(page):
         return {}
     buckets: dict[str, list[Row]] = {}
@@ -638,9 +642,9 @@ def _day_label(day: date) -> str:
 
 
 def chart(page: UsagePage, flt: Filter, today: date, *, now_hour: int | None = None) -> Chart:
-    """Today: 24 hourly buckets (host timezone). 7d and 30d: daily. 90d: weekly, Mon-Sun, with
-    partial
-    edge weeks and no day dropped. Zero stubs fill every label, and a DST-skipped hour is a zero."""
+    """Build host-local chart buckets: today uses 24 hourly buckets, 7d and 30d use daily
+    buckets, and 90d uses weekly buckets.
+    """
     _check(flt)
     if not report_available(page):
         grain = "hour" if flt.period == "today" else "week" if flt.period == "90d" else "day"
@@ -765,8 +769,8 @@ def spaces(
     page: UsagePage, flt: Filter, today: date, sort: str = "most_tokens"
 ) -> tuple[SpaceEntry, ...]:
     """Every known space (the inventory, plus any space with rows), for the period and provider.
-    Not linked is excluded. Sort: most_tokens (ties A-Z), a_z, or recent (last day desc, unknown
-    last)."""
+    Not linked is excluded.
+    """
     if sort not in SUPPORTED_SORTS:
         raise ValueError("unknown sort")
     buckets = space_buckets(page, flt, today)
@@ -878,8 +882,9 @@ def date_range(first: date, last: date, today: date) -> str:
 
 
 def monogram(name: str) -> str:
-    """First letter of the first two words, or the first two letters of one word. A trailing CLI is
-    dropped first (Alpha -> Al, Beta CLI -> Be, OpenThing -> Op). Built from the display name."""
+    """First letter of the first two words, or the first two letters of one word. A trailing CLI
+    is dropped first (Alpha -> Al, Beta CLI -> Be, OpenThing -> Op).
+    """
     words = name.split()
     if len(words) > 1 and words[-1] == "CLI":
         words = words[:-1]
@@ -924,3 +929,72 @@ __all__ = [
     "usage_of",
     "window_label",
 ]
+
+
+def console_card(page: UsagePage, now_ms: int) -> ConsoleCard:
+    """Today's overall totals (only when the snapshot is from the host's today) and the
+    most-used window that is fresh at `now_ms`, across all limits: an aggregate that is
+    expired does not hide a fresh sibling window. Ties go to the earliest reset.
+    """
+    today = host_day(now_ms, page.timezone)
+    current = page_today(page) == today
+    available = report_available(page)
+    day_rows: tuple[Row, ...] = ()
+    if current and available:
+        day_rows = filtered_rows(
+            page,
+            Filter(period="today", space=ALL, provider=ALL),
+            today,
+        )
+    usage = usage_of(day_rows)
+    priced = usage.cost.state in ("zero", "priced") and available
+    best_by_tool: dict[str, ConsolePick] = {}
+    kinds = {kind.kind: kind for kind in page.kinds}
+    for limit in current_limits(page.limits):
+        stale = reading_stale(kinds.get(limit.kind), limit, now_ms)
+        for window in limit.windows:
+            if (
+                effective_window_status(window, limit.observed_ms, now_ms, stale=stale)
+                != LIMIT_FRESH
+            ):
+                continue  # a stale or ended reading is never ranked
+            candidate = ConsolePick(
+                display_name=_display(page, limit.kind)[0],
+                window_key=window.window_key,
+                used_percent=window.used_percent,
+                resets_at_ms=window.resets_at_ms,
+                window_minutes=window.window_minutes,
+            )
+            held = best_by_tool.get(limit.kind)
+            if held is None or _beats(candidate, held):
+                best_by_tool[limit.kind] = candidate
+    picks = [best_by_tool[key] for key in best_by_tool]
+    ranked: list[ConsolePick] = []
+    for candidate in picks:
+        index = 0
+        while index < len(ranked) and not _beats(candidate, ranked[index]):
+            index += 1
+        ranked.insert(index, candidate)
+    best = ranked[0] if ranked else None
+    by_kind: dict[str, int] = {}
+    for row in day_rows:
+        if _display(page, row.kind)[1]:  # a tool that reports tokens
+            by_kind[row.kind] = by_kind.get(row.kind, 0) + row.counters.tokens
+    top_tool: tuple[str, int] | None = None
+    if by_kind:
+        top_kind = max(sorted(by_kind), key=lambda kind: by_kind[kind])
+        if by_kind[top_kind] > 0:
+            top_tool = (_display(page, top_kind)[0], by_kind[top_kind])
+    return ConsoleCard(
+        has_today=bool(day_rows),
+        stale_day=not current,
+        cost_micro_usd=usage.cost.priced_micro_usd if priced else None,
+        tokens=(usage.tokens or 0) if available else 0,  # 0 is a placeholder when unavailable
+        pick=best,
+        picks=tuple(ranked),
+        top_tool=top_tool,
+        age_ms=max(0, now_ms - page.generated_ms),
+        priced_micro_usd=usage.cost.amount_micro_usd if available else None,
+        unpriced_tokens=(usage.cost.unpriced_tokens or 0) if available else 0,
+        available=available,
+    )

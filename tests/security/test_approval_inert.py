@@ -9,9 +9,12 @@ their approved protocol phases are not terminal-output authorization.
 
 from __future__ import annotations
 
+import ast
 import asyncio
 from pathlib import Path
 from typing import Any
+
+import pytest
 
 APPROVAL_TEXTS: tuple[str, ...] = (
     "Agent needs approval: delete 3 files? [Approve] [Deny]",
@@ -23,7 +26,7 @@ APPROVAL_TEXTS: tuple[str, ...] = (
 
 
 def _store(submits: list[dict[str, Any]], prompts: list[tuple[str, str]]) -> Any:
-    from relaydeck.client.features.composer.domain import ComposerStore
+    from relaydeck.client.features.composer.model import ComposerStore
 
     async def submit_command(body: dict[str, Any]) -> dict[str, Any]:
         submits.append(body)
@@ -78,7 +81,8 @@ def test_push_paths_emit_no_command_or_key() -> None:
     """Adversarial event/session/host ids and approval-shaped text
     reach the push store only as opaque refs: hint payloads carry no
     ids, and resolving hints/links emits no input or command."""
-    from relaydeck.gateway.push import HINT_KEYS, PushStore
+    from relaydeck.gateway.features.notifications.adapters.sqlite_store import PushStore
+    from relaydeck.gateway.features.notifications.model import HINT_KEYS
 
     store = PushStore()
     try:
@@ -149,10 +153,23 @@ def test_tap_resolution_reads_state_only() -> None:
     assert backend.commands == {}
 
 
-def test_no_output_scanning_approval_trigger_exists() -> None:
-    """Sweep: no client code scans output/terminal text for approval
-    keywords, decisions, or auto-responses."""
-    root = Path(__file__).resolve().parent.parent.parent / "src" / "relaydeck" / "client"
+def _without_imports(source: str) -> str:
+    """Blank import spans without hiding executable statements on the same line."""
+    lines = source.encode("utf-8").splitlines(keepends=True)
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(node, ast.Import | ast.ImportFrom):
+            continue
+        assert node.end_lineno is not None and node.end_col_offset is not None
+        for index in range(node.lineno - 1, node.end_lineno):
+            start = node.col_offset if index == node.lineno - 1 else 0
+            end = node.end_col_offset if index == node.end_lineno - 1 else len(lines[index])
+            span = lines[index][start:end]
+            blank = bytes(c if c in (10, 13) else 32 for c in span)
+            lines[index] = lines[index][:start] + blank + lines[index][end:]
+    return b"".join(lines).decode("utf-8")
+
+
+def _approval_hits(root: Path) -> list[str]:
     triggers = ("approve", "approval", "yes to confirm", "reply yes", "[y/n]")
     dq = chr(34) * 3
     sq = chr(39) * 3
@@ -160,9 +177,10 @@ def test_no_output_scanning_approval_trigger_exists() -> None:
     # Device enrollment approval is an authenticated, explicit Mac action,
     # distinct from interpreting terminal output as agent authorization.
     pairing_files = {
-        Path("components/design_system/connect.py"),
+        Path("widgets/connect/connect.py"),
+        Path("features/pairing/approval.py"),
         Path("features/pairing/service.py"),
-        Path("packaged_runtime.py"),
+        Path("app/native/runtime.py"),
     }
     for path in sorted(root.rglob("*.py")):
         if path.relative_to(root) in pairing_files:
@@ -170,7 +188,7 @@ def test_no_output_scanning_approval_trigger_exists() -> None:
         if path.name.startswith("fake_"):
             continue  # test doubles: synthetic fixture titles, not production
         in_docstring = False
-        for lineno, line in enumerate(path.read_text().splitlines(), 1):
+        for lineno, line in enumerate(_without_imports(path.read_text()).splitlines(), 1):
             stripped = line.strip()
             boundary = dq in line or sq in line
             if line.count(dq) % 2 == 1 or line.count(sq) % 2 == 1:
@@ -182,4 +200,43 @@ def test_no_output_scanning_approval_trigger_exists() -> None:
                 continue  # prose documenting inertness, not a trigger
             if any(t in line.lower() for t in triggers):
                 hits.append(f"{path.name}:{lineno}:{line.strip()[:100]}")
+    return hits
+
+
+def test_no_output_scanning_approval_trigger_exists() -> None:
+    """Sweep: no client code scans output/terminal text for approval
+    keywords, decisions, or auto-responses."""
+    root = Path(__file__).resolve().parent.parent.parent / "src" / "relaydeck" / "client"
+    hits = _approval_hits(root)
     assert hits == [], f"approval-interpreting code? {hits}"
+
+
+def test_pairing_imports_are_not_output_triggers(tmp_path: Path) -> None:
+    source = (
+        "from relaydeck.client.features.pairing.approval import (\n"
+        "    ConnectState,\n"
+        "    approve_command,\n"
+        ")\n"
+        "state = ConnectState()\n"
+    )
+    (tmp_path / "panel.py").write_text(source)
+    assert _approval_hits(tmp_path) == []
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        'from pairing.approval import ConnectState\nif "approve" in output:\n    send("yes")\n',
+        "from pairing.approval import ConnectState; approve(output)\n",
+        'title = "é"; import pairing.approval; approve(output)\n',
+        "def handle(output):\n    import pairing.approval\n    approve(output)\n",
+    ],
+)
+def test_imports_do_not_hide_executable_approval_triggers(tmp_path: Path, source: str) -> None:
+    # A file beside the pairing implementation is still scanned.
+    directory = tmp_path / "features" / "pairing"
+    directory.mkdir(parents=True)
+    (directory / "panel.py").write_text(source)
+    hits = _approval_hits(tmp_path)
+    assert len(hits) == 1
+    assert "approve" in hits[0]

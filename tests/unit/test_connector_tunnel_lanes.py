@@ -6,9 +6,9 @@ import json
 
 import pytest
 
-from relaydeck.connector.fixture import FixtureAdapter
 from relaydeck.connector.link import ConnectorLink, LinkConfig
-from relaydeck.journal import digest_for
+from relaydeck.devtools.fakes.connector import FixtureAdapter
+from relaydeck.host.persistence.command_journal import digest_for
 from tests.support.sync.scripted_transport import _ScriptedTransport
 
 

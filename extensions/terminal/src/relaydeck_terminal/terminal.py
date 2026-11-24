@@ -1,16 +1,6 @@
-"""Python side of the RelayDeck terminal extension control.
-
-Transport only: bytes cross here, policy lives in
-`relaydeck.domain.terminal` (ownership/generations) and the client input sessions.
-Follows the `RawImage` DataChannel pattern:
-Dart opens the channel on mount, Python captures it in
-`on_data_channel_open`, output is acked cumulatively for backpressure.
-
-No `from __future__ import annotations` in this module: Flet 1.0.3's
-`get_event_field_type` reads raw `__annotations__` and only unwraps
-`ForwardRef`, so a PEP 563 string annotation on `on_data_channel_open`
-crashes live rendering with `[resolve error] ... tuple index out of
-range`. Every annotation here must evaluate at def time (py>=3.13).
+"""Bridge the retained native terminal to output, input and recovery channels. Application
+callers own access policy; event annotations evaluate at definition time for framework
+reflection.
 """
 
 import asyncio
@@ -19,7 +9,6 @@ import struct
 import weakref
 from collections import deque
 from collections.abc import Callable
-from dataclasses import dataclass
 from typing import Any
 
 import flet as ft
@@ -28,6 +17,7 @@ from flet.data_channel import DataChannel, DataChannelOpenEvent
 
 from relaydeck_terminal import protocol
 from relaydeck_terminal.diagnostics import trace_lifecycle
+from relaydeck_terminal.resume import ResumeOutcome as ResumeOutcome
 
 _DIAG = logging.getLogger("relaydeck.client.typing_split")
 
@@ -52,29 +42,6 @@ _KEYBOARD_TRACE_EVENTS = {
     8: "input_enabled",
     9: "delayed_sample",
 }
-
-
-@dataclass(frozen=True)
-class ResumeOutcome:
-    """Result of rebinding a retained terminal to a replacement UI
-    transport.
-
-    status "resumed": the same native engine was verified (instance +
-    reset identity) and the missing output suffix was redelivered
-    exactly once; no viewer-generation bump, no controller stop, no
-    resize, no input replay. reason "ok", or "ok_after_overflow" when
-    the viewer had already overflowed during the outage (the session
-    was already notified through the overflow path).
-    status "incomplete": continuity is NOT proven (timeout, identity
-    or offset mismatch, evicted journal, pre-existing protocol
-    error); the caller must drive the honest reset-as-watcher
-    recovery, never silent continuation. reason names the cause.
-    status "noop": the terminal never attached; nothing to rebind.
-    """
-
-    status: str
-    reason: str
-    resent_bytes: int = 0
 
 
 class _SnapshotWait:
@@ -121,12 +88,9 @@ class _SnapshotWait:
 
 @ft.control("RelayDeckTerminal")  # type: ignore[arg-type]
 class RelayDeckTerminal(LayoutControl):
-    """Isolated imperative native bridge (terminal exception).
-
-    The app holds ONE instance per terminal surface in a ref and returns
-    the same instance on every render, so the DataChannel binding and
-    byte counters survive re-renders. Output/input flow through methods,
-    never through per-render prop patches.
+    """Retain one imperative native bridge per terminal surface so channel bindings and byte
+    counters survive renders. Runtime methods carry data and commands without render-time
+    property patches.
     """
 
     input_enabled: bool = False
@@ -158,6 +122,7 @@ class RelayDeckTerminal(LayoutControl):
         self._mode_listeners: list[Callable[[bool], None]] = []
         self._view_listeners: list[Callable[[protocol.ViewState], None]] = []
         self._keyboard_state_listeners: list[Callable[[bool], None]] = []
+        self._page_metrics_listeners: list[Callable[[int], None]] = []
         self._pending_writes: deque[bytes] = deque()
         self._pending_bytes = 0
         self._viewer_generation = 0
@@ -177,9 +142,8 @@ class RelayDeckTerminal(LayoutControl):
         self._journal: deque[bytes] = deque()
         self._journal_base: int = 0
         self._journal_bytes: int = 0
-        # While a resume probe is in flight, new writes are held (still counted in _sent_bytes) and
-        # flushed after the redelivered suffix, so a byte is either redelivered or flushed, never
-        # both. Each holds its start offset (None for control). Capture/reset retire the batch.
+        # Hold counted writes until the missing suffix is delivered, then flush each byte once.
+        # Capture or reset retires this batch and its offset base.
         self._resume_hold = False
         self._resume_hold_epoch: int | None = None
         self._resume_held: deque[tuple[int | None, bytes]] = deque()
@@ -300,6 +264,12 @@ class RelayDeckTerminal(LayoutControl):
 
     def add_size_listener(self, listener: Callable[[int, int], None]) -> None:
         self._size_listeners.append(listener)
+
+    def add_page_metrics_listener(self, listener: Callable[[int], None]) -> None:
+        """Listener receives the bottom inset in css px (window height minus the visual
+        viewport's bottom edge) whenever the Dart side samples page metrics
+        (protocol.PAGE_METRICS). Zero when the browser gave no visual viewport."""
+        self._page_metrics_listeners.append(listener)
 
     def add_mode_listener(self, listener: Callable[[bool], None]) -> None:
         """Listener receives the live engine `bracketedPasteMode` after
@@ -536,6 +506,9 @@ class RelayDeckTerminal(LayoutControl):
                 height,
                 window,
             )
+            inset = protocol.page_bottom_inset(offset, height, window)
+            for metrics_listener in list(self._page_metrics_listeners):
+                metrics_listener(inset)
         elif packet.kind == protocol.SELECTION_TEXT:
             text = packet.payload.decode("utf-8", errors="replace")
             if self._selection_waiters:
@@ -616,11 +589,8 @@ class RelayDeckTerminal(LayoutControl):
     def _check_snapshot_chunk(
         self, wait: _SnapshotWait, total: int, offset: int, length: int
     ) -> str | None:
-        """Validate declared ints BEFORE any reassembly allocation.
-
-        Pure integer checks — no buffers touched — so a hostile total
-        (e.g. 0xFFFFFFFF) or overrun offset is rejected without
-        allocating. Returns the violation reason, or None when safe.
+        """Validate declared snapshot sizes and offsets before allocating a reassembly buffer.
+        Return a violation reason, or None when the integer bounds are safe.
         """
         if total > protocol.MAX_SNAPSHOT_TOTAL:
             return f"declared total {total} exceeds {protocol.MAX_SNAPSHOT_TOTAL}"
@@ -728,10 +698,9 @@ class RelayDeckTerminal(LayoutControl):
                 overflow -= len(oldest)
 
     def _journal_suffix(self, applied: int, end: int) -> bytes | None:
-        """Bytes (applied, end] from the journal, or None when the range
-        is not fully retained. Pure read; no counters move. The caller
-        passes the sent count snapshotted at probe time so bytes held
-        during the probe await are never both redelivered and flushed."""
+        """Read the retained journal range (applied, end], or return None if any bytes are
+        missing. Counters stay unchanged, and the probe-time end excludes later held writes.
+        """
         if applied < self._journal_base or end > self._sent_bytes or applied > end:
             return None
         start = applied - self._journal_base
@@ -800,9 +769,9 @@ class RelayDeckTerminal(LayoutControl):
         self._send(protocol.encode_clear_selection())
 
     def scroll_viewport(self, pages: int | None) -> None:
-        """Scroll the local view: negative pages up, positive down (1..10),
-        None jumps to bottom. Never writes to the PTY; a no-op in the
-        alternate buffer. Raises ValueError outside +-1..10."""
+        """Scroll the local normal-buffer view by signed pages or jump to the bottom with None.
+        Reject values outside ±1..10 and never write to the PTY.
+        """
         self._send(protocol.encode_scroll_viewport(pages))
 
     def scroll_to_bottom(self) -> None:
@@ -824,14 +793,9 @@ class RelayDeckTerminal(LayoutControl):
         return self._cancel_sent_seq
 
     def cancel_scroll(self) -> None:
-        """Retire widget scroll motion before a server-side key/paste write.
-
-        Sent only to a viewer that proved it acks (mount ack or a prior
-        cancel): an older bundle would ignore the packet and the block
-        would have no ack coming. The sequence advances only once the
-        packet is accepted: on a dead or full channel there is no
-        widget to ack, and reset/rebind/generation changes retire any
-        outstanding cancel, so the block can never stick. Never raises.
+        """Retire widget scroll motion before a server-side key or paste when the viewer
+        advertises cancellation support. Advance the sequence only on accepted delivery;
+        unavailable channels and stale bindings cannot leave a permanent block.
         """
         if not self._scroll_cancel_supported:
             return
@@ -956,11 +920,9 @@ class RelayDeckTerminal(LayoutControl):
             return connection.data_channel_for(channel_id)
 
     def _adopt_current_channel(self, loop: asyncio.AbstractEventLoop) -> Any:
-        """Bind to the channel the transport resolves for this id now.
-
-        A different previous binding is unhooked and closed; the partial inbound frame
-        from the dead connection and queued packets are dropped (complete packets were
-        already dispatched). Installs the binding-validity delivery for the new channel.
+        """Bind to the channel currently resolved for this control, closing a different prior
+        binding. Discard queued output and its incomplete inbound tail, then install
+        binding-validity delivery.
         """
         channel_id = self._channel_id
         if channel_id is None:
@@ -983,12 +945,9 @@ class RelayDeckTerminal(LayoutControl):
         return channel
 
     def rebind_transport(self) -> bool:
-        """Point this terminal at the transport that exists now, before any resume runs.
-
-        A resume attempt cancelled before its task starts
-        must not leave output on the dead channel. Inbound stays fenced until a verified
-        resume or an explicit `reset()` clears it. No-op (False) before a channel was
-        attached; idempotent when the channel object is unchanged.
+        """Resolve the replacement transport before starting recovery and keep inbound effects
+        fenced until verified resume or reset. Return False before attachment and leave an
+        unchanged channel binding intact.
         """
         if self._channel_id is None:
             return False
@@ -1002,10 +961,9 @@ class RelayDeckTerminal(LayoutControl):
             # Not (re)attached to the page yet: the resume attempt re-resolves the
             # channel once the control is mounted. Never break the reconnect path.
             _DIAG.warning(
-                "term_rebind_failed term=%s id=%s",
+                "term_rebind_failed term=%s id=%s category=RuntimeError",
                 id(self) % 100000,
                 self._channel_id,
-                exc_info=True,
             )
             return False
         changed = current is not self._channel
@@ -1029,40 +987,9 @@ class RelayDeckTerminal(LayoutControl):
         timeout: float = 5.0,
         current: Callable[[], bool] | None = None,
     ) -> ResumeOutcome:
-        """Rebind this retained terminal to the replacement UI transport.
-
-        Called once per terminal after authenticated session reuse (same
-        verified identity, new FletApp connection). Probes the native
-        engine over the freshly resolved mux binding and, only when the
-        engine proves it is the same instance with matching reset
-        identity and a journal-covered applied offset, redelivers the
-        missing output suffix exactly once.
-
-        `current` is an optional synchronous ownership guard supplied
-        by the caller (UI resume trigger): it runs after all bridge checks
-        pass, immediately before any success output delivery. A False
-        return (or a raise) yields `incomplete/superseded` with the
-        fence still armed, counters/journal untouched, no reset, and
-        no VERIFIED — the caller no longer owns this boundary. None
-        (default) keeps the unguarded behavior.
-
-        Guarantees on "resumed": viewer_generation untouched (the
-        session's reopen path never fires, the controller keeps
-        running), no resize, no takeover, no input replay — queued
-        pre-attach packets are dropped (subsumed by the journal
-        suffix) and only the live input-enabled truth is re-asserted
-        as idempotent state sync. Dart→Python input sent during the
-        outage was already dropped by the dead socket (Flet queues no
-        raw channel bytes); both sides additionally fence input until
-        this call verifies continuity.
-        Anything uncertain (timeout, identity/reset/offset mismatch,
-        evicted journal, pre-existing protocol error) returns
-        "incomplete": the caller must drive the honest
-        reset-as-watcher recovery, never silent continuation. The
-        owning attempt still flushes its held batch so write() never
-        silently loses bytes; only the gap stays unknown. A
-        superseded attempt flushes nothing (its successor owns the
-        batch now); capture/reset retire the batch outright.
+        """Verify native identity, reset count and retained output coverage before resuming the
+        replacement transport. Reassert current input state and release the fence only while
+        the optional ownership guard still accepts this attempt.
         """
         if self._channel_id is None:
             return ResumeOutcome("noop", "never_attached")
@@ -1139,9 +1066,9 @@ class RelayDeckTerminal(LayoutControl):
                     return ResumeOutcome("incomplete", "superseded")
             if adopt_native is not None:
                 self._native_instance = adopt_native
-            # Everything at or below applied was displayed; the resend covers only (applied,
-            # sent_at_probe]. Counters do not move: the suffix was counted when first written.
-            # Direct sends bypass the hold like the probe does.
+            # Resend only (applied, sent_at_probe] without recounting bytes.
+            # Direct delivery bypasses the hold so recovery cannot wait behind its own queued
+            # output.
             self._acked_bytes = applied
             for chunk in protocol.split_for_transport(suffix):
                 if not chunk:
@@ -1180,13 +1107,9 @@ class RelayDeckTerminal(LayoutControl):
         return self._ready.is_set() and self._channel_current()
 
     async def get_snapshot_text(self, timeout: float = 5.0) -> str:
-        """Fetch the live emulator buffer text (scrollback + screen).
-
-        Emulator truth: cursor overwrites applied, escape sequences
-        consumed — the Select Text sheet source. Raises RuntimeError
-        immediately when the channel never attached (caller falls back
-        to raw output instead of hanging); TimeoutError cleans up the
-        waiter so late chunks cannot contaminate the next request.
+        """Fetch text from the live emulator buffer with cursor overwrites and escape sequences
+        applied. Fail immediately without an attached channel and retire timed-out waiters so
+        late chunks cannot enter a later request.
         """
         if not self.channel_ready:
             raise RuntimeError("terminal channel not ready; no snapshot source")

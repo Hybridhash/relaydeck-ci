@@ -1,24 +1,12 @@
-"""Pure terminal-priority layout budget for the agent detail panel.
-
-Inputs are the measured detail-panel height and the terminal font size;
-no Flet. The terminal takes priority over input chrome:
-
-* keyboard closed: the terminal keeps at least 12 rows; the dock yields
-  (shrinks, then becomes an overlay sheet above the key row);
-* keyboard open (short visible height): only header, terminal and composer
-  stay in the column; key row, dock, picture and status collapse behind
-  the "Keys" toggle (the dock is then an overlay). The terminal gets every
-  remaining row (at least 6 when physically possible).
-
-Chrome heights are layout estimates of the current components; the row
-height follows the engine's line metrics (font size x ROW_FACTOR).
+"""Pure terminal-priority layout budget for the agent detail panel. Inputs are the measured
+detail-panel height and the terminal font size; no Flet.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from relaydeck.client.theme import WIDE_BREAKPOINT
+from relaydeck.client.design_system.theme import WIDE_BREAKPOINT
 
 KEYBOARD_OPEN_BELOW = 600.0
 ROW_FACTOR = 16.0 / 14.0  # observed engine line height at the default font
@@ -28,6 +16,7 @@ DEFAULT_FONT_SIZE = 14.0
 MIN_ROWS_CLOSED = 12
 MIN_ROWS_KEYBOARD = 6
 HEADER_HEIGHT = 90.0
+CONTEXT_STRIP_HEIGHT = 64.0
 KEY_ROW_HEIGHT = 116.0
 COMPOSER_HEIGHT = 130.0
 PICTURE_HEIGHT = 56.0
@@ -50,7 +39,6 @@ TYPING_SPLIT_HEADER_HEIGHT = 28.0  # slim header: title + status dot + more
 TYPING_SPLIT_FALLBACK_WIDTH = 800.0
 PHONE_DOCK_HEIGHT = 84.0  # tab row + one-line composer, until measured
 PHONE_FALLBACK_WIDTH = 390.0
-TYPING_SPLIT_DOCK_FRACTION = 0.34
 WINDOW_PADDING = 20.0  # WindowFrame pane padding
 
 
@@ -61,15 +49,8 @@ def typing_split_active(
     viewport_height: float,
     touch: bool | None = None,
 ) -> bool:
-    """Composer focused in landscape (the typing mode). `touch` is the real device class
-    (page.platform iOS/Android or a desktop-mode iPad): True = any touch device, any width
-    (iPad, landscape phones); False = never (a desktop browser is not a keyboard); None =
-    size-only rule (desktop breakpoint, short window), kept for callers that do not know
-    the platform.
-
-    Touch devices use focus because browsers may not report a reduced height
-    while the keyboard is open. Use viewport width rather than detail width:
-    hiding the list column must not feed back into this decision.
+    """Choose a terminal-priority typing split from focus, touch capability and measured layout.
+    An unknown device class falls back to the size rule.
     """
     if not focused or viewport_width <= viewport_height:
         return False
@@ -90,6 +71,23 @@ def typing_split_widths(
 
 FIELD_LINE_HEIGHT = 24.0  # 16 px draft text, Flutter's ~1.4 line box
 FIELD_MAX_LINES = 40
+# iPad Safari's form accessory bar (previous/next/done) above the keyboard, in css px.
+SAFARI_ACCESSORY_BAR = 56.0
+
+
+def keyboard_overlap(
+    detail_base: float, detail_height: float, inset: float, *, keyboard_up: bool
+) -> float:
+    """Px of a typing-split column still under the keyboard after the page's own shrink.
+    `detail_base` is the detail height measured with no keyboard and `detail_height` the
+    current one: their difference is what the page already removed.
+    """
+    shrunk = max(0.0, detail_base - detail_height) if detail_base > 0 else 0.0
+    if inset > 0:
+        return max(0.0, inset - shrunk)
+    if keyboard_up and shrunk > 0:
+        return SAFARI_ACCESSORY_BAR
+    return 0.0
 
 
 def typing_split_lines(column_height: float, chrome: float) -> int:
@@ -116,11 +114,10 @@ def row_height(font_size: float | None, measured: float | None = None) -> float:
 
 
 def measured_row_height(host_height: float, rows: int) -> float | None:
-    """Row px from the terminal host box and the engine's size report.
-
-    The host box includes padding and the status line (HOST_OVERHEAD), which
-    is removed so the value does not drift with the row count. Needs a
-    plausible report (>= 4 rows)."""
+    """Row px from the terminal host box and the engine's size report. The host box includes
+    padding and the status line (HOST_OVERHEAD), which is removed so the value does not drift
+    with the row count.
+    """
     if rows < 4 or host_height <= HOST_OVERHEAD:
         return None
     return (host_height - HOST_OVERHEAD) / rows
@@ -151,7 +148,9 @@ def plan_detail(
     picture_visible: bool = False,
     status_visible: bool = True,
     measured_row: float | None = None,
+    context_height: float = 0.0,
 ) -> DetailBudget:
+    detail_height = max(0.0, detail_height - context_height)
     row = row_height(font_size, measured_row)
     picture = PICTURE_HEIGHT if picture_visible else 0.0
     full_chrome = HEADER_HEIGHT + KEY_ROW_HEIGHT + COMPOSER_HEIGHT + picture + 4 * PANEL_SPACING

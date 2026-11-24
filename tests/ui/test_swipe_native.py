@@ -10,6 +10,9 @@ from dataclasses import replace
 import pytest
 from relaydeck_terminal import protocol
 
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
 from tests.support.host_harness import run
 from tests.support.terminal.latch_text import _inputs
 from tests.support.terminal.scroll_ui import _app, _view

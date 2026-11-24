@@ -1,34 +1,5 @@
-"""Format "json-session-turns-v1": whole-file session snapshots with per-turn usage.
-
-Layout under the root: `sessions/cli/<id>.json`, one JSON document per session, parsed whole. Per
-turn, the token buckets are `input_token_count`, `output_token_count`,
-`cache_read_input_token_count` and `cache_write_input_token_count`. A turn with every bucket zero is
-not an event. Metering credits (`metering_usage`) are not read: they are a different unit and are
-not counted as tokens.
-
-Turn identity, in priority order: `result.Ok.id`, then the first of `message_ids[]`, then the turn
-index (only when the turn has neither id). A turn's first emitted key is pinned, per session, in the
-document's file context, under each of its ids and, for index-only turns, under its index. A later
-higher-priority id, or a later appearance of any pinned id, reuses the pinned key, so no second
-event appears. Index pins are positional: reordering index-only turns moves them, which is the
-documented limit of that fallback. Pins are never evicted.
-
-Resume: a document that is not finished is stored with its next turn index and signature (size,
-modification time and head digest). The next pass resumes at that index only while the signature
-still matches. A document is complete only after every turn has been emitted. Its file cursor is
-stored with offset 0 until then, so it is never treated as settled.
-
-Capacity: when a turn's pin would not fit the file's context bound or the cursor, the document stops
-before that turn, and the turns already emitted and their pins are committed. Other documents
-continue. This is not backlog.
-
-Token availability: the reader counts turns and the turns with any non-zero token bucket in each
-document. When a complete pass saw turns and none had tokens, the coverage is UNAVAILABLE: the
-UI shows "tokens not reported", not zero.
-
-Budget: a document over `budget.max_document_bytes` is skipped and counted, with gap evidence
-(PARTIAL). A document over `budget.max_bytes` is parsed only as the first unit of a pass, and the
-pass then ends. Cache inclusion is unproven, so events are `accounting_verified=False`.
+"""Read per-turn token totals from whole-session JSON with pinned turn identities and bounded
+resume state. Never count metering credits as tokens.
 """
 
 from __future__ import annotations
@@ -69,10 +40,10 @@ from relaydeck.usage.readers._files import (
 from relaydeck.usage.readers._read import read_all
 
 FORMAT_ID = "json-session-turns-v1"
-SCHEMA = "turns-4"  # v4: as v3, and the earlier per-document entries migrate, not rewind
+SCHEMA = "turns-4"  # Cursor schema retains per-document turn pins across compatible layouts.
 
 
-DOC_PREFIX = "t:"  # the earlier layout's per-document state key, migrated on first read
+DOC_PREFIX = "t:"  # Per-document state key imported into the file context on first read.
 
 
 def _doc(raw: str | None) -> dict[str, object]:
@@ -245,11 +216,10 @@ def _document_unit(
     ledger: Ledger,
     budget: Budget,
 ) -> Unit:
-    """One session document as a unit: parse from its stored turn index, or stop the pass.
-
-    The listed size is only a hint: the opened descriptor is checked against the document and pass
-    bounds before anything is allocated or read. An earlier layout's per-document entry is migrated
-    from the cursor state, so turn pins (and the keys they keep stable) survive the upgrade."""
+    """One session document as a unit: parse from its stored turn index, or stop the pass. The
+    listed size is only a hint: the opened descriptor is checked against the document and
+    pass bounds before anything is allocated or read.
+    """
     key = file_key(item.rel)
     if state.reads > 0 and item.st.st_size > state.bytes_left:
         return Unit(key=key, resumable=True)  # first-unit rule: a large document starts a pass

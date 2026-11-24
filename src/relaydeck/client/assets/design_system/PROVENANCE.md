@@ -74,7 +74,7 @@ and served from the build's own `assets/fonts/`; they are not committed here.
 Flet 1.0.3 `page.fonts` maps one file per family name (verified in the
 pinned `flet` Dart client: one `FontLoader` asset per family, no weight
 descriptors), so each weight registers under its own family alias — see
-`components/design_system/fonts.py`. This is a loader limitation workaround,
+`design_system/fonts.py`. This is a loader limitation workaround,
 not a design change: every alias renders the matching static face.
 
 ## Decorative assets

@@ -1,66 +1,5 @@
-"""Connector-side intent journal and Herdr dispatch.
-
-The connector journals every gateway intent BEFORE touching Herdr and
-records the outcome when known, so a connector crash between dispatch
-and acknowledgement reconciles to unknown instead of blind-retrying.
-
-Durability core is shared with the gateway through the neutral
-`relaydeck.journal.CommandJournal` (sqlite3, 0600, WAL + per-commit
-fsync, same retention/tombstone policy). Sharing one crash-critical
-implementation beats duplicating it; the core is transport-agnostic
-and imports no gateway or connector code, so the layering stays one-way.
-
-Tunnel wire (project protocol over the authenticated /v1/connectors
-socket; JSON text, each message <= 64 KiB):
-  Gateway -> connector:
-    command.dispatch {command_id, principal, host_id, host_epoch, gateway_kind,
-      target, payload, digest, generation, expires_ms}
-      `digest` is the gateway's canonical-body sha256; a mismatch fails
-      closed (tamper evidence), never executes.
-  Connector -> gateway:
-    command.ack    {command_id, host_id}  intent journaled downstream.
-    command.result {command_id, host_id, status, result_digest,
-      error_code?, result?}               terminal outcome; `status` is
-      succeeded | failed | rejected. `result` <= 4 KiB (ids + type only).
-    terminal.output {host_id, terminal_id, epoch, data_b64}
-      upstream PTY bytes, base64, decoded <= 64 KiB per message.
-      Ordering = tunnel arrival order (single live tunnel per host).
-
-Gateway-kind -> Herdr chains (every method below is allowlisted in
-herdr.ALLOWED_METHODS and present in herdr-0.9.1-schema.json; params
-match the frozen $defs):
-  agent.prompt -> agent.prompt(target=agent_id, text)
-      This is the `prompt_text` seam, connector side.
-  agent.start  -> tab.create(workspace_id, label=name) then
-                  agent.start(name, kind, pane_id=<root_pane>, args=argv).
-      agent.start REQUIRES pane_id upstream, which only exists after a
-      tab (Schema: AgentStartParams.required=[name,kind,pane_id];
-      tab_created returns the root_pane). Partial identities are
-      journaled via note_progress between the steps so reconcile reuses
-      them instead of duplicating creation.
-  shell.create -> tab.create(workspace_id, label?).
-  agent.rename -> tab.rename(tab_id, label=display name) then, when the label has a usable
-      slug, agent.rename(target=agent_id, name=slug).
-  session.close -> pane.close(pane_id=terminal_id). Upstream has no
-      agent.close (verified against live_methods.txt); closing the pane
-      ends whatever it hosts, matching attach.py's explicit-close rule.
-Unknown gateway kinds are rejected, never mapped by guess.
-
-Error handling: typed HerdrError (agent_blocked, agent_not_ready, ...)
-proves non-delivery-or-refusal and records failed + upstream error_code.
-Transport/envelope/timeout failures after the write-ahead dispatched
-marker record unknown (timeout after dispatch is unknown, not
-failed) — including connect failures, which the adapter cannot prove
-pre-delivery.
-
-Follow-on protocol (see connector/link.py): the tunnel link also
-pushes `snapshot` (schema-validated, host-bound, replaces) and `event`
-(server-stamped sequence/cursor, `event_id` dedupe) upstream, ingested
-by the gateway backends. Typed input.forward/resize.forward is generation-bound,
-never replayed after an uncertain write; large snapshots use bounded, hashed
-chunks. Before executing a new prompt, dispatch checks the source epoch and
-fetches the agent revision through the existing agent.list API. This is a
-preflight check, not an invented atomic conditional upstream RPC.
+"""Journal gateway intent before Herdr dispatch and record known outcomes. Reconcile uncertain
+dispatches explicitly rather than retrying them blindly.
 """
 
 from __future__ import annotations
@@ -75,7 +14,7 @@ from typing import Any, Protocol
 from relaydeck.connector.herdr import HerdrError, HerdrProtocolError
 from relaydeck.contracts.canonical import canonical_json
 from relaydeck.contracts.launch import display_name_clean
-from relaydeck.journal import CommandJournal, JournalConflict, digest_for
+from relaydeck.host.persistence.command_journal import CommandJournal, JournalConflict, digest_for
 
 ACK_KIND = "command.ack"
 RESULT_KIND = "command.result"
@@ -119,11 +58,10 @@ def _narrow(value: Any, limit: int = 128) -> str:
 
 
 class ConnectorDispatch:
-    """Executes journaled gateway intents against Herdr exactly once per
-    UUID: same ID + same body returns the recorded outcome without
-    touching Herdr again; same ID + changed body is rejected as a
-    conflict (never executed under a reused UUID). Within that one intent,
-    only the definite pre-launch agent_pane_busy refusal may retry."""
+    """Deduplicate command IDs and canonical bodies within the retained journal window,
+    rejecting digest conflicts. Retry within one intent only after a definite pre-launch
+    agent_pane_busy refusal.
+    """
 
     def __init__(
         self,
@@ -424,13 +362,9 @@ class ConnectorDispatch:
     async def _start_when_prompt_ready(
         self, command_id: str, payload: dict[str, Any], pane_id: str, args: list[str] | None
     ) -> dict[str, Any]:
-        """Let the newly journaled pane finish shell initialization.
-
-        Upstream agent_pane_busy rejects before launch, so this is not a
-        replay of uncertain input. No new tab/workspace is created here.
-        The readiness backoff has a 15s budget; an actual launch retains
-        the adapter's existing startup/readiness timeout. All other
-        refusals, transport failures and cancellation keep today's path.
+        """Retry a definite pre-launch pane-busy refusal while shell initialization settles,
+        within a 15-second readiness budget. Never replay uncertain input or create another
+        tab here.
         """
         deadline, delay = monotonic() + AGENT_PROMPT_BUDGET_S, 0.1
         while True:
@@ -498,6 +432,7 @@ class ConnectorDispatch:
         }
 
     def reconcile(self, command_id: str) -> dict[str, Any] | None:
-        """Explicit reconcile query: full record incl. partial progress.
-        Unknown outcomes are resolved here, never by resubmission."""
+        """Read the full record, including partial progress, for explicit reconciliation. Never
+        resolve an unknown outcome by resubmitting the command.
+        """
         return self._journal.record(command_id)

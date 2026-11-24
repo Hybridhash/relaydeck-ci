@@ -27,12 +27,6 @@ import websockets.asyncio.server as ws_server
 from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
-from relaydeck.client.features.sync.controller import TerminalStreamClient
-from relaydeck.client.features.sync.transport import (
-    TerminalSocket,
-    TransportError,
-    WebsocketTerminalSocket,
-)
 from relaydeck.client.features.terminal.controller import TerminalController
 from relaydeck.client.features.terminal.projection import TerminalProjection
 from relaydeck.client.features.terminal.stream import (
@@ -52,17 +46,25 @@ from relaydeck.client.features.terminal.stream import (
     decide_recovery,
     decide_viewer_overflow,
 )
+from relaydeck.client.platform.transport.terminal_stream import TerminalStreamClient
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
+)
+from relaydeck.client.platform.transport.transport import WebsocketTerminalSocket
+from relaydeck.client.ports.transport import TerminalSocket, TransportError
 from relaydeck.contracts.wire import terminal as terminal_wire
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import BackendError, FakeBackend, ResizeRequest
-from relaydeck.gateway.identity import TicketGrant
-from relaydeck.gateway.ring import (
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.features.access.identity import TicketGrant
+from relaydeck.gateway.features.terminals.ring import (
     READ_CHUNK_MAX,
     RING_MAX_AGE_MS,
     RING_MAX_BYTES,
     VIEWER_QUEUE_MAX_BYTES,
     RingStore,
 )
+from relaydeck.gateway.ports import BackendError, ResizeRequest
 
 VT = Path(__file__).resolve().parent.parent / "fixtures" / "vt"
 GATEWAY_FIXTURES = Path(__file__).resolve().parent.parent / "fixtures" / "gateway"
@@ -864,6 +866,7 @@ def test_controller_view_resize_never_sent() -> None:
         sock = _ScriptedSocket([("text", json.dumps({"kind": "bye"}))])
         seen: list[bytes] = []
         controller = TerminalController(
+            stream_factory=_terminal_stream_factory,
             socket_factory=lambda ticket: sock,
             lease_id="lease-1",
             generation=1,
@@ -883,6 +886,7 @@ def test_controller_control_resize_sent() -> None:
     async def scenario() -> None:
         sock = _ScriptedSocket([("text", json.dumps({"kind": "bye"}))])
         controller = TerminalController(
+            stream_factory=_terminal_stream_factory,
             socket_factory=lambda ticket: sock,
             lease_id="lease-1",
             generation=1,
@@ -911,6 +915,7 @@ def test_controller_gap_resumes_when_preserved() -> None:
         )
         states: list[str] = []
         controller = TerminalController(
+            stream_factory=_terminal_stream_factory,
             socket_factory=lambda ticket: sock,
             lease_id="lease-1",
             generation=1,
@@ -939,6 +944,7 @@ def test_controller_reset_reattaches_with_notice() -> None:
             ]
         )
         controller = TerminalController(
+            stream_factory=_terminal_stream_factory,
             socket_factory=lambda ticket: sock,
             lease_id="lease-1",
             generation=1,
@@ -969,6 +975,7 @@ def test_controller_live_edge_reopen_flows_with_notice() -> None:
         sockets = [first, second]
         delivered: list[bytes] = []
         controller = TerminalController(
+            stream_factory=_terminal_stream_factory,
             socket_factory=lambda ticket: sockets.pop(0),
             lease_id="lease-1",
             generation=1,
@@ -994,6 +1001,7 @@ def test_controller_live_edge_reopen_flows_with_notice() -> None:
 
 def test_controller_viewer_overflow_resets() -> None:
     controller = TerminalController(
+        stream_factory=_terminal_stream_factory,
         socket_factory=lambda ticket: _ScriptedSocket([]),
         lease_id="lease-1",
         generation=1,
@@ -1117,7 +1125,7 @@ def test_upstream_pane_resize_is_layout_only() -> None:
 
 
 def test_ws_epochless_nonzero_offset_is_stale() -> None:
-    """F1: `?offset=5` without epoch knowledge is stale_epoch with zero
+    """`?offset=5` without epoch knowledge is stale_epoch with zero
     bytes (read_stream docstring rule), never a byte-5 continuation."""
     client, backend, token, att_id = _setup_stream()
     lease_id = _lease(client, token, att_id, "control").json()["lease_id"]
@@ -1137,7 +1145,7 @@ def test_ws_epochless_nonzero_offset_is_stale() -> None:
 
 
 def test_ticket_cross_account_is_not_found() -> None:
-    """F2: account B cannot mint a ticket for A's lease, even when B's
+    """Account B cannot mint a ticket for A's lease, even when B's
     session lists the same host (lease ids are guessable)."""
     client, state, _, _ = _client()
     mine = _token(state, device="dev-1")
@@ -1153,7 +1161,7 @@ def test_ticket_cross_account_is_not_found() -> None:
 
 
 def test_ws_foreign_ticket_rejected_without_bytes() -> None:
-    """F2: a grant bound to another account dies at WS accept with zero
+    """A grant bound to another account dies at WS accept with zero
     bytes (belt-and-braces behind the ticket route)."""
     client, state, backend, _ = _client()
     token = _token(state, device="dev-1")
@@ -1175,7 +1183,7 @@ def test_ws_foreign_ticket_rejected_without_bytes() -> None:
 
 
 def test_ws_takeover_displacement_sends_reset_doc() -> None:
-    """F3: a connected socket displaced by HTTP takeover receives the
+    """A connected socket displaced by HTTP takeover receives the
     reset doc (not a bare close), and the exact server doc drives the
     client reset path: notice + reattach flag, run() clean."""
     client, backend, token, att_id = _setup_stream()
@@ -1200,6 +1208,7 @@ def test_ws_takeover_displacement_sends_reset_doc() -> None:
 
     async def scenario() -> None:
         controller = TerminalController(
+            stream_factory=_terminal_stream_factory,
             socket_factory=lambda ticket: _ScriptedSocket([("text", raw)]),
             lease_id=lease_id,
             generation=1,
@@ -1219,7 +1228,7 @@ def test_ws_takeover_displacement_sends_reset_doc() -> None:
 
 
 def test_backend_resize_bad_length_rejected() -> None:
-    """F5: a malformed resize payload is BackendError forbidden (with a
+    """A malformed resize payload is BackendError forbidden (with a
     details reason), never struct.error."""
     backend = FakeBackend(now_ms=_Clock())
     attachment, _ = backend.create_attachment(

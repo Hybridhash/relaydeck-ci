@@ -1,7 +1,5 @@
-"""Bounded connector tunnel documents, separate from the upstream API.
-
-These additive gateway envelopes do not introduce Herdr methods. Both tunnel
-ends validate the same input shape; snapshot content uses the frozen schema.
+"""Bounded connector tunnel envelopes validated at both ends, with snapshot content checked
+against the shared schema.
 """
 
 from __future__ import annotations

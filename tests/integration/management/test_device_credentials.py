@@ -9,8 +9,9 @@ from typing import Any
 import httpx
 import pytest
 
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport, TransportError
-from relaydeck.gateway.app import create_app
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.client.ports.transport import TransportError
+from relaydeck.gateway.app.bootstrap import create_app
 from tests.security.helpers import ALL_CAPS, NOW, make_state
 from tests.support.gateway.fake_socket import _FakeSocket
 

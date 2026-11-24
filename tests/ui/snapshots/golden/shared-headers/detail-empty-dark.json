@@ -1,0 +1,100 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#A98BFF",
+          "icon": 73289,
+          "size": 40
+         },
+         "slot": "controls",
+         "type": "Icon"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "size": 22,
+            "value": "Your agents, together",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "header": true
+         },
+         "slot": "controls",
+         "type": "Semantics"
+        },
+        {
+         "key": "detail-empty",
+         "props": {
+          "color": "#B7AFDA",
+          "value": "Select a session to see details."
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "horizontal_alignment": {
+         "enum": "CrossAxisAlignment",
+         "value": "center"
+        },
+        "spacing": 12,
+        "tight": true
+       },
+       "slot": "content",
+       "type": "Column"
+      }
+     ],
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 0.0,
+       "y": 0.0
+      },
+      "bgcolor": "#191335",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "border_radius": 24,
+      "expand": true,
+      "padding": 24
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:SessionDetail"
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+"""Changes screen parts."""

@@ -9,7 +9,7 @@ To remove a patch, delete its folder and its delimited block in `scripts/build_w
 |---|---|---|---|
 | `flutter-file-upload-patch/` | file_picker web fix (upstream PR #2228): picture attach never resolved in WebKit, so on iPhone and iPad. | file_picker 11.0.3 | web build (`--check` preflight) |
 | `flutter-ios-pointer-patch/` | Flutter engine PR #189608 backport: iOS WebKit lost the pointer-up and left touches stuck down. Applied to a copy of the SDK; `~/flutter` is never edited. | Flutter 3.44.8 | web build (isolated SDK copy) |
-| `flet-reconnect-merge-patch/` | Reconciles controls by id, bounds reconnect retries, and disables selection magnifiers in SelectionArea, TextField, CupertinoTextField, selectable Text/Markdown/code and autocomplete. | Flet 1.0.3 | web build (`--check` preflight) |
+| `flet-reconnect-merge-patch/` | Reconciles controls by id, bounds reconnect retries, disables selection magnifiers in SelectionArea, TextField, CupertinoTextField, selectable Text/Markdown/code and autocomplete, and places a ListView's children by the per-child `item_extents` a caller sends (a windowed list's rows never inherit a stale offset, and the list's scroll extent is their sum rather than Flutter's estimate), and sends the last scroll notification an interval dropped once the interval has passed (a wheel scroll's resting position reaches Python). | Flet 1.0.3 | web build (`--check` preflight) |
 | `flet-build-template-ios15/` | Flet iOS build template deployment target 13.0 to 15.0 (Xcode 27 supports 15.0+ only). | Flet 1.0.3 template | iOS builds |
 | `native-runtime-pins/` | `mobile-overrides.toml`: pins native packaging needs that differ from the host lock. | `uv.lock` | `scripts/build_native.py` |
 
@@ -40,8 +40,9 @@ Nothing here changes the root `pyproject.toml` or `uv.lock`; the pins apply to s
 | `requires-python` of the staged app and both extensions | `>=3.13,<3.14` | `>=3.13,<3.15` |
 | `cffi` | 2.1.1 | 2.0.0 (only version with mobile wheels) |
 | `msgpack` | 1.2.3 | 1.1.2 (only version with mobile wheels) |
-| Flutter override `jni_flutter` | none | 1.0.3 (the Flet template pins `jni: 1.0.0`) |
-| Build location | repo under `~/Desktop` | `/private/tmp/rd-native/` (file protection can block build tools under `~/Desktop`) |
+| Flutter override `jni` | none | 1.1.0 (the Flet template pins `jni: 1.0.0`) |
+| Flutter override `jni_flutter` | none | 1.0.3 (`jni_flutter` 1.0.4+1 needs `jni ^1.1.0`) |
+| Build location | the repository checkout | `/private/tmp/rd-native/` (`stage_root`; build tools can be blocked from writing under a protected folder such as `~/Desktop`) |
 
 ```sh
 scripts/build_native.py stage --platform android|ios [--replace] [--skip-template]
@@ -53,4 +54,6 @@ scripts/build_native.py inspect --platform android|ios [PATH]
 overrides; for iOS it also runs `flet-build-template-ios15/apply.sh`. `build` prints the exact `flet build`
 command and runs it only with `--run` (`--yes` lets Flet install missing tools, so it is opt-in); iOS builds
 use no `--arch`. `inspect` fails on server or dev code, tests or secrets in the packaged payload and writes
-`payload-manifest.json`. Native apps are in progress; no native build or device run has verified these pins.
+`payload-manifest.json`. Native apps are in progress: a native build of both profiles (an Android arm64 debug APK and
+the iOS Simulator app) has passed with these pins and a clean payload inspection; no device run has
+verified them yet.

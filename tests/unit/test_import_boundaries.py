@@ -83,6 +83,7 @@ def test_connector_boundaries() -> None:
 # needs flet_web/fastapi/uvicorn, unavailable in device builds).
 FORBIDDEN_CLIENT_APP = (
     "relaydeck.client.serve",
+    "relaydeck.companion.app.hosted_web.serve",
     "flet_web",
     "fastapi",
     "uvicorn",
@@ -92,8 +93,6 @@ FORBIDDEN_CLIENT_APP = (
 
 def test_client_app_never_imports_serve() -> None:
     for path in sorted((SRC / "client").rglob("*.py")):
-        if path.name == "serve.py":
-            continue
         for name in _imports(path):
             for ban in FORBIDDEN_CLIENT_APP:
                 assert not (name == ban or name.startswith(ban + ".")), (

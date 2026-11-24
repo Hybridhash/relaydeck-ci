@@ -8,11 +8,11 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.features.inventory.rename import rename_command
+from relaydeck.client.features.rename.rename import rename_command
 from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.connector.journal import GATEWAY_KINDS
 from relaydeck.contracts.schemas import COMMAND_KINDS, validate
-from relaydeck.gateway.policy import COMMAND_CAPABILITY
+from relaydeck.gateway.features.commands.policy import COMMAND_CAPABILITY
 from tests.support.gateway.herdr_adapter import _FakeReader, _FakeWriter
 from tests.support.host_harness import run
 

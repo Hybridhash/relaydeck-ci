@@ -11,14 +11,17 @@ import flet as ft
 import httpx
 import pytest
 
-from relaydeck.client.adapters.server_commands import ServerCommandStore
+from relaydeck.client.app.native.runtime import PackagedRuntime
 from relaydeck.client.features.auth.service import REFRESH_KEY
-from relaydeck.client.features.composer.observation import CommandObserver
+from relaydeck.client.features.commands.observation import CommandObserver
+from relaydeck.client.features.commands.recovery import PendingCommands
 from relaydeck.client.features.create.commands import agent_start_command
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport, TransportError
-from relaydeck.client.packaged_runtime import PackagedRuntime
-from relaydeck.client.pending_commands import MAX_BYTES, MAX_RECORDS, PendingCommands, RecoveryError
-from relaydeck.gateway.app import create_app
+from relaydeck.client.models.commands.pending import MAX_BYTES, MAX_RECORDS
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.client.ports.commands import RecoveryError
+from relaydeck.client.ports.transport import TransportError
+from relaydeck.companion.app.hosted_web.storage import ServerCommandStore
+from relaydeck.gateway.app.bootstrap import create_app
 from tests.security.helpers import ALL_CAPS, NOW, make_state
 from tests.support.creation.pending_command_records import command, record
 from tests.support.fakes import FakeClipboard, FakeCredentialStore
@@ -99,7 +102,7 @@ def test_storage_failure_capacity_corruption_and_scope_boundaries() -> None:
             journal = PendingCommands(store, "https://gw", "acct-1", "d1")
             for i in range(MAX_RECORDS):
                 await journal.begin(command(str(i), target=f"agent-{i}"))
-            with pytest.raises(RecoveryError, match="capacity"):
+            with pytest.raises(RecoveryError, match="Too many sends"):
                 await journal.begin(command("over", target="new-agent"))
             assert len(journal.records) == MAX_RECORDS
             for origin, account, device in [
@@ -267,7 +270,7 @@ def test_packaged_process_replacement_queries_all_ids_without_retained_terminals
     run(scenario())
 
 
-def test_lifecycle_and_identity_fence_after_persistence_before_token_return() -> None:
+def test_lifecycle_and_identity_fence_before_authentication_finishes() -> None:
     async def scenario() -> None:
         store = FakeCredentialStore()
         version = [1]
@@ -292,12 +295,13 @@ def test_lifecycle_and_identity_fence_after_persistence_before_token_return() ->
             transport.commands = journal
             task = asyncio.create_task(transport.submit_command(command()))
             await waiting.wait()
-            assert len(journal.records) == 1
+            assert len(journal.records) == 0
             version[0] += 1
             release.set()
             with pytest.raises(TransportError, match="lifecycle"):
                 await task
             assert not requests
+            assert all(not journal.unresolved(row) for row in journal.records.values())
             await journal.close()
             with pytest.raises(RecoveryError):
                 await transport.command_status("home-mac", "pending-one")

@@ -1,30 +1,6 @@
-"""Connector tunnel link: gateway socket + journaled dispatch.
-
-`ConnectorLink` owns one host link: it opens the authenticated
-`/v1/connectors` tunnel, pushes the source snapshot/seed events, then
-receives `command.dispatch` intents, verifies the digest, journals via
-`ConnectorDispatch`, and reports `command.ack` / `command.result`. A
-digest mismatch or malformed intent is never executed and never acked:
-the tunnel drops (fail closed) and reconnects with backoff, and the
-journal's UUID dedupe makes redelivery idempotent.
-
-The link runs against the `LinkSource` port (source.py): fixture and
-production Herdr sources are interchangeable here. A source data
-failure (unbootstrapped/invalid snapshot) ends the run as
-`source-failed` instead of reconnecting forever. Live sources
-(`LiveSource`) additionally stream post-bootstrap upstream events and
-PTY bytes on descriptor readiness, resync content on reconnect, and rebootstrap
-(new epoch) after upstream death.
-
-Reconnect policy: transport failures and protocol drops reconnect with
-seeded exponential backoff (attempts reset on every `hello`); a
-rejected handshake or an `unauthenticated` close means the credential
-is dead and the link exits instead of retrying. Repeated initial-push
-transport failures trip a circuit breaker (`push-failed` exit); an
-over-bound snapshot with no gateway chunked intake exits immediately
-as `snapshot-too-large` (fail loudly, never churn). Shutdown is
-graceful: the link sends `bye`, closes the socket, and closes the
-journal.
+"""Own the authenticated connector tunnel, inventory publication and journaled command dispatch.
+Reconnect transient failures with bounded backoff and stop on dead credentials or
+deterministic source failures.
 """
 
 from __future__ import annotations
@@ -43,14 +19,19 @@ from typing import Any, Protocol
 
 from websockets.asyncio.client import ClientConnection
 
-from relaydeck.connector.herdr import HerdrError
+from relaydeck.connector.herdr import HerdrError, error_label
 from relaydeck.connector.journal import ACK_KIND, ConnectorDispatch
 from relaydeck.connector.source import LinkSource, LiveSource
 from relaydeck.contracts import paths
 from relaydeck.contracts.schemas import SchemaError, validate
 from relaydeck.contracts.tunnel import SEND_TIMEOUT_S, parse_terminal_input
-from relaydeck.journal import CommandJournal, digest_for
-from relaydeck.tunnel_queue import BoundedInbox, TunnelCapacityError, TunnelWriter, cancel_tasks
+from relaydeck.host.persistence.command_journal import CommandJournal, digest_for
+from relaydeck.host.transport.queues import (
+    BoundedInbox,
+    TunnelCapacityError,
+    TunnelWriter,
+    cancel_tasks,
+)
 
 __all__ = [
     "CHUNK_BYTES",
@@ -77,11 +58,8 @@ BACKOFF_MAX_MS = 30_000
 BACKOFF_JITTER = 0.25
 
 HELLO_TIMEOUT_S = 10.0
-RECV_POLL_S = 1.0
 
-# Gateway tunnel bounds, mirrored (gateway/app.py): the link pre-checks
-# these BEFORE sending so an over-bound snapshot fails loudly here
-# instead of wedging the session in a hello->push->1008 loop.
+# Mirror gateway/http/bounds.py limits to refuse oversized snapshots before sending.
 TUNNEL_MAX_TEXT = 64 * 1024
 MAX_SNAPSHOT_BYTES = 1024 * 1024
 
@@ -96,7 +74,8 @@ LIVE_DRAIN_S = 0.05
 # Bound output publication batching, not PTY reads. Ready descriptors are
 # drained immediately; a batch closes after this quiet gap, or at the cap
 # when a burst keeps refilling a PTY one small buffer at a time.
-OUTPUT_COALESCE_S = 0.005
+OUTPUT_COALESCE_S = 0.020
+OUTPUT_FIRST_BYTE_S = 0.005
 OUTPUT_COALESCE_MAX_S = 0.025
 
 # Raw snapshot bytes per chunked-transfer frame (b64 inflates ~4/3, so
@@ -270,6 +249,24 @@ def _safe_exception_type(exc: BaseException | None) -> str:
     )
 
 
+def backoff_ms(
+    attempts: int,
+    *,
+    base_ms: float = BACKOFF_BASE_MS,
+    max_ms: float = BACKOFF_MAX_MS,
+    rng: random.Random,
+) -> float:
+    """The jittered delay before retry number `attempts` (0 is the first retry)."""
+    # Bound the exponent itself: a long outage must never overflow before min().
+    delay = min(max_ms, base_ms)
+    for _ in range(min(max(attempts, 0), 1024)):
+        if delay >= max_ms:
+            break
+        delay = min(max_ms, delay * BACKOFF_FACTOR)
+    spread = delay * BACKOFF_JITTER
+    return max(0.0, delay + rng.uniform(-spread, spread))
+
+
 class ConnectorLink:
     """One host link: tunnel sessions + journaled dispatch + backoff."""
 
@@ -330,11 +327,12 @@ class ConnectorLink:
         return self._source
 
     def _backoff_ms(self, attempts: int) -> float:
-        delay = min(
-            self._config.backoff_max_ms, self._config.backoff_base_ms * (BACKOFF_FACTOR**attempts)
+        return backoff_ms(
+            attempts,
+            base_ms=self._config.backoff_base_ms,
+            max_ms=self._config.backoff_max_ms,
+            rng=self._random,
         )
-        spread = delay * BACKOFF_JITTER
-        return max(0.0, delay + self._random.uniform(-spread, spread))
 
     async def run(self, stop: asyncio.Event) -> LinkOutcome:
         """Run sessions until shutdown, auth failure, or retry exhaustion."""
@@ -347,7 +345,7 @@ class ConnectorLink:
                     session_done = await self._session(stop)
                 except LinkError as exc:
                     if "handshake rejected" in str(exc):
-                        LOG.error("tunnel rejected (credential dead, not retrying): %s", exc)
+                        LOG.error("tunnel_credential_rejected")
                         return self._outcome("auth-failed")
                     raise
                 except (TimeoutError, OSError) as exc:
@@ -362,7 +360,7 @@ class ConnectorLink:
                     else:
                         # Source data failure (unbootstrapped/invalid
                         # snapshot): deterministic, retrying is pointless.
-                        LOG.error("source failed: %s", exc)
+                        LOG.error("source failed: %s", error_label(exc))
                         return self._outcome("source-failed")
                 if session_done == "auth-failed":
                     return self._outcome("auth-failed")
@@ -440,8 +438,8 @@ class ConnectorLink:
                 return "drop"
             try:
                 await self._initial_push(transport)
-            except _SnapshotTooLarge as exc:
-                LOG.error("snapshot rejected, exiting (no churn): %s", exc)
+            except _SnapshotTooLarge:
+                LOG.error("snapshot_rejected")
                 return "snapshot-too-large"
             except (TimeoutError, OSError) as exc:
                 self._log_tunnel_failure(transport, exc, "initial_push")
@@ -462,8 +460,8 @@ class ConnectorLink:
             if self._config.once:
                 return await self._drain_once(transport, stop)
             return await self._serve(transport, stop)
-        except _ProtocolDrop as exc:
-            LOG.warning("tunnel failed closed: %s", exc)
+        except _ProtocolDrop:
+            LOG.warning("tunnel_failed_closed")
             return "drop"
         except BaseException as exc:
             if type(exc).__name__ in (
@@ -609,7 +607,7 @@ class ConnectorLink:
             or self._last_epochs.get(terminal_id) == epoch
         )
 
-    def _note_routes(self, routes: dict[str, dict[str, str]]) -> None:
+    def _note_routes(self, routes: dict[str, dict[str, Any]]) -> None:
         self._last_epochs = {terminal: route["epoch"] for terminal, route in routes.items()}
         self._input_highwater = {
             key: seq
@@ -632,7 +630,8 @@ class ConnectorLink:
         if not isinstance(extras, list) or len(extras) > MAX_INPUT_TRACKERS:
             LOG.error("hello epochs malformed (not a list), ignoring")
             return
-        routes: dict[str, dict[str, str]] = {}
+        routes: dict[str, dict[str, Any]] = {}
+        skipped = 0
         for entry in extras:
             if (
                 not isinstance(entry, dict)
@@ -643,28 +642,29 @@ class ConnectorLink:
                 or entry.get("kind") not in ("shell", "agent")
                 or entry.get("mode", "control") not in ("control", "observe")
             ):
-                LOG.error("hello epoch entry malformed, skipping: %r", entry)
+                skipped += 1
                 continue
             routes[str(entry["terminal_id"])] = {
                 "epoch": str(entry["epoch"]),
                 "kind": str(entry["kind"]),
                 "mode": str(entry.get("mode", "control")),
+                "takeover": entry.get("takeover") is True,
             }
+        if skipped:
+            LOG.error("hello epoch entries malformed, skipped=%d", skipped)
         self._note_routes(routes)
 
     async def _prepare_source(self) -> str | None:
-        """Ready a live source for this session. Returns "drop" when the
-        upstream needs a retry (rebootstrap after death, resync on
-        reconnect); None when ready. Upstream outages retry with
-        backoff and never trip the push breaker (a different failure
-        domain than the gateway transport)."""
+        """Ready a live source for this session. Returns "drop" when the upstream needs a retry
+        (rebootstrap after death, resync on reconnect); None when ready.
+        """
         if not isinstance(self._source, LiveSource):
             return None
         if self._source_stale:
             try:
                 epoch = await self._source.rebootstrap()
             except (HerdrError, OSError) as exc:
-                LOG.warning("upstream rebootstrap failed, retrying: %s", exc)
+                LOG.warning("upstream rebootstrap failed, retrying: %s", error_label(exc))
                 return "drop"
             LOG.info("upstream rebootstrap complete (epoch=%s)", epoch)
             self._source_stale = False
@@ -673,7 +673,7 @@ class ConnectorLink:
             try:
                 await self._source.resync()
             except (HerdrError, OSError) as exc:
-                LOG.warning("upstream resync failed, retrying: %s", exc)
+                LOG.warning("upstream resync failed, retrying: %s", error_label(exc))
                 return "drop"
         return None
 
@@ -710,11 +710,7 @@ class ConnectorLink:
             seeds = self._source.drain_seeds()
         else:
             seeds = list(self._config.events)
-        for event in seeds:
-            await self._send(
-                transport, {"kind": "event", "host_id": self._config.host_id, "event": event}
-            )
-            self._pushed_events += 1
+        await self._push_metadata(transport, seeds)
         await self._push_outputs(transport)
 
     async def _push_snapshot(self, transport: TunnelTransport) -> None:
@@ -831,10 +827,27 @@ class ConnectorLink:
             return False
         take_dirty = getattr(self._source, "take_snapshot_dirty", None)
         removed = callable(take_dirty) and bool(take_dirty())
-        if events or removed:
-            # Upstream partials omit names and structure, so refresh the snapshot once per metadata
-            # batch (also on removal), never per PTY byte. Publish before the event notification so
-            # a client refresh sees the complete inventory.
+        await self._push_metadata(transport, events, removed=removed)
+        if outputs:
+            self._source.pump_live()
+            await self._push_terminal_updates(transport)
+        return True
+
+    async def _push_metadata(
+        self, transport: TunnelTransport, events: list[dict[str, Any]], *, removed: bool = False
+    ) -> None:
+        """Seeds and live events share the same capture-or-delta publication boundary."""
+        needs_snapshot = getattr(self._source, "metadata_requires_snapshot", lambda _: True)
+        capture = removed or bool(events and needs_snapshot(events))
+        if events and not capture:
+            convert = getattr(self._source, "metadata_deltas", None)
+            deltas = await convert(events, self._config.host_id) if callable(convert) else None
+            if deltas is None:
+                capture = True
+            else:
+                events = deltas
+        if capture:
+            # Structural/unknown partials still need a complete inventory before publication.
             refresh = getattr(self._source, "refresh", None)
             if callable(refresh):
                 try:
@@ -849,10 +862,6 @@ class ConnectorLink:
                 transport, {"kind": "event", "host_id": self._config.host_id, "event": event}
             )
             self._pushed_events += 1
-        if outputs:
-            self._source.pump_live()
-            await self._push_terminal_updates(transport)
-        return True
 
     async def _push_terminal_updates(self, transport: TunnelTransport) -> None:
         """One ordered output consumer; metadata refresh never blocks its producer."""
@@ -870,6 +879,21 @@ class ConnectorLink:
                         "epoch": epoch,
                     },
                 )
+        drain_refusals = getattr(self._source, "drain_attach_refusals", None)
+        if drain_refusals is not None:
+            for terminal_id, epoch in drain_refusals().items():
+                if not self._output_epoch_current(terminal_id, epoch):
+                    continue
+                await self._send(
+                    transport,
+                    {
+                        "kind": "terminal.attach_refused",
+                        "host_id": self._config.host_id,
+                        "terminal_id": terminal_id,
+                        "epoch": epoch,
+                        "reason": "terminal_owned",
+                    },
+                )
         await self._push_outputs(transport)
 
     def _handle_epochs(self, message: dict[str, Any]) -> None:
@@ -881,7 +905,7 @@ class ConnectorLink:
         entries = message.get("epochs")
         if not isinstance(entries, list) or len(entries) > MAX_INPUT_TRACKERS:
             raise _ProtocolDrop("epochs is not a list")
-        routes: dict[str, dict[str, str]] = {}
+        routes: dict[str, dict[str, Any]] = {}
         for entry in entries:
             if (
                 not isinstance(entry, dict)
@@ -897,6 +921,7 @@ class ConnectorLink:
                 "epoch": entry["epoch"],
                 "kind": entry["kind"],
                 "mode": entry.get("mode", "control"),
+                "takeover": entry.get("takeover") is True,
             }
         self._note_routes(routes)
 
@@ -999,20 +1024,17 @@ class ConnectorLink:
 
     async def _forward_pty(self, transport: TunnelTransport, available: asyncio.Event) -> None:
         loop = asyncio.get_running_loop()
+        last_send = float("-inf")
         while True:
             await available.wait()
-            # A PTY refills in many readable wakeups as its blocked producer is
-            # released, at the scheduler's pace. The window extends while pieces
-            # keep arriving and closes after a quiet gap or at the cap, so one
-            # repaint stays one batch; the reader never awaits sends.
-            deadline = loop.time() + OUTPUT_COALESCE_MAX_S
-            while True:
-                available.clear()
-                await asyncio.sleep(OUTPUT_COALESCE_S)
-                if not available.is_set() or loop.time() >= deadline:
-                    break
+            # Preserve the idle first-byte delay, then publish sustained output
+            # at most once per window. Frames remain capped by CHUNK_BYTES and
+            # the source's reserved-byte budget still includes blocked sends.
+            idle = loop.time() - last_send >= OUTPUT_COALESCE_MAX_S
+            await asyncio.sleep(OUTPUT_FIRST_BYTE_S if idle else OUTPUT_COALESCE_S)
             available.clear()
             await self._push_terminal_updates(transport)
+            last_send = loop.time()
 
     async def _serve_messages(
         self,
@@ -1031,28 +1053,16 @@ class ConnectorLink:
             self._writer_task = asyncio.create_task(self._writer.run())
         live = isinstance(self._source, LiveSource)
         self._inflight, self._inflight_at = "receive", asyncio.get_running_loop().time()
-        tick = LIVE_TICK_S if live else RECV_POLL_S
         inbox: BoundedInbox[dict[str, Any]] = BoundedInbox()
         refresh = asyncio.Event()
         refresh_work: list[tuple[dict[str, Any], dict[str, Any]]] = []
         done = asyncio.Event()
 
         async def reader() -> None:
-            last_ping = asyncio.get_running_loop().time()
             while not stop.is_set() and not done.is_set():
-                interval = self._config.ping_interval_s
-                if interval > 0 and asyncio.get_running_loop().time() - last_ping >= interval:
-                    if self._writer is not None:
-                        self._writer.post((json.dumps({"kind": "ping"}),), control=True)
-                    else:
-                        await self._send(transport, {"kind": "ping"})
-                    last_ping = asyncio.get_running_loop().time()
                 if self._inflight == "idle":
                     self._inflight, self._inflight_at = "receive", asyncio.get_running_loop().time()
-                try:
-                    raw = await asyncio.wait_for(transport.recv_text(), tick)
-                except TimeoutError:
-                    continue
+                raw = await transport.recv_text()
                 self._last_recv_at = asyncio.get_running_loop().time()
                 if len(raw.encode()) > TUNNEL_MAX_TEXT:
                     raise _ProtocolDrop("inbound tunnel frame too large")
@@ -1072,6 +1082,15 @@ class ConnectorLink:
                     inbox.put(message, len(raw.encode()))
                 else:
                     raise _ProtocolDrop("unexpected tunnel kind")
+
+        async def heartbeat() -> None:
+            interval = self._config.ping_interval_s
+            if interval <= 0:
+                await asyncio.Future()
+            while True:
+                await asyncio.sleep(interval)
+                if self._writer is not None:
+                    self._writer.post((json.dumps({"kind": "ping"}),), control=True)
 
         async def worker() -> None:
             while True:
@@ -1110,10 +1129,20 @@ class ConnectorLink:
 
         async def metadata() -> None:
             while True:
+                wait_ready = getattr(self._source, "wait_metadata_ready", None)
+                waits = [asyncio.create_task(refresh.wait())]
+                if live and callable(wait_ready):
+                    waits.append(asyncio.create_task(wait_ready()))
                 try:
-                    await asyncio.wait_for(refresh.wait(), tick)
-                except TimeoutError:
-                    pass
+                    completed, _ = await asyncio.wait(
+                        waits,
+                        timeout=LIVE_TICK_S if live and not callable(wait_ready) else None,
+                        return_when=asyncio.FIRST_COMPLETED,
+                    )
+                    for task in completed:
+                        task.result()
+                finally:
+                    await cancel_tasks(waits)
                 refresh.clear()
                 if refresh_work:
                     message, result = refresh_work.pop()
@@ -1124,6 +1153,7 @@ class ConnectorLink:
         tasks = [
             asyncio.create_task(reader()),
             asyncio.create_task(worker()),
+            asyncio.create_task(heartbeat()),
             asyncio.create_task(stop.wait()),
             asyncio.create_task(done.wait()),
         ]

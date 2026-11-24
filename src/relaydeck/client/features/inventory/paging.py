@@ -7,7 +7,8 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport, TransportError
+from relaydeck.client.features.inventory.source import InventorySource
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.domain.agent_order import metadata_order, status_rank
 from relaydeck.domain.models import scope_key
 
@@ -26,7 +27,7 @@ class InventoryFilters:
 
 
 class InventoryPager:
-    def __init__(self, transport: HttpxGatewayTransport, changed: Callable[[], None]) -> None:
+    def __init__(self, transport: InventorySource, changed: Callable[[], None]) -> None:
         self.transport = transport
         self.changed = changed
         self.rows: dict[str, dict[str, Any]] = {}
@@ -57,11 +58,8 @@ class InventoryPager:
 
     @property
     def visible_rows(self) -> tuple[dict[str, Any], ...]:
-        """Withhold lower groups until every host has passed their frontier.
-
-        Sorting loaded rows alone can put Working ahead of Blocked on an unseen
-        host page. Each gateway page is status ordered; its last status bounds
-        what remains unseen. Within a group display order stays deterministic.
+        """Withhold lower groups until every host has passed their frontier. Sorting loaded rows
+        alone can put Working ahead of Blocked on an unseen host page.
         """
         if set(self.hosts) - self.pages.keys():
             return ()  # an unobserved host could contain a higher-priority group

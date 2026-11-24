@@ -5,12 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from relaydeck.companion.private import private_dir
-from relaydeck.connector.pubkey import fingerprint_of_raw, generate, openssh_to_raw
-from relaydeck.gateway.app import GatewayState
-from relaydeck.gateway.hosts import HostStore
-from relaydeck.gateway.identity import pkce_challenge
-from relaydeck.gateway.pairing import PairingStore
+from relaydeck.contracts.pubkeys import fingerprint_of_raw, openssh_to_raw
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.features.access.hosts import HostStore
+from relaydeck.gateway.features.access.identity import pkce_challenge
+from relaydeck.gateway.features.access.pairing import PairingStore
+from relaydeck.host.files.private import private_dir
+from relaydeck.host.security.enrollment import generate
 from tests.security.helpers import make_state
 
 ORIGIN = "https://test-mac.synthetic-tailnet.ts.net"

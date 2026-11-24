@@ -40,6 +40,127 @@
            : Text.rich(
                TextSpan(
                  style: style,
+--- a/lib/src/controls/list_view.dart
++++ b/lib/src/controls/list_view.dart
+@@ -57,6 +57,13 @@
+     var firstItemPrototype =
+         widget.control.getBool("first_item_prototype", false)!;
+     var controls = widget.control.children("controls");
++    // RelayDeck: a caller that knows the main-axis extent of every child sends
++    // "item_extents" (one per child). Each child is then placed at the sum of
++    // the extents before it, so a window of children that slides never inherits
++    // the offset a child at that index had before; the children are laid out
++    // unbounded along the main axis so each can report its natural size.
++    final itemExtents = _placedExtents(
++        widget.control.get("item_extents"), controls.length);
+     var prototypeItem = widget.control.buildWidget("prototype_item") ??
+         (firstItemPrototype && controls.isNotEmpty
+             ? ControlWidget(control: controls.first)
+@@ -135,25 +142,24 @@
+                                   height: spacing, thickness: dividerThickness);
+                     },
+                   )
+-                : ListView.builder(
++                : ListView.custom(
+                     controller: _controller,
+                     clipBehavior: clipBehavior,
+-                    semanticChildCount: semanticChildCount,
++                    semanticChildCount: semanticChildCount ?? controls.length,
+                     reverse: reverse,
+                     cacheExtent: cacheExtent,
+                     scrollDirection: scrollDirection,
+                     shrinkWrap: shrinkWrap,
+                     padding: padding,
+-                    itemCount: controls.length,
+-                    itemExtent: itemExtent,
+-                    itemBuilder: (context, index) {
+-                      return ControlWidget(
+-                        key: ValueKey(controls[index].getKey("key")?.value ??
+-                            controls[index].id),
+-                        control: controls[index],
+-                      );
+-                    },
+-                    prototypeItem: prototypeItem,
++                    itemExtent: itemExtents == null ? itemExtent : null,
++                    itemExtentBuilder: itemExtents == null
++                        ? null
++                        : (index, dimensions) => index < itemExtents.length
++                            ? itemExtents[index]
++                            : null,
++                    prototypeItem: itemExtents == null ? prototypeItem : null,
++                    childrenDelegate: _childrenDelegate(controls,
++                        horizontal: horizontal, itemExtents: itemExtents),
+                   );
+ 
+         if (horizontal &&
+@@ -184,4 +190,67 @@
+ 
+     return LayoutControl(control: widget.control, child: listView);
+   }
++}
++
++/// The children of the on-demand list: the delegate `ListView.builder` makes,
++/// or, when every child has an extent, one that also reports the list's whole
++/// extent as the sum of them. Flutter otherwise estimates that extent from the
++/// children it has laid out, so a list whose far children are much taller (a
++/// windowed list's trailing space) ends short until they are built, and a
++/// fling or a scrollbar stops early.
++SliverChildBuilderDelegate _childrenDelegate(List<Control> controls,
++    {required bool horizontal, required List<double>? itemExtents}) {
++  Widget build(BuildContext context, int index) {
++    Widget item = ControlWidget(
++      key: ValueKey(controls[index].getKey("key")?.value ?? controls[index].id),
++      control: controls[index],
++    );
++    if (itemExtents != null) {
++      item = OverflowBox(
++        alignment: AlignmentDirectional.topStart,
++        minWidth: horizontal ? 0 : null,
++        maxWidth: horizontal ? double.infinity : null,
++        minHeight: horizontal ? null : 0,
++        maxHeight: horizontal ? null : double.infinity,
++        child: item,
++      );
++    }
++    return item;
++  }
++
++  if (itemExtents == null) {
++    return SliverChildBuilderDelegate(build, childCount: controls.length);
++  }
++  return _PlacedChildren(build,
++      count: controls.length,
++      extent: itemExtents.fold(0.0, (sum, extent) => sum + extent));
++}
++
++/// A builder delegate whose scroll extent is known: the sum of the extents.
++class _PlacedChildren extends SliverChildBuilderDelegate {
++  _PlacedChildren(super.builder, {required int count, required this.extent})
++      : super(childCount: count);
++
++  final double extent;
++
++  @override
++  double? estimateMaxScrollOffset(int firstIndex, int lastIndex,
++          double leadingScrollOffset, double trailingScrollOffset) =>
++      extent;
++}
++
++/// The extents sent for the children, or null when there is not one per child.
++List<double>? _placedExtents(dynamic value, int count) {
++  if (value is! List || value.length != count || count == 0) {
++    return null;
++  }
++  final extents = <double>[];
++  for (final item in value) {
++    final extent = parseDouble(item);
++    if (extent == null || !extent.isFinite || extent < 0) {
++      return null;
++    }
++    extents.add(extent);
++  }
++  return extents;
+ }
 --- a/lib/src/controls/markdown.dart
 +++ b/lib/src/controls/markdown.dart
 @@ -97,7 +97,12 @@
@@ -54,6 +175,106 @@
 +            )
 +          : markdown,
      );
+   }
+ }
+--- a/lib/src/controls/scroll_notification_control.dart
++++ b/lib/src/controls/scroll_notification_control.dart
+@@ -1,3 +1,5 @@
++import 'dart:async';
++
+ import 'package:flutter/widgets.dart';
+ 
+ import '../models/control.dart';
+@@ -19,8 +21,21 @@
+ class _ScrollNotificationControlState extends State<ScrollNotificationControl> {
+   int _onScrollInterval = 0;
+   final Map<String, int> _lastEventTimestamps = {};
++  // RelayDeck: a notification the interval drops is held and sent once the
++  // interval has passed, unless a later one is sent first; so the last
++  // notification of a burst always arrives, and the reader of the position
++  // learns where a wheel scroll (a burst of short scrolls) came to rest.
++  String? _heldType;
++  Map<String, Object?>? _heldFields;
++  Timer? _flush;
+ 
+   @override
++  void dispose() {
++    _flush?.cancel();
++    super.dispose();
++  }
++
++  @override
+   Widget build(BuildContext context) {
+     _onScrollInterval = widget.control.getInt("scroll_interval", 10)!;
+ 
+@@ -34,16 +49,51 @@
+     if (notification.depth != 0) return false;
+ 
+     final eventType = notification.runtimeType.toString();
++    final fields = _fields(notification);
++    if (fields == null) return false;
++
+     final now = DateTime.now().millisecondsSinceEpoch;
+     final lastEventTimestamp = _lastEventTimestamps[eventType];
+ 
+     if (lastEventTimestamp != null &&
+         now - lastEventTimestamp <= _onScrollInterval) {
++      _heldType = eventType;
++      _heldFields = fields;
++      _flush?.cancel();
++      _flush = Timer(
++          Duration(
++              milliseconds: _onScrollInterval - (now - lastEventTimestamp) + 1),
++          _sendHeld);
+       return false;
+     }
+ 
++    _dropHeld();
++    _send(eventType, fields, now);
++    return false;
++  }
++
++  void _sendHeld() {
++    final eventType = _heldType;
++    final fields = _heldFields;
++    _dropHeld();
++    if (eventType == null || fields == null || !mounted) return;
++    _send(eventType, fields, DateTime.now().millisecondsSinceEpoch);
++  }
++
++  void _dropHeld() {
++    _flush?.cancel();
++    _flush = null;
++    _heldType = null;
++    _heldFields = null;
++  }
++
++  void _send(String eventType, Map<String, Object?> fields, int now) {
+     _lastEventTimestamps[eventType] = now;
++    debugPrint("ScrollNotification ${widget.control.id} event");
++    widget.control.triggerEvent("scroll", fields);
++  }
+ 
++  Map<String, Object?>? _fields(ScrollNotification notification) {
+     final metrics = notification.metrics;
+     final Map<String, Object?> fields = {
+       "pixels": metrics.pixels,
+@@ -66,14 +116,9 @@
+       fields["event_type"] = "overscroll";
+       fields["overscroll"] = notification.overscroll;
+       fields["velocity"] = notification.velocity;
++    } else {
++      return null;
+     }
+-
+-    // Check that event_type was set before triggering the event
+-    if (fields["event_type"] != null) {
+-      debugPrint("ScrollNotification ${widget.control.id} event");
+-      widget.control.triggerEvent("scroll", fields);
+-    }
+-
+-    return false;
++    return fields;
    }
  }
 --- a/lib/src/controls/selection_area.dart

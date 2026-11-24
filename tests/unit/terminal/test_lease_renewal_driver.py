@@ -15,11 +15,11 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.features.sync.transport import TransportError
 from relaydeck.client.features.terminal.renewal import (
     TERMINAL_RENEWAL_CODES,
     LeaseRenewalDriver,
 )
+from relaydeck.client.ports.transport import TransportError
 
 
 def test_terminal_codes_cover_revoke_outcomes() -> None:

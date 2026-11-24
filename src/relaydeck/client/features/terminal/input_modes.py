@@ -1,8 +1,5 @@
-"""Independent workflow and keyboard modes with committed-text routing.
-
-Composer edits stay in the draft; Direct and Shell use the generation-bound
-writer. Mode switches preserve drafts and IME composition. Keydown/text dedupe
-suppresses only the matching text echo. Send requires completed composition.
+"""Independent workflow and keyboard modes with committed-text routing. Composer edits stay in
+the draft; Direct and Shell use the generation-bound writer.
 """
 
 from __future__ import annotations
@@ -10,23 +7,23 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from relaydeck.client.features.composer.domain import INPUT_MODE_TOOLS_KEYS
 from relaydeck.client.features.terminal.keys import KeyInputSession
+from relaydeck.client.models.input.modes import INPUT_MODE_TOOLS_KEYS
+from relaydeck.client.models.input.modes import KEYBOARD_KEYS as KEYBOARD_KEYS
+from relaydeck.client.models.input.modes import KEYBOARD_TEXT as KEYBOARD_TEXT
+from relaydeck.client.models.input.modes import WORKFLOW_AGENT_COMPOSER as WORKFLOW_AGENT_COMPOSER
+from relaydeck.client.models.input.modes import WORKFLOW_AGENT_DIRECT as WORKFLOW_AGENT_DIRECT
+from relaydeck.client.models.input.modes import WORKFLOW_SHELL as WORKFLOW_SHELL
 
 if TYPE_CHECKING:
-    from relaydeck.client.features.composer.domain import ComposerStore
+    from relaydeck.client.features.composer.api import ComposerStore
 
-WORKFLOW_AGENT_COMPOSER = "agent-composer"
-WORKFLOW_AGENT_DIRECT = "agent-direct"
-WORKFLOW_SHELL = "shell"
 WORKFLOWS: tuple[str, ...] = (
     WORKFLOW_AGENT_COMPOSER,
     WORKFLOW_AGENT_DIRECT,
     WORKFLOW_SHELL,
 )
 
-KEYBOARD_TEXT = "text"
-KEYBOARD_KEYS = "keys"
 KEYBOARDS: tuple[str, ...] = (KEYBOARD_TEXT, KEYBOARD_KEYS)
 
 AXIS_LABELS: dict[tuple[str, str], str] = {
@@ -56,15 +53,8 @@ IME_COMPOSING = "composing"
 
 
 class InputModeState:
-    """Workflow x keyboard mode.
-
-    Agent workflows bind the screen's `ComposerStore`; shells bind none
-    (no composer, no draft). Switching workflows or keyboards never calls
-    into the draft, so unsent (multiline) drafts survive byte-identically;
-    the only store write happens when leaving the tools-keys
-    surface calls `store.leave_tools_keys()`. Entering tools never touches
-    the store: `input_mode == "tools-keys"` remains the blocked-delivery
-    handoff, honored here via `sync_from_store`.
+    """Workflow x keyboard mode. Agent workflows bind the screen's `ComposerStore`; shells bind
+    none (no composer, no draft).
     """
 
     def __init__(
@@ -114,11 +104,9 @@ class InputModeState:
         self._workflow = workflow
 
     def set_keyboard(self, keyboard: str) -> bool:
-        """Switch Text/Keys, preserving the hidden draft by construction.
-
-        Leaving the tools-keys surface with a bound agent store calls
-        `store.leave_tools_keys()`; returns True when the
-        reset happened. Entering tools never touches the store.
+        """Switch Text/Keys, preserving the hidden draft by construction. Leaving the tools-keys
+        surface with a bound agent store calls `store.leave_tools_keys()`; returns True when
+        the reset happened.
         """
         if keyboard not in KEYBOARDS:
             raise ValueError(f"unknown keyboard {keyboard!r}")
@@ -129,10 +117,10 @@ class InputModeState:
         return False
 
     def sync_from_store(self) -> bool:
-        """Honor a blocked-delivery handoff: when the bound store reports
-        tools-keys, latch the keyboard there. Never latches away from keys
-        (Direct-keys keeps a composer-mode store), and shells (no store)
-        never sync. Returns True when the keyboard latched."""
+        """Honor a blocked-delivery handoff: when the bound store reports tools-keys, latch the
+        keyboard there. Never latches away from keys (Direct-keys keeps a composer-mode
+        store), and shells (no store) never sync.
+        """
         if self._store is None:
             return False
         if self._store.input_mode != INPUT_MODE_TOOLS_KEYS:
@@ -203,26 +191,8 @@ class _Echo:
 
 
 class KeyEventDeduper:
-    """Desktop keydown/text dedupe (echo suppression).
-
-    The screen feeds Flet-layer physical keydowns here plus extension text
-    packets; at most one path sends each press:
-    - Printable keydowns are held, never sent; the following text packet
-      sends once and resolves the hold.
-    - Keydowns consumed as key emissions (non-printables, armed-modifier
-      chords, Enter) suppress their one matching text echo
-      (`consumed_as_key`); a non-matching text clears the suppression and
-      still flows.
-    - Cancel/keyup clears the hold and suppression with nothing emitted.
-    - Stale tokens and `reset` (target change/unmount) drop everything.
-
-    Single-slot by design:
-    desktop key events and text packets are assumed to arrive in order, so
-    the next text resolves the open hold. Limitation: a second
-    `consumed_as_key` overwrites the armed echo, so the first echo (if it
-    still arrives) flows as fresh text and the second echo then flows too
-    (echo-overwrite can double-flow). An overwritten *hold* still flows
-    exactly once as fresh text.
+    """Track one pending physical key or matching native-text echo. Printable keys wait for
+    text; a consumed key suppresses its next matching echo.
     """
 
     def __init__(self) -> None:
@@ -298,10 +268,9 @@ class KeyEventDeduper:
 
 
 class ImeState:
-    """IME composition state machine. Updates never emit; `commit` banks exactly one text
-    for `take_committed`; `cancel` drops everything silently. Mode
-    switches never touch this: composition survives Text/Keys switches
-    because the input view is zero-height."""
+    """IME composition state machine. Updates never emit; `commit` banks exactly one text for
+    `take_committed`; `cancel` drops everything silently.
+    """
 
     def __init__(self) -> None:
         self._state = IME_IDLE

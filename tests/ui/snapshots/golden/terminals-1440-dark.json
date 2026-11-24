@@ -1,0 +1,1981 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "color": "#B7AFDA",
+                            "icon": 73950,
+                            "size": 20
+                           },
+                           "slot": "content",
+                           "type": "Icon"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "border_radius": {
+                           "@": "BorderRadius",
+                           "bottom_left": 16.0,
+                           "bottom_right": 16.0,
+                           "top_left": 16.0,
+                           "top_right": 16.0
+                          },
+                          "height": 32,
+                          "width": 56
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "props": {
+                          "no_wrap": true,
+                          "overflow": {
+                           "enum": "TextOverflow",
+                           "value": "ellipsis"
+                          },
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#B7AFDA",
+                           "font_family": "Bricolage Grotesque Medium",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 12,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "w500"
+                           }
+                          },
+                          "value": "Console"
+                         },
+                         "slot": "controls",
+                         "type": "Text"
+                        }
+                       ],
+                       "props": {
+                        "horizontal_alignment": {
+                         "enum": "CrossAxisAlignment",
+                         "value": "center"
+                        },
+                        "spacing": 4
+                       },
+                       "slot": "content",
+                       "type": "Column"
+                      }
+                     ],
+                     "props": {
+                      "padding": {
+                       "@": "Padding",
+                       "top": 10
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "console-rail-console",
+                   "props": {
+                    "expand": false,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 12
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Console",
+                    "width": 76
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "color": "#FFFFFF",
+                            "icon": 73289,
+                            "size": 20
+                           },
+                           "slot": "content",
+                           "type": "Icon"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "bgcolor": "#7443F5",
+                          "border_radius": {
+                           "@": "BorderRadius",
+                           "bottom_left": 16.0,
+                           "bottom_right": 16.0,
+                           "top_left": 16.0,
+                           "top_right": 16.0
+                          },
+                          "height": 32,
+                          "width": 56
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "props": {
+                          "no_wrap": true,
+                          "overflow": {
+                           "enum": "TextOverflow",
+                           "value": "ellipsis"
+                          },
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#F5F2FF",
+                           "font_family": "Bricolage Grotesque Bold",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 12,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "bold"
+                           }
+                          },
+                          "value": "Terminals"
+                         },
+                         "slot": "controls",
+                         "type": "Text"
+                        }
+                       ],
+                       "props": {
+                        "horizontal_alignment": {
+                         "enum": "CrossAxisAlignment",
+                         "value": "center"
+                        },
+                        "spacing": 4
+                       },
+                       "slot": "content",
+                       "type": "Column"
+                      }
+                     ],
+                     "props": {
+                      "padding": {
+                       "@": "Padding",
+                       "top": 10
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "console-rail-terminals",
+                   "props": {
+                    "expand": false,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 12
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Terminals",
+                    "width": 76
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "color": "#B7AFDA",
+                            "icon": 69420,
+                            "size": 20
+                           },
+                           "slot": "content",
+                           "type": "Icon"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "border_radius": {
+                           "@": "BorderRadius",
+                           "bottom_left": 16.0,
+                           "bottom_right": 16.0,
+                           "top_left": 16.0,
+                           "top_right": 16.0
+                          },
+                          "height": 32,
+                          "width": 56
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "props": {
+                          "no_wrap": true,
+                          "overflow": {
+                           "enum": "TextOverflow",
+                           "value": "ellipsis"
+                          },
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#B7AFDA",
+                           "font_family": "Bricolage Grotesque Medium",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 12,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "w500"
+                           }
+                          },
+                          "value": "Usage"
+                         },
+                         "slot": "controls",
+                         "type": "Text"
+                        }
+                       ],
+                       "props": {
+                        "horizontal_alignment": {
+                         "enum": "CrossAxisAlignment",
+                         "value": "center"
+                        },
+                        "spacing": 4
+                       },
+                       "slot": "content",
+                       "type": "Column"
+                      }
+                     ],
+                     "props": {
+                      "padding": {
+                       "@": "Padding",
+                       "top": 10
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "console-rail-usage",
+                   "props": {
+                    "expand": false,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 12
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Usage",
+                    "width": 76
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "color": "#B7AFDA",
+                            "icon": 73618,
+                            "size": 20
+                           },
+                           "slot": "content",
+                           "type": "Icon"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "border_radius": {
+                           "@": "BorderRadius",
+                           "bottom_left": 16.0,
+                           "bottom_right": 16.0,
+                           "top_left": 16.0,
+                           "top_right": 16.0
+                          },
+                          "height": 32,
+                          "width": 56
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "props": {
+                          "no_wrap": true,
+                          "overflow": {
+                           "enum": "TextOverflow",
+                           "value": "ellipsis"
+                          },
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#B7AFDA",
+                           "font_family": "Bricolage Grotesque Medium",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 12,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "w500"
+                           }
+                          },
+                          "value": "Settings"
+                         },
+                         "slot": "controls",
+                         "type": "Text"
+                        }
+                       ],
+                       "props": {
+                        "horizontal_alignment": {
+                         "enum": "CrossAxisAlignment",
+                         "value": "center"
+                        },
+                        "spacing": 4
+                       },
+                       "slot": "content",
+                       "type": "Column"
+                      }
+                     ],
+                     "props": {
+                      "padding": {
+                       "@": "Padding",
+                       "top": 10
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "console-rail-settings",
+                   "props": {
+                    "expand": false,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 12
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Settings",
+                    "width": 76
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  }
+                 ],
+                 "props": {
+                  "horizontal_alignment": {
+                   "enum": "CrossAxisAlignment",
+                   "value": "center"
+                  },
+                  "scroll": {
+                   "enum": "ScrollMode",
+                   "value": "auto"
+                  },
+                  "spacing": 6
+                 },
+                 "slot": "content",
+                 "type": "Column"
+                }
+               ],
+               "key": "destinations",
+               "props": {
+                "bgcolor": "#1A1436",
+                "padding": {
+                 "@": "Padding",
+                 "bottom": 24,
+                 "left": 8,
+                 "right": 8,
+                 "top": 24
+                },
+                "width": 96
+               },
+               "slot": "content",
+               "type": "Container"
+              }
+             ],
+             "key": "rail-slot",
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "key": "retained-surfaces",
+                     "props": {
+                      "expand": true,
+                      "fit": {
+                       "enum": "StackFit",
+                       "value": "expand"
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Stack"
+                    }
+                   ],
+                   "key": "retained-layer",
+                   "props": {
+                    "bottom": 0,
+                    "left": 400.0,
+                    "right": 0,
+                    "top": 0
+                   },
+                   "slot": "controls",
+                   "type": "Container"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "props": {
+                                "no_wrap": true,
+                                "style": {
+                                 "@": "TextStyle",
+                                 "color": "#B7AFDA",
+                                 "font_family": "JetBrains Mono",
+                                 "font_family_fallback": [
+                                  "Noto Sans Symbols 2"
+                                 ],
+                                 "height": 1.2173913043478262,
+                                 "letter_spacing": 0.69,
+                                 "size": 11.5,
+                                 "weight": {
+                                  "enum": "FontWeight",
+                                  "value": "normal"
+                                 }
+                                },
+                                "value": "1 SHELL ON 1 HOST"
+                               },
+                               "slot": "controls",
+                               "type": "Text"
+                              },
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "style": {
+                                   "@": "TextStyle",
+                                   "color": "#F5F2FF",
+                                   "font_family": "Bricolage Grotesque ExtraBold",
+                                   "font_family_fallback": [
+                                    "Noto Sans Symbols 2"
+                                   ],
+                                   "height": 1.1176470588235294,
+                                   "letter_spacing": -0.68,
+                                   "size": 34,
+                                   "weight": {
+                                    "enum": "FontWeight",
+                                    "value": "w800"
+                                   }
+                                  },
+                                  "value": "Terminals"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "header": true
+                               },
+                               "slot": "controls",
+                               "type": "Semantics"
+                              }
+                             ],
+                             "props": {
+                              "expand": true,
+                              "spacing": 0
+                             },
+                             "slot": "controls",
+                             "type": "Column"
+                            },
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#1A2400",
+                                  "icon": 65604,
+                                  "size": 20
+                                 },
+                                 "slot": "content",
+                                 "type": "Icon"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#C8F03C",
+                                "border_radius": {
+                                 "@": "BorderRadius",
+                                 "bottom_left": 24,
+                                 "bottom_right": 24,
+                                 "top_left": 24,
+                                 "top_right": 24
+                                }
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "new-terminal-open",
+                             "props": {
+                              "expand": false,
+                              "height": 48,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.DEFAULT": "transparent",
+                                "ControlState.FOCUSED": "#33FFFFFF"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 24
+                               },
+                               "side": {
+                                "ControlState.DEFAULT": {
+                                 "@": "BorderSide",
+                                 "color": "transparent",
+                                 "width": 3
+                                },
+                                "ControlState.FOCUSED": {
+                                 "@": "BorderSide",
+                                 "color": "#1A2400",
+                                 "width": 3
+                                }
+                               }
+                              },
+                              "tooltip": "New terminal",
+                              "width": 48
+                             },
+                             "slot": "controls",
+                             "type": "TextButton"
+                            },
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "color": "#F5F2FF",
+                                  "icon": 69557,
+                                  "size": 20
+                                 },
+                                 "slot": "content",
+                                 "type": "Icon"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#1F1840",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": {
+                                 "@": "BorderRadius",
+                                 "bottom_left": 24,
+                                 "bottom_right": 24,
+                                 "top_left": 24,
+                                 "top_right": 24
+                                }
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "shells-collapse",
+                             "props": {
+                              "expand": false,
+                              "height": 48,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.DEFAULT": "transparent",
+                                "ControlState.FOCUSED": "#33FFFFFF"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 24
+                               },
+                               "side": {
+                                "ControlState.DEFAULT": {
+                                 "@": "BorderSide",
+                                 "color": "transparent",
+                                 "width": 3
+                                },
+                                "ControlState.FOCUSED": {
+                                 "@": "BorderSide",
+                                 "color": "#F5F2FF",
+                                 "width": 3
+                                }
+                               }
+                              },
+                              "tooltip": "Collapse shell list",
+                              "width": 48
+                             },
+                             "slot": "controls",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "key": "terminals-header",
+                           "slot": "controls",
+                           "type": "Row"
+                          },
+                          {
+                           "key": "shells-search",
+                           "props": {
+                            "border_color": "#3B3270",
+                            "border_radius": 24,
+                            "color": "#F5F2FF",
+                            "content_padding": {
+                             "@": "Padding",
+                             "bottom": 12,
+                             "left": 16,
+                             "right": 16,
+                             "top": 12
+                            },
+                            "cursor_color": "#C4B0FF",
+                            "fill_color": "#1F1840",
+                            "filled": true,
+                            "focused_border_color": "#A98BFF",
+                            "height": 48,
+                            "hint_style": {
+                             "@": "TextStyle",
+                             "color": "#B7AFDA"
+                            },
+                            "hint_text": "Filter shells",
+                            "prefix_icon": 72141,
+                            "text_size": 15
+                           },
+                           "slot": "controls",
+                           "type": "TextField"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "no_wrap": true,
+                                  "style": {
+                                   "@": "TextStyle",
+                                   "color": "#FFFFFF",
+                                   "font_family": "Bricolage Grotesque SemiBold",
+                                   "font_family_fallback": [
+                                    "Noto Sans Symbols 2"
+                                   ],
+                                   "height": 1.3333333333333333,
+                                   "size": 13.5,
+                                   "weight": {
+                                    "enum": "FontWeight",
+                                    "value": "w600"
+                                   }
+                                  },
+                                  "value": "All hosts"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#7443F5",
+                                "border_radius": {
+                                 "@": "BorderRadius",
+                                 "bottom_left": 17,
+                                 "bottom_right": 17,
+                                 "top_left": 17,
+                                 "top_right": 17
+                                },
+                                "height": 34,
+                                "padding": {
+                                 "@": "Padding",
+                                 "left": 14,
+                                 "right": 14
+                                }
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "shell-host-chip-all",
+                             "props": {
+                              "expand": false,
+                              "height": 48,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.DEFAULT": "transparent",
+                                "ControlState.FOCUSED": "#33FFFFFF"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 22
+                               },
+                               "side": {
+                                "ControlState.DEFAULT": {
+                                 "@": "BorderSide",
+                                 "color": "transparent",
+                                 "width": 3
+                                },
+                                "ControlState.FOCUSED": {
+                                 "@": "BorderSide",
+                                 "color": "#F5F2FF",
+                                 "width": 3
+                                }
+                               }
+                              },
+                              "tooltip": "All hosts"
+                             },
+                             "slot": "controls",
+                             "type": "TextButton"
+                            },
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "props": {
+                                  "no_wrap": true,
+                                  "style": {
+                                   "@": "TextStyle",
+                                   "color": "#D9D3F2",
+                                   "font_family": "Bricolage Grotesque Medium",
+                                   "font_family_fallback": [
+                                    "Noto Sans Symbols 2"
+                                   ],
+                                   "height": 1.3333333333333333,
+                                   "size": 13.5,
+                                   "weight": {
+                                    "enum": "FontWeight",
+                                    "value": "w500"
+                                   }
+                                  },
+                                  "value": "Home Mac"
+                                 },
+                                 "slot": "content",
+                                 "type": "Text"
+                                }
+                               ],
+                               "props": {
+                                "alignment": {
+                                 "@": "Alignment",
+                                 "x": 0.0,
+                                 "y": 0.0
+                                },
+                                "bgcolor": "#1F1840",
+                                "border": {
+                                 "@": "Border",
+                                 "bottom": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "left": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "right": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 },
+                                 "top": {
+                                  "@": "BorderSide",
+                                  "color": "#3B3270"
+                                 }
+                                },
+                                "border_radius": {
+                                 "@": "BorderRadius",
+                                 "bottom_left": 17,
+                                 "bottom_right": 17,
+                                 "top_left": 17,
+                                 "top_right": 17
+                                },
+                                "height": 34,
+                                "padding": {
+                                 "@": "Padding",
+                                 "left": 14,
+                                 "right": 14
+                                }
+                               },
+                               "slot": "content",
+                               "type": "Container"
+                              }
+                             ],
+                             "key": "shell-host-chip-home-mac",
+                             "props": {
+                              "expand": false,
+                              "height": 48,
+                              "style": {
+                               "@": "ButtonStyle",
+                               "bgcolor": "transparent",
+                               "overlay_color": {
+                                "ControlState.DEFAULT": "transparent",
+                                "ControlState.FOCUSED": "#33FFFFFF"
+                               },
+                               "padding": 0,
+                               "shape": {
+                                "@": "RoundedRectangleBorder",
+                                "radius": 22
+                               },
+                               "side": {
+                                "ControlState.DEFAULT": {
+                                 "@": "BorderSide",
+                                 "color": "transparent",
+                                 "width": 3
+                                },
+                                "ControlState.FOCUSED": {
+                                 "@": "BorderSide",
+                                 "color": "#F5F2FF",
+                                 "width": 3
+                                }
+                               }
+                              },
+                              "tooltip": "Home Mac"
+                             },
+                             "slot": "controls",
+                             "type": "TextButton"
+                            }
+                           ],
+                           "key": "shells-hosts",
+                           "props": {
+                            "scroll": {
+                             "enum": "ScrollMode",
+                             "value": "auto"
+                            },
+                            "spacing": 8
+                           },
+                           "slot": "controls",
+                           "type": "Row"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "props": {
+                                      "no_wrap": true,
+                                      "semantics_label": "",
+                                      "style": {
+                                       "@": "TextStyle",
+                                       "color": "#FFFFFF",
+                                       "font_family": "Bricolage Grotesque SemiBold",
+                                       "font_family_fallback": [
+                                        "Noto Sans Symbols 2"
+                                       ],
+                                       "height": 1.3333333333333333,
+                                       "size": 13.5,
+                                       "weight": {
+                                        "enum": "FontWeight",
+                                        "value": "w600"
+                                       }
+                                      },
+                                      "value": "All spaces"
+                                     },
+                                     "slot": "content",
+                                     "type": "Text"
+                                    }
+                                   ],
+                                   "props": {
+                                    "alignment": {
+                                     "@": "Alignment",
+                                     "x": 0.0,
+                                     "y": 0.0
+                                    },
+                                    "bgcolor": "#7443F5",
+                                    "border_radius": {
+                                     "@": "BorderRadius",
+                                     "bottom_left": 17,
+                                     "bottom_right": 17,
+                                     "top_left": 17,
+                                     "top_right": 17
+                                    },
+                                    "height": 34,
+                                    "padding": {
+                                     "@": "Padding",
+                                     "left": 14,
+                                     "right": 14
+                                    }
+                                   },
+                                   "slot": "content",
+                                   "type": "Container"
+                                  }
+                                 ],
+                                 "key": "shell-space-chip-all",
+                                 "props": {
+                                  "expand": false,
+                                  "height": 48,
+                                  "style": {
+                                   "@": "ButtonStyle",
+                                   "bgcolor": "transparent",
+                                   "overlay_color": {
+                                    "ControlState.DEFAULT": "transparent",
+                                    "ControlState.FOCUSED": "#33FFFFFF"
+                                   },
+                                   "padding": 0,
+                                   "shape": {
+                                    "@": "RoundedRectangleBorder",
+                                    "radius": 22
+                                   },
+                                   "side": {
+                                    "ControlState.DEFAULT": {
+                                     "@": "BorderSide",
+                                     "color": "transparent",
+                                     "width": 3
+                                    },
+                                    "ControlState.FOCUSED": {
+                                     "@": "BorderSide",
+                                     "color": "#F5F2FF",
+                                     "width": 3
+                                    }
+                                   }
+                                  },
+                                  "tooltip": "All spaces"
+                                 },
+                                 "slot": "content",
+                                 "type": "TextButton"
+                                }
+                               ],
+                               "props": {
+                                "label": "All spaces, selected",
+                                "selected": true
+                               },
+                               "slot": "content",
+                               "type": "Semantics"
+                              }
+                             ],
+                             "slot": "controls",
+                             "type": "MergeSemantics"
+                            },
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "props": {
+                                      "no_wrap": true,
+                                      "semantics_label": "",
+                                      "style": {
+                                       "@": "TextStyle",
+                                       "color": "#D9D3F2",
+                                       "font_family": "Bricolage Grotesque Medium",
+                                       "font_family_fallback": [
+                                        "Noto Sans Symbols 2"
+                                       ],
+                                       "height": 1.3333333333333333,
+                                       "size": 13.5,
+                                       "weight": {
+                                        "enum": "FontWeight",
+                                        "value": "w500"
+                                       }
+                                      },
+                                      "value": "ops · 0"
+                                     },
+                                     "slot": "content",
+                                     "type": "Text"
+                                    }
+                                   ],
+                                   "props": {
+                                    "alignment": {
+                                     "@": "Alignment",
+                                     "x": 0.0,
+                                     "y": 0.0
+                                    },
+                                    "bgcolor": "#1F1840",
+                                    "border": {
+                                     "@": "Border",
+                                     "bottom": {
+                                      "@": "BorderSide",
+                                      "color": "#3B3270"
+                                     },
+                                     "left": {
+                                      "@": "BorderSide",
+                                      "color": "#3B3270"
+                                     },
+                                     "right": {
+                                      "@": "BorderSide",
+                                      "color": "#3B3270"
+                                     },
+                                     "top": {
+                                      "@": "BorderSide",
+                                      "color": "#3B3270"
+                                     }
+                                    },
+                                    "border_radius": {
+                                     "@": "BorderRadius",
+                                     "bottom_left": 17,
+                                     "bottom_right": 17,
+                                     "top_left": 17,
+                                     "top_right": 17
+                                    },
+                                    "height": 34,
+                                    "padding": {
+                                     "@": "Padding",
+                                     "left": 14,
+                                     "right": 14
+                                    }
+                                   },
+                                   "slot": "content",
+                                   "type": "Container"
+                                  }
+                                 ],
+                                 "key": "shell-space-chip-home-mac:w2",
+                                 "props": {
+                                  "expand": false,
+                                  "height": 48,
+                                  "style": {
+                                   "@": "ButtonStyle",
+                                   "bgcolor": "transparent",
+                                   "overlay_color": {
+                                    "ControlState.DEFAULT": "transparent",
+                                    "ControlState.FOCUSED": "#33FFFFFF"
+                                   },
+                                   "padding": 0,
+                                   "shape": {
+                                    "@": "RoundedRectangleBorder",
+                                    "radius": 22
+                                   },
+                                   "side": {
+                                    "ControlState.DEFAULT": {
+                                     "@": "BorderSide",
+                                     "color": "transparent",
+                                     "width": 3
+                                    },
+                                    "ControlState.FOCUSED": {
+                                     "@": "BorderSide",
+                                     "color": "#F5F2FF",
+                                     "width": 3
+                                    }
+                                   }
+                                  },
+                                  "tooltip": "ops · 0"
+                                 },
+                                 "slot": "content",
+                                 "type": "TextButton"
+                                }
+                               ],
+                               "props": {
+                                "label": "ops, 0 terminals, not selected",
+                                "selected": false
+                               },
+                               "slot": "content",
+                               "type": "Semantics"
+                              }
+                             ],
+                             "slot": "controls",
+                             "type": "MergeSemantics"
+                            },
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "props": {
+                                      "no_wrap": true,
+                                      "semantics_label": "",
+                                      "style": {
+                                       "@": "TextStyle",
+                                       "color": "#D9D3F2",
+                                       "font_family": "Bricolage Grotesque Medium",
+                                       "font_family_fallback": [
+                                        "Noto Sans Symbols 2"
+                                       ],
+                                       "height": 1.3333333333333333,
+                                       "size": 13.5,
+                                       "weight": {
+                                        "enum": "FontWeight",
+                                        "value": "w500"
+                                       }
+                                      },
+                                      "value": "web · 1"
+                                     },
+                                     "slot": "content",
+                                     "type": "Text"
+                                    }
+                                   ],
+                                   "props": {
+                                    "alignment": {
+                                     "@": "Alignment",
+                                     "x": 0.0,
+                                     "y": 0.0
+                                    },
+                                    "bgcolor": "#1F1840",
+                                    "border": {
+                                     "@": "Border",
+                                     "bottom": {
+                                      "@": "BorderSide",
+                                      "color": "#3B3270"
+                                     },
+                                     "left": {
+                                      "@": "BorderSide",
+                                      "color": "#3B3270"
+                                     },
+                                     "right": {
+                                      "@": "BorderSide",
+                                      "color": "#3B3270"
+                                     },
+                                     "top": {
+                                      "@": "BorderSide",
+                                      "color": "#3B3270"
+                                     }
+                                    },
+                                    "border_radius": {
+                                     "@": "BorderRadius",
+                                     "bottom_left": 17,
+                                     "bottom_right": 17,
+                                     "top_left": 17,
+                                     "top_right": 17
+                                    },
+                                    "height": 34,
+                                    "padding": {
+                                     "@": "Padding",
+                                     "left": 14,
+                                     "right": 14
+                                    }
+                                   },
+                                   "slot": "content",
+                                   "type": "Container"
+                                  }
+                                 ],
+                                 "key": "shell-space-chip-home-mac:w1",
+                                 "props": {
+                                  "expand": false,
+                                  "height": 48,
+                                  "style": {
+                                   "@": "ButtonStyle",
+                                   "bgcolor": "transparent",
+                                   "overlay_color": {
+                                    "ControlState.DEFAULT": "transparent",
+                                    "ControlState.FOCUSED": "#33FFFFFF"
+                                   },
+                                   "padding": 0,
+                                   "shape": {
+                                    "@": "RoundedRectangleBorder",
+                                    "radius": 22
+                                   },
+                                   "side": {
+                                    "ControlState.DEFAULT": {
+                                     "@": "BorderSide",
+                                     "color": "transparent",
+                                     "width": 3
+                                    },
+                                    "ControlState.FOCUSED": {
+                                     "@": "BorderSide",
+                                     "color": "#F5F2FF",
+                                     "width": 3
+                                    }
+                                   }
+                                  },
+                                  "tooltip": "web · 1"
+                                 },
+                                 "slot": "content",
+                                 "type": "TextButton"
+                                }
+                               ],
+                               "props": {
+                                "label": "web, 1 terminal, not selected",
+                                "selected": false
+                               },
+                               "slot": "content",
+                               "type": "Semantics"
+                              }
+                             ],
+                             "slot": "controls",
+                             "type": "MergeSemantics"
+                            }
+                           ],
+                           "key": "shells-spaces",
+                           "props": {
+                            "scroll": {
+                             "enum": "ScrollMode",
+                             "value": "auto"
+                            },
+                            "spacing": 8
+                           },
+                           "slot": "controls",
+                           "type": "Row"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "props": {
+                                              "color": "#B7AFDA",
+                                              "icon": 73289,
+                                              "size": 22
+                                             },
+                                             "slot": "content",
+                                             "type": "Icon"
+                                            }
+                                           ],
+                                           "props": {
+                                            "alignment": {
+                                             "@": "Alignment",
+                                             "x": 0.0,
+                                             "y": 0.0
+                                            },
+                                            "bgcolor": "#2B2356",
+                                            "border_radius": {
+                                             "@": "BorderRadius",
+                                             "bottom_left": 14,
+                                             "bottom_right": 14,
+                                             "top_left": 14,
+                                             "top_right": 14
+                                            },
+                                            "height": 44,
+                                            "width": 44
+                                           },
+                                           "slot": "controls",
+                                           "type": "Container"
+                                          },
+                                          {
+                                           "children": [
+                                            {
+                                             "props": {
+                                              "max_lines": 1,
+                                              "overflow": {
+                                               "enum": "TextOverflow",
+                                               "value": "ellipsis"
+                                              },
+                                              "style": {
+                                               "@": "TextStyle",
+                                               "color": "#F5F2FF",
+                                               "font_family": "Bricolage Grotesque Bold",
+                                               "font_family_fallback": [
+                                                "Noto Sans Symbols 2"
+                                               ],
+                                               "height": 1.2941176470588236,
+                                               "size": 17,
+                                               "weight": {
+                                                "enum": "FontWeight",
+                                                "value": "bold"
+                                               }
+                                              },
+                                              "value": "shell-a"
+                                             },
+                                             "slot": "controls",
+                                             "type": "Text"
+                                            },
+                                            {
+                                             "props": {
+                                              "max_lines": 1,
+                                              "overflow": {
+                                               "enum": "TextOverflow",
+                                               "value": "ellipsis"
+                                              },
+                                              "style": {
+                                               "@": "TextStyle",
+                                               "color": "#B7AFDA",
+                                               "font_family": "JetBrains Mono",
+                                               "font_family_fallback": [
+                                                "Noto Sans Symbols 2"
+                                               ],
+                                               "height": 1.391304347826087,
+                                               "size": 11.5,
+                                               "weight": {
+                                                "enum": "FontWeight",
+                                                "value": "normal"
+                                               }
+                                              },
+                                              "value": "Home Mac · 1 pane"
+                                             },
+                                             "slot": "controls",
+                                             "type": "Text"
+                                            }
+                                           ],
+                                           "props": {
+                                            "expand": true,
+                                            "spacing": 1,
+                                            "tight": true
+                                           },
+                                           "slot": "controls",
+                                           "type": "Column"
+                                          },
+                                          {
+                                           "children": [
+                                            {
+                                             "props": {
+                                              "border": {
+                                               "@": "Border",
+                                               "bottom": {
+                                                "@": "BorderSide",
+                                                "color": "#8E86B8",
+                                                "width": 2
+                                               },
+                                               "left": {
+                                                "@": "BorderSide",
+                                                "color": "#8E86B8",
+                                                "width": 2
+                                               },
+                                               "right": {
+                                                "@": "BorderSide",
+                                                "color": "#8E86B8",
+                                                "width": 2
+                                               },
+                                               "top": {
+                                                "@": "BorderSide",
+                                                "color": "#8E86B8",
+                                                "width": 2
+                                               }
+                                              },
+                                              "border_radius": {
+                                               "@": "BorderRadius",
+                                               "bottom_left": 4,
+                                               "bottom_right": 4,
+                                               "top_left": 4,
+                                               "top_right": 4
+                                              },
+                                              "height": 8,
+                                              "width": 8
+                                             },
+                                             "slot": "controls",
+                                             "type": "Container"
+                                            },
+                                            {
+                                             "props": {
+                                              "style": {
+                                               "@": "TextStyle",
+                                               "color": "#B7AFDA",
+                                               "font_family": "Bricolage Grotesque SemiBold",
+                                               "font_family_fallback": [
+                                                "Noto Sans Symbols 2"
+                                               ],
+                                               "height": 1.2,
+                                               "size": 12.5,
+                                               "weight": {
+                                                "enum": "FontWeight",
+                                                "value": "w600"
+                                               }
+                                              },
+                                              "value": "Detached"
+                                             },
+                                             "slot": "controls",
+                                             "type": "Text"
+                                            }
+                                           ],
+                                           "props": {
+                                            "spacing": 6,
+                                            "tight": true
+                                           },
+                                           "slot": "controls",
+                                           "type": "Row"
+                                          }
+                                         ],
+                                         "props": {
+                                          "spacing": 12
+                                         },
+                                         "slot": "content",
+                                         "type": "Row"
+                                        }
+                                       ],
+                                       "props": {
+                                        "bgcolor": "#1F1840",
+                                        "border": {
+                                         "@": "Border",
+                                         "bottom": {
+                                          "@": "BorderSide",
+                                          "color": "#3B3270"
+                                         },
+                                         "left": {
+                                          "@": "BorderSide",
+                                          "color": "#3B3270"
+                                         },
+                                         "right": {
+                                          "@": "BorderSide",
+                                          "color": "#3B3270"
+                                         },
+                                         "top": {
+                                          "@": "BorderSide",
+                                          "color": "#3B3270"
+                                         }
+                                        },
+                                        "border_radius": {
+                                         "@": "BorderRadius",
+                                         "bottom_left": 18,
+                                         "bottom_right": 18,
+                                         "top_left": 18,
+                                         "top_right": 18
+                                        },
+                                        "padding": {
+                                         "@": "Padding",
+                                         "bottom": 12,
+                                         "left": 14,
+                                         "right": 14,
+                                         "top": 12
+                                        }
+                                       },
+                                       "slot": "content",
+                                       "type": "Container"
+                                      }
+                                     ],
+                                     "key": "shell-home-mac:tab-1",
+                                     "props": {
+                                      "expand": false,
+                                      "style": {
+                                       "@": "ButtonStyle",
+                                       "bgcolor": "transparent",
+                                       "overlay_color": {
+                                        "ControlState.DEFAULT": "transparent",
+                                        "ControlState.FOCUSED": "#33FFFFFF"
+                                       },
+                                       "padding": 0,
+                                       "shape": {
+                                        "@": "RoundedRectangleBorder",
+                                        "radius": 18
+                                       },
+                                       "side": {
+                                        "ControlState.DEFAULT": {
+                                         "@": "BorderSide",
+                                         "color": "transparent",
+                                         "width": 3
+                                        },
+                                        "ControlState.FOCUSED": {
+                                         "@": "BorderSide",
+                                         "color": "#F5F2FF",
+                                         "width": 3
+                                        }
+                                       }
+                                      },
+                                      "tooltip": "shell-a"
+                                     },
+                                     "slot": "content",
+                                     "type": "TextButton"
+                                    }
+                                   ],
+                                   "key": "home-mac:tab-1",
+                                   "props": {
+                                    "padding": {
+                                     "@": "Padding",
+                                     "bottom": 10
+                                    }
+                                   },
+                                   "slot": "controls",
+                                   "type": "Container"
+                                  },
+                                  {
+                                   "key": "shells-tiles-after",
+                                   "props": {
+                                    "height": 0.0
+                                   },
+                                   "slot": "controls",
+                                   "type": "Container"
+                                  }
+                                 ],
+                                 "key": "shells-tiles",
+                                 "props": {
+                                  "expand": true,
+                                  "item_extents": [
+                                   82.0,
+                                   0.0
+                                  ],
+                                  "padding": {
+                                   "@": "Padding"
+                                  },
+                                  "scroll_interval": 100,
+                                  "size_change_interval": 100
+                                 },
+                                 "slot": "body",
+                                 "type": "PlacedListView"
+                                }
+                               ],
+                               "slot": "body",
+                               "type": "Component:VirtualList"
+                              }
+                             ],
+                             "key": "shells-cards",
+                             "slot": "content",
+                             "type": "Component:ShellCardsList"
+                            }
+                           ],
+                           "props": {
+                            "expand": true
+                           },
+                           "slot": "controls",
+                           "type": "Container"
+                          }
+                         ],
+                         "key": "shells-pane-bounds",
+                         "props": {
+                          "expand": true,
+                          "spacing": 14
+                         },
+                         "slot": "content",
+                         "type": "Column"
+                        }
+                       ],
+                       "key": "shells-pane",
+                       "props": {
+                        "expand": true,
+                        "width": 380.0
+                       },
+                       "slot": "content",
+                       "type": "Container"
+                      }
+                     ],
+                     "key": "inventory-sidebar",
+                     "props": {
+                      "bgcolor": "transparent",
+                      "expand": false,
+                      "padding": 0,
+                      "width": 380.0
+                     },
+                     "slot": "controls",
+                     "type": "Container"
+                    },
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "props": {
+                          "bgcolor": "#3B3270",
+                          "expand": true,
+                          "width": 2
+                         },
+                         "slot": "content",
+                         "type": "Container"
+                        }
+                       ],
+                       "props": {
+                        "alignment": {
+                         "@": "Alignment",
+                         "x": 0.0,
+                         "y": 0.0
+                        }
+                       },
+                       "slot": "content",
+                       "type": "Container"
+                      }
+                     ],
+                     "key": "sidebar-resize",
+                     "props": {
+                      "drag_interval": 16,
+                      "mouse_cursor": {
+                       "enum": "MouseCursor",
+                       "value": "resizeLeftRight"
+                      },
+                      "width": 20
+                     },
+                     "slot": "controls",
+                     "type": "GestureDetector"
+                    },
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "props": {
+                              "color": "#A98BFF",
+                              "icon": 73289,
+                              "size": 40
+                             },
+                             "slot": "controls",
+                             "type": "Icon"
+                            },
+                            {
+                             "children": [
+                              {
+                               "props": {
+                                "color": "#F5F2FF",
+                                "size": 22,
+                                "value": "Shell terminals",
+                                "weight": {
+                                 "enum": "FontWeight",
+                                 "value": "w700"
+                                }
+                               },
+                               "slot": "content",
+                               "type": "Text"
+                              }
+                             ],
+                             "props": {
+                              "header": true
+                             },
+                             "slot": "controls",
+                             "type": "Semantics"
+                            },
+                            {
+                             "key": "detail-empty",
+                             "props": {
+                              "color": "#B7AFDA",
+                              "value": "Select a shell to open its terminal."
+                             },
+                             "slot": "controls",
+                             "type": "Text"
+                            }
+                           ],
+                           "props": {
+                            "horizontal_alignment": {
+                             "enum": "CrossAxisAlignment",
+                             "value": "center"
+                            },
+                            "spacing": 12,
+                            "tight": true
+                           },
+                           "slot": "content",
+                           "type": "Column"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "bgcolor": "#191335",
+                          "border": {
+                           "@": "Border",
+                           "bottom": {
+                            "@": "BorderSide",
+                            "color": "#3B3270"
+                           },
+                           "left": {
+                            "@": "BorderSide",
+                            "color": "#3B3270"
+                           },
+                           "right": {
+                            "@": "BorderSide",
+                            "color": "#3B3270"
+                           },
+                           "top": {
+                            "@": "BorderSide",
+                            "color": "#3B3270"
+                           }
+                          },
+                          "border_radius": 24,
+                          "expand": true,
+                          "padding": 24
+                         },
+                         "slot": "body",
+                         "type": "Container"
+                        }
+                       ],
+                       "key": "session-detail",
+                       "slot": "content",
+                       "type": "Component:SessionDetail"
+                      }
+                     ],
+                     "key": "detail-pane",
+                     "props": {
+                      "expand": true,
+                      "padding": 0
+                     },
+                     "slot": "controls",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "inventory-split",
+                   "props": {
+                    "expand": true,
+                    "spacing": 0,
+                    "vertical_alignment": {
+                     "enum": "CrossAxisAlignment",
+                     "value": "stretch"
+                    }
+                   },
+                   "slot": "controls",
+                   "type": "Row"
+                  }
+                 ],
+                 "key": "inventory-retained-workbench",
+                 "props": {
+                  "expand": true,
+                  "fit": {
+                   "enum": "StackFit",
+                   "value": "expand"
+                  }
+                 },
+                 "slot": "content",
+                 "type": "Stack"
+                }
+               ],
+               "key": "inventory-content",
+               "props": {
+                "expand": true,
+                "padding": 28
+               },
+               "slot": "controls",
+               "type": "Container"
+              }
+             ],
+             "key": "inventory-body",
+             "props": {
+              "expand": true,
+              "spacing": 0
+             },
+             "slot": "controls",
+             "type": "Column"
+            }
+           ],
+           "key": "inventory-workbench",
+           "props": {
+            "expand": true,
+            "spacing": 0,
+            "vertical_alignment": {
+             "enum": "CrossAxisAlignment",
+             "value": "stretch"
+            }
+           },
+           "slot": "controls",
+           "type": "Row"
+          },
+          {
+           "key": "phone-nav-slot",
+           "props": {
+            "visible": false
+           },
+           "slot": "controls",
+           "type": "Container"
+          }
+         ],
+         "key": "inventory-frame",
+         "props": {
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "props": {
+        "expand": true
+       },
+       "slot": "content",
+       "type": "SafeArea"
+      }
+     ],
+     "key": "console-ground",
+     "props": {
+      "bgcolor": "#130F26",
+      "expand": true,
+      "image": {
+       "@": "DecorationImage",
+       "repeat": {
+        "enum": "ImageRepeat",
+        "value": "repeat"
+       },
+       "src": "design_system/dots/dot_tile.png"
+      }
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:AppShell"
+  }
+ ]
+}

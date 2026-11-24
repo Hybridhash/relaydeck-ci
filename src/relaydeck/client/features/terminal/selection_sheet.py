@@ -8,12 +8,13 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.components.appearance import chrome_style
-from relaydeck.client.components.design_system.fonts import FAMILY_MONO
-from relaydeck.client.features.terminal.events import click
+from relaydeck.client.design_system.appearance import chrome_style
+from relaydeck.client.design_system.buttons import Button
+from relaydeck.client.design_system.fonts import FAMILY_MONO
+from relaydeck.client.design_system.theme import FONT_SIZE, MIN_TOUCH
 from relaydeck.client.features.terminal.selection_area import selected_offsets
 from relaydeck.client.features.terminal.selection_model import normalize_range
-from relaydeck.client.theme import FONT_SIZE, MIN_TOUCH
+from relaydeck.client.platform.flet.events import click
 
 SELECT_SHEET_KEY = "select-text-sheet"
 SELECT_TITLE_KEY = "select-text-title"
@@ -94,14 +95,14 @@ def SelectTextSheet(
                 wrap=True,
                 alignment=ft.MainAxisAlignment.END,
                 controls=[
-                    ft.Button(
+                    Button(
                         "Copy",
                         key=SELECT_COPY_KEY,
                         height=MIN_TOUCH,
                         style=chrome_style(dark),
                         on_click=click(on_copy, resolved.anchor, resolved.focus),
                     ),
-                    ft.Button(
+                    Button(
                         "Done",
                         key=SELECT_CLOSE_KEY,
                         height=MIN_TOUCH,

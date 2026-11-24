@@ -260,12 +260,12 @@ def test_status_only_ever_calls_status_then_doctor(tmp_path: Path) -> None:
     assert _calls(record) == [["status"], ["doctor"]]
 
 
-def test_pair_opens_a_window_and_never_approves_or_passes_yes(tmp_path: Path) -> None:
+def test_pair_runs_the_typed_code_wizard_and_never_approves_or_passes_yes(tmp_path: Path) -> None:
     home, record = _home(tmp_path)
-    _fake(home / ".local" / "bin" / "relaydeck-companion", record)
+    _fake(home / ".local" / "bin" / "relaydeck", record)
     result = _run("pair", home, record)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert _calls(record) == [["pairing", "open"]]
+    assert _calls(record) == [["pair"]]
     assert "The plugin never approves a device for you." in result.stdout
 
 

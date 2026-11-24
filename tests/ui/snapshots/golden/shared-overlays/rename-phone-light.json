@@ -1,0 +1,698 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "props": {
+              "color": "#3A3260",
+              "size": 15,
+              "value": "Cancel",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w600"
+              }
+             },
+             "slot": "content",
+             "type": "Text"
+            }
+           ],
+           "key": "agent-rename-cancel",
+           "props": {
+            "height": 48,
+            "style": {
+             "@": "ButtonStyle",
+             "bgcolor": "transparent",
+             "shape": {
+              "@": "RoundedRectangleBorder",
+              "radius": 8
+             },
+             "side": {
+              "@": "BorderSide",
+              "color": "transparent",
+              "width": 0
+             }
+            }
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          },
+          {
+           "children": [
+            {
+             "props": {
+              "color": "#17122B",
+              "expand": false,
+              "max_lines": 1,
+              "overflow": {
+               "enum": "TextOverflow",
+               "value": "ellipsis"
+              },
+              "size": 17,
+              "value": "Rename agent",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w800"
+              }
+             },
+             "slot": "content",
+             "type": "Text"
+            }
+           ],
+           "props": {
+            "expand": false,
+            "header": true
+           },
+           "slot": "controls",
+           "type": "Semantics"
+          },
+          {
+           "key": "agent-rename-save",
+           "props": {
+            "content": "Save",
+            "height": 48,
+            "style": {
+             "@": "ButtonStyle",
+             "bgcolor": "transparent",
+             "color": {
+              "ControlState.DEFAULT": "#4A2BB5",
+              "ControlState.DISABLED": "#5F5990"
+             },
+             "shape": {
+              "@": "RoundedRectangleBorder",
+              "radius": 8
+             },
+             "side": {
+              "@": "BorderSide",
+              "color": "transparent",
+              "width": 0
+             },
+             "text_style": {
+              "@": "TextStyle",
+              "size": 15,
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w800"
+              }
+             }
+            }
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "spaceBetween"
+          }
+         },
+         "slot": "controls",
+         "type": "Row"
+        },
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "props": {
+              "bgcolor": "#C8F03C",
+              "border_radius": 2,
+              "height": 34,
+              "width": 4
+             },
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "children": [
+              {
+               "props": {
+                "color": "#3A3260",
+                "expand": false,
+                "max_lines": 1,
+                "overflow": {
+                 "enum": "TextOverflow",
+                 "value": "ellipsis"
+                },
+                "size": 13,
+                "value": "Example work",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "w700"
+                }
+               },
+               "slot": "controls",
+               "type": "Text"
+              },
+              {
+               "props": {
+                "color": "#55507A",
+                "expand": false,
+                "max_lines": 1,
+                "overflow": {
+                 "enum": "TextOverflow",
+                 "value": "ellipsis"
+                },
+                "size": 12,
+                "value": "Tool · Example space · WORKING",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "w700"
+                }
+               },
+               "slot": "controls",
+               "type": "Text"
+              }
+             ],
+             "props": {
+              "expand": true,
+              "spacing": 2,
+              "tight": true
+             },
+             "slot": "controls",
+             "type": "Column"
+            }
+           ],
+           "props": {
+            "spacing": 12
+           },
+           "slot": "content",
+           "type": "Row"
+          }
+         ],
+         "key": "agent-rename-context",
+         "props": {
+          "bgcolor": "#F5F3FA",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           }
+          },
+          "border_radius": 14,
+          "padding": {
+           "@": "Padding",
+           "bottom": 12,
+           "left": 14,
+           "right": 14,
+           "top": 12
+          }
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "props": {
+          "color": "#55507A",
+          "expand": false,
+          "max_lines": 1,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 12,
+          "value": "AGENT NAME",
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "props": {
+              "color": "#55507A",
+              "icon": 66945,
+              "size": 18
+             },
+             "slot": "content",
+             "type": "Icon"
+            }
+           ],
+           "key": "agent-rename-clear",
+           "props": {
+            "alignment": {
+             "@": "Alignment",
+             "x": 0.0,
+             "y": 0.0
+            },
+            "border_radius": 22,
+            "height": 44,
+            "ink": true,
+            "tooltip": "Clear",
+            "width": 44
+           },
+           "slot": "suffix",
+           "type": "Container"
+          }
+         ],
+         "key": "agent-rename-name",
+         "props": {
+          "autofocus": true,
+          "border": {
+           "ControlState.DEFAULT": {
+            "@": "OutlineInputBorder",
+            "border_radius": 14,
+            "side": {
+             "@": "BorderSide",
+             "color": "#DAD4EA"
+            }
+           },
+           "ControlState.ERROR": {
+            "@": "OutlineInputBorder",
+            "border_radius": 14,
+            "side": {
+             "@": "BorderSide",
+             "color": "#B3212F",
+             "width": 2
+            }
+           },
+           "ControlState.FOCUSED": {
+            "@": "OutlineInputBorder",
+            "border_radius": 14,
+            "side": {
+             "@": "BorderSide",
+             "color": "#5A36D8",
+             "width": 2
+            }
+           }
+          },
+          "capitalization": {
+           "enum": "TextCapitalization",
+           "value": "words"
+          },
+          "color": "#17122B",
+          "content_padding": {
+           "@": "Padding",
+           "left": 16,
+           "right": 4
+          },
+          "cursor_color": "#5A36D8",
+          "error_max_lines": 2,
+          "error_style": {
+           "@": "TextStyle",
+           "color": "#B3212F",
+           "size": 12
+          },
+          "fill_color": "#F1EEF8",
+          "filled": true,
+          "height": 56,
+          "selection": {
+           "@": "TextSelection",
+           "base_offset": 0,
+           "extent_offset": 12
+          },
+          "text_size": 20,
+          "text_style": {
+           "@": "TextStyle",
+           "color": "#17122B",
+           "weight": {
+            "enum": "FontWeight",
+            "value": "w800"
+           }
+          },
+          "value": "Example name"
+         },
+         "slot": "controls",
+         "type": "TextField"
+        },
+        {
+         "children": [
+          {
+           "key": "agent-rename-helper",
+           "props": {
+            "color": "#5F5990",
+            "expand": true,
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 12,
+            "value": "Shown on cards, terminals and Usage",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "key": "agent-rename-count",
+           "props": {
+            "color": "#5F5990",
+            "expand": false,
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 12,
+            "value": "12 / 32",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "spaceBetween"
+          }
+         },
+         "slot": "controls",
+         "type": "Row"
+        },
+        {
+         "props": {
+          "color": "#55507A",
+          "expand": false,
+          "max_lines": 1,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 12,
+          "value": "SUGGESTIONS FROM ITS TASK",
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "props": {
+                "color": "#17122B",
+                "expand": false,
+                "max_lines": 1,
+                "overflow": {
+                 "enum": "TextOverflow",
+                 "value": "ellipsis"
+                },
+                "size": 14,
+                "value": "First name",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "w600"
+                }
+               },
+               "slot": "content",
+               "type": "Text"
+              }
+             ],
+             "props": {
+              "alignment": {
+               "@": "Alignment",
+               "x": 0.0,
+               "y": 0.0
+              },
+              "bgcolor": "#F5F3FA",
+              "border": {
+               "@": "Border",
+               "bottom": {
+                "@": "BorderSide",
+                "color": "#9C91C4"
+               },
+               "left": {
+                "@": "BorderSide",
+                "color": "#9C91C4"
+               },
+               "right": {
+                "@": "BorderSide",
+                "color": "#9C91C4"
+               },
+               "top": {
+                "@": "BorderSide",
+                "color": "#9C91C4"
+               }
+              },
+              "border_radius": 18,
+              "height": 36,
+              "padding": {
+               "@": "Padding",
+               "left": 14,
+               "right": 14
+              }
+             },
+             "slot": "content",
+             "type": "Container"
+            }
+           ],
+           "key": "agent-rename-suggestion-0",
+           "props": {
+            "height": 44,
+            "style": {
+             "@": "ButtonStyle",
+             "bgcolor": "transparent",
+             "overlay_color": "transparent",
+             "padding": 0,
+             "shape": {
+              "@": "StadiumBorder"
+             },
+             "side": {
+              "ControlState.DEFAULT": {
+               "@": "BorderSide",
+               "color": "transparent",
+               "width": 0
+              },
+              "ControlState.FOCUSED": {
+               "@": "BorderSide",
+               "color": "#5A36D8",
+               "width": 2
+              }
+             }
+            }
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "props": {
+                "color": "#17122B",
+                "expand": false,
+                "max_lines": 1,
+                "overflow": {
+                 "enum": "TextOverflow",
+                 "value": "ellipsis"
+                },
+                "size": 14,
+                "value": "Second name",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "w600"
+                }
+               },
+               "slot": "content",
+               "type": "Text"
+              }
+             ],
+             "props": {
+              "alignment": {
+               "@": "Alignment",
+               "x": 0.0,
+               "y": 0.0
+              },
+              "bgcolor": "#F5F3FA",
+              "border": {
+               "@": "Border",
+               "bottom": {
+                "@": "BorderSide",
+                "color": "#9C91C4"
+               },
+               "left": {
+                "@": "BorderSide",
+                "color": "#9C91C4"
+               },
+               "right": {
+                "@": "BorderSide",
+                "color": "#9C91C4"
+               },
+               "top": {
+                "@": "BorderSide",
+                "color": "#9C91C4"
+               }
+              },
+              "border_radius": 18,
+              "height": 36,
+              "padding": {
+               "@": "Padding",
+               "left": 14,
+               "right": 14
+              }
+             },
+             "slot": "content",
+             "type": "Container"
+            }
+           ],
+           "key": "agent-rename-suggestion-1",
+           "props": {
+            "height": 44,
+            "style": {
+             "@": "ButtonStyle",
+             "bgcolor": "transparent",
+             "overlay_color": "transparent",
+             "padding": 0,
+             "shape": {
+              "@": "StadiumBorder"
+             },
+             "side": {
+              "ControlState.DEFAULT": {
+               "@": "BorderSide",
+               "color": "transparent",
+               "width": 0
+              },
+              "ControlState.FOCUSED": {
+               "@": "BorderSide",
+               "color": "#5A36D8",
+               "width": 2
+              }
+             }
+            }
+           },
+           "slot": "controls",
+           "type": "TextButton"
+          }
+         ],
+         "props": {
+          "run_spacing": 8,
+          "spacing": 8,
+          "wrap": true
+         },
+         "slot": "controls",
+         "type": "Row"
+        },
+        {
+         "key": "agent-rename-status",
+         "props": {
+          "color": "#55507A",
+          "expand": false,
+          "max_lines": 1,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 12,
+          "visible": false,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "props": {
+          "visible": false
+         },
+         "slot": "controls",
+         "type": "ProgressBar"
+        },
+        {
+         "key": "agent-rename-check",
+         "props": {
+          "content": "Check status",
+          "height": 48,
+          "style": {
+           "@": "ButtonStyle",
+           "bgcolor": "transparent",
+           "shape": {
+            "@": "RoundedRectangleBorder",
+            "radius": 8
+           },
+           "side": {
+            "@": "BorderSide",
+            "color": "transparent",
+            "width": 0
+           }
+          },
+          "visible": false
+         },
+         "slot": "controls",
+         "type": "TextButton"
+        }
+       ],
+       "props": {
+        "horizontal_alignment": {
+         "enum": "CrossAxisAlignment",
+         "value": "stretch"
+        },
+        "spacing": 12,
+        "tight": true
+       },
+       "slot": "content",
+       "type": "Column"
+      }
+     ],
+     "props": {
+      "padding": {
+       "@": "Padding",
+       "bottom": 20,
+       "left": 16,
+       "right": 16,
+       "top": 4
+      }
+     },
+     "slot": "content",
+     "type": "Container"
+    }
+   ],
+   "key": "rename-overlay",
+   "props": {
+    "bgcolor": "#FFFFFF",
+    "open": true,
+    "scrollable": true,
+    "shape": {
+     "@": "RoundedRectangleBorder",
+     "radius": 24
+    },
+    "show_drag_handle": true
+   },
+   "slot": "root",
+   "type": "BottomSheet"
+  }
+ ]
+}

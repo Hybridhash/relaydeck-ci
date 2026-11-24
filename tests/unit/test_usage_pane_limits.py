@@ -23,7 +23,7 @@ import pytest
 
 from relaydeck.companion import config_edit
 from relaydeck.companion.config import load_config, usage_from
-from relaydeck.companion.detect import DetectReport, load_catalog
+from relaydeck.companion.inspection.detect import DetectReport, load_catalog
 from relaydeck.companion.setup import LimitsCandidate, limits_candidates, offer_limits
 from relaydeck.usage.contracts import (
     LimitError,
@@ -591,7 +591,8 @@ def test_abort_note_names_no_usage_marker(tmp_path: Path) -> None:
     assert result.note == "no_usage_marker"
 
 
-def test_abort_note_names_parse_no_window(tmp_path: Path) -> None:
+def test_abort_note_names_parse_no_window(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(tui_usage_pane.time, "sleep", lambda _s: None)
     fake = FakeHerdr(usage=("ALLOWANCE", "NO NUMBERS HERE"))
     fake.inventory = [_live_pane("w9", KIND, str(tmp_path))]
     result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, fake))
@@ -727,7 +728,10 @@ def test_a_tool_that_ignores_quit_keeps_the_complete_reading(
     assert fake.tabs == {}  # closing the tab ends the tool
 
 
-def test_parse_miss_quits_cleanly_and_reports_parse(tmp_path: Path) -> None:
+def test_parse_miss_quits_cleanly_and_reports_parse(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(tui_usage_pane.time, "sleep", lambda _s: None)
     fake = FakeHerdr(usage=("ALLOWANCE", "nothing shaped like numbers here"))
     fake.inventory = [_live_pane("w9", KIND, str(tmp_path))]
     ctx = _ctx(tmp_path, fake)
@@ -789,6 +793,191 @@ def test_the_second_look_wins_when_the_screen_has_caught_up(
     result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, fake, _recipe(**_IDLE_RECIPE)))
     (window,) = result.snapshots[0].windows
     assert window.idle is False and window.used_amount == 7.0 and result.note == ""
+
+
+def test_an_idle_panel_that_fills_in_place_is_reread_not_accepted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The second panel can still show the unavailable wording the moment it
+    # renders, then fill in its numbers in place: that settled re-read, not
+    # the idle wording, is the reading.
+    fake = _idle_fake(tmp_path)
+
+    def filled_in(seconds: float) -> None:
+        if seconds == tui_usage_pane._PANEL_SETTLE_S:
+            for pane in fake.panes.values():
+                pane["screen"] = ["ALLOWANCE", "USED 7 OF 50"]
+
+    monkeypatch.setattr(tui_usage_pane.time, "sleep", filled_in)
+    result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, fake, _recipe(**_IDLE_RECIPE)))
+    (window,) = result.snapshots[0].windows
+    assert window.idle is False and window.used_amount == 7.0 and result.note == ""
+    assert sum(1 for _, kind, payload in fake.sent if payload == "/usage") == 2
+    assert fake.tabs == {}
+
+
+def test_a_windowless_first_panel_is_retried_once_the_tool_settles(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A panel rendered before the tool has its subscription numbers shows
+    # none of them: that first parse misses every window, so the read
+    # settles and asks again instead of failing the whole attempt.
+    fake = FakeHerdr(usage=("ALLOWANCE",))
+    fake.inventory = [_live_pane("w9", KIND, str(tmp_path))]
+
+    settles: list[float] = []
+
+    def caught_up(seconds: float) -> None:
+        settles.append(seconds)
+        if seconds >= 1:  # only the settle sleeps, not typing pauses
+            fake.usage = ["ALLOWANCE", "USED 7 OF 50"]
+
+    monkeypatch.setattr(tui_usage_pane.time, "sleep", caught_up)
+    result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, fake, _recipe()))
+    assert 15.0 in settles  # the settle outlasts a cold sign-in fetch
+    assert result.error is None and result.note == ""
+    (window,) = result.snapshots[0].windows
+    assert window.used_amount == 7.0 and window.idle is False
+    assert sum(1 for _, kind, payload in fake.sent if payload == "/usage") == 2
+    assert fake.tabs == {}
+
+
+class _SecondScreenFake(FakeHerdr):
+    """The second `/usage` run shows a different screen than the first."""
+
+    def __init__(self, second: tuple[str, ...], **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self._second = list(second)
+
+    def _send_keys(self, pane_id: str, keys: list[str]) -> bytes:
+        if self.panes[pane_id]["typed"] == "/usage":
+            if sum(1 for _, _, payload in self.sent if payload == "/usage") >= 2:
+                self.usage = list(self._second)
+        return super()._send_keys(pane_id, keys)
+
+
+def test_second_look_without_a_marker_sends_the_command_only_once(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(tui_usage_pane.time, "sleep", lambda _s: None)
+    fake = _SecondScreenFake(("TOOL PROMPT",), usage=("ALLOWANCE",))
+    fake.inventory = [_live_pane("w9", KIND, str(tmp_path))]
+    result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, fake, _recipe()))
+    assert result.error == LimitError.TIMEOUT
+    assert result.note == "no_usage_marker"
+    assert sum(1 for _, kind, payload in fake.sent if payload == "/usage") == 2
+    assert fake.tabs == {}
+
+
+def test_second_look_not_reported_answer_is_final_not_resent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(tui_usage_pane.time, "sleep", lambda _s: None)
+    fake = _SecondScreenFake(("TOOL PROMPT", "UNAVAILABLE"), usage=("ALLOWANCE",))
+    fake.inventory = [_live_pane("w9", KIND, str(tmp_path))]
+    recipe = _recipe(not_reported=["UNAVAILABLE"])
+    result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, fake, recipe))
+    assert result.error == LimitError.UNAVAILABLE
+    assert result.note == "not_reported"
+    assert sum(1 for _, kind, payload in fake.sent if payload == "/usage") == 2
+    assert fake.tabs == {}
+
+
+class _ObservedSecondScreenFake(_SecondScreenFake):
+    """Counts Enter keys pressed into an empty prompt after the second
+    screen (the final answer) is already showing."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.after_answer = False
+        self.extra_enters = 0
+
+    def _send_keys(self, pane_id: str, keys: list[str]) -> bytes:
+        pane = self.panes[pane_id]
+        if pane["typed"] == "/quit":
+            self.after_answer = False
+        if self.after_answer and not pane["typed"] and "enter" in keys:
+            self.extra_enters += 1
+        second = pane["typed"] == "/usage" and (
+            sum(1 for _, _, payload in self.sent if payload == "/usage") == 2
+        )
+        result = super()._send_keys(pane_id, keys)
+        if second:
+            self.after_answer = True
+        return result
+
+
+@pytest.mark.parametrize("enters", [1, 2])
+@pytest.mark.parametrize(
+    ("second", "options", "error", "note"),
+    [
+        (("TOOL PROMPT", "REFUSED"), {"refuse": ["REFUSED"]}, LimitError.PARSE, "refused"),
+        (
+            ("UNAVAILABLE",),
+            {"not_reported": ["UNAVAILABLE"]},
+            LimitError.UNAVAILABLE,
+            "not_reported",
+        ),
+    ],
+)
+def test_second_look_final_answer_receives_no_further_enter(
+    second: tuple[str, ...],
+    options: dict[str, Any],
+    error: LimitError,
+    note: str,
+    enters: int,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(tui_usage_pane.time, "sleep", lambda _s: None)
+    fake = _ObservedSecondScreenFake(second, usage=("ALLOWANCE",))
+    fake.inventory = [_live_pane("w9", KIND, str(tmp_path))]
+    recipe = _recipe(usage_enters=enters, **options)
+    result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, fake, recipe))
+    assert result.error == error
+    assert result.note == note
+    assert sum(1 for _, kind, payload in fake.sent if payload == "/usage") == 2
+    assert fake.extra_enters == 0
+    assert fake.tabs == {}
+
+
+class _PendingSecondEnterFake(_SecondScreenFake):
+    """The second `/usage` typing is only accepted by the first Enter (the
+    prompt line still shows the text); the second Enter submits it."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._accepted = False
+
+    def _send_keys(self, pane_id: str, keys: list[str]) -> bytes:
+        pane = self.panes[pane_id]
+        second = pane["typed"] == "/usage" and (
+            sum(1 for _, _, payload in self.sent if payload == "/usage") == 2
+        )
+        if second and "enter" in keys and not self._accepted:
+            self._accepted = True
+            self.sent.append((pane_id, "keys", "+".join(keys)))
+            pane["screen"] = [f"{self.prompt} /usage"]
+            return b""
+        return super()._send_keys(pane_id, keys)
+
+
+def test_second_look_pending_text_still_gets_its_second_enter(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(tui_usage_pane.time, "sleep", lambda _s: None)
+    fake = _PendingSecondEnterFake(("ALLOWANCE", "USED 7 OF 50"), usage=("ALLOWANCE",))
+    fake.inventory = [_live_pane("w9", KIND, str(tmp_path))]
+    result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, fake, _recipe(usage_enters=2)))
+    assert result.error is None and result.note == ""
+    (window,) = result.snapshots[0].windows
+    assert window.used_amount == 7.0
+    texts = [i for i, (_, _, payload) in enumerate(fake.sent) if payload == "/usage"]
+    assert len(texts) == 2
+    quit_at = next(i for i, (_, _, payload) in enumerate(fake.sent) if payload == "/quit")
+    keys_between = fake.sent[texts[1] + 1 : quit_at]
+    assert sum(1 for _, kind, payload in keys_between if kind == "keys" and payload == "enter") == 2
+    assert fake.tabs == {}
 
 
 def test_account_identity_is_stable_per_kind_and_plan(tmp_path: Path) -> None:
@@ -1268,6 +1457,58 @@ def test_the_shipped_pane_recipes_carry_the_safety_data() -> None:
     recipes = {e.id: e.tui for e in load_catalog().entries if e.tui}
     refusing = [r for r in recipes.values() if r.refuse]
     assert len(refusing) == 1 and "--agent-engine" in refusing[0].launch_new
+
+
+def test_the_shipped_credits_recipe_reads_a_recorded_panel_in_its_probe_folder(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The packaged credits recipe end to end against a scrubbed recording of
+    its current panel: same prompt, credits line, plan tail, quit and hint."""
+    recipe = {e.id: e.tui for e in load_catalog().entries if e.tui}["kiro"]
+    assert recipe is not None
+    monkeypatch.setenv("HOME", str(tmp_path))
+    sessions = tmp_path / ".kiro" / "sessions" / "cli"
+    sessions.mkdir(parents=True)
+    fake_id = "sess-00000000-0000-4000-8000-000000000000"
+    (sessions / f"{fake_id}.history").write_text("")  # the history entry corroborates the hint
+    probe = tmp_path / "kiro-probe"
+    probe.mkdir()
+    project = tmp_path / "project"
+    project.mkdir()
+    fake = FakeHerdr(
+        prompt="ask a question or describe a task",
+        usage=(
+            "Estimated Usage | resets on 2027-01-01 | MONTHLY PLAN",
+            "Credits (12.50 of 50 covered in plan)",
+        ),
+        quit_lines=("Session ended.", f"Resume with: kiro-cli --resume-id {fake_id}"),
+        tool="kiro-cli",
+    )
+    fake.inventory = [_live_pane("w9", "kiro", str(project))]
+    bundle = TuiBundle(
+        recipe, ("/usr/bin/herdr",), tmp_path / "refresh.json", "UTC", _socket(tmp_path)
+    )
+    ctx = FetchContext(
+        f"h1/kiro/{FORMAT_ID}",
+        "kiro",
+        FORMAT_ID,
+        NOW,
+        90.0,
+        fake.run,
+        attempt_id="attempt-1",
+        tui=bundle,
+        refresh=RefreshState(tmp_path / "refresh.json"),
+    )
+    result = TuiUsagePaneProvider().fetch(ctx)
+    assert result.error is None and result.note == ""
+    assert fake.cwds == [str(probe.resolve())]  # never the pane's project folder
+    (snapshot,) = result.snapshots
+    assert snapshot.plan_label == "MONTHLY PLAN"
+    (window,) = snapshot.windows
+    assert (window.used_amount, window.limit_amount, window.unit) == (12.5, 50.0, "credit")
+    assert window.used_percent == pytest.approx(25.0)
+    assert window.resets_at_ms == int(datetime(2027, 1, 1, tzinfo=UTC).timestamp() * 1000)
+    assert fake.tabs == {}
 
 
 def test_on_demand_start_join_run_cooldown(tmp_path: Path) -> None:
@@ -1953,7 +2194,7 @@ def test_the_packaged_recipes_carry_the_warmup_only_for_muse() -> None:
         None,
         None,
         1,
-        (),
+        ("Trust this workspace\\?",),
     )
 
 
@@ -2195,12 +2436,16 @@ def test_the_trust_store_path_is_validated() -> None:
         _rejected(_recipe() | {"trust_store": bad})
 
 
-def test_the_shipped_muse_recipe_reads_its_trust_file_and_kiro_has_none() -> None:
+def test_the_shipped_recipes_read_their_own_trust_stores() -> None:
     by_binary = {
         e.tui.binary: e.tui for e in load_catalog().entries if e.limits == FORMAT_ID and e.tui
     }
     assert by_binary["muse"].trust_store == "~/.config/muse/trust.json"
-    assert by_binary["kiro-cli"].trust_store is None
+    kiro = by_binary["kiro-cli"]
+    assert kiro.trust_store == "~/.kiro/workspace-roots"
+    assert kiro.launch_new == ("kiro-cli", "chat", "--agent-engine", "v3")
+    assert kiro.launch_resume == ("kiro-cli", "chat", "--agent-engine", "v3", "--resume-id", "{id}")
+    assert kiro.session_entry == "{id}.history"
 
 
 # -- the empty probe folder ------------------------------------------------------
@@ -2255,6 +2500,41 @@ def test_an_untrusted_probe_folder_falls_back_to_the_old_choices(
     assert list(probe.iterdir()) == []
 
 
+def test_a_probe_recipe_without_a_trust_list_still_starts_in_its_folder(
+    tmp_path: Path,
+) -> None:
+    # No same-kind pane and no linked workspace: the tab's cwd is the probe,
+    # so any live workspace can host it instead of failing with no space.
+    probe = tmp_path / "probe"
+    probe.mkdir()
+    project = tmp_path / "project"
+    project.mkdir()
+    fake = FakeHerdr()
+    fake.inventory = [_live_pane("w3", "another-kind", str(project))]
+    result = TuiUsagePaneProvider().fetch(
+        _ctx(tmp_path, fake, _recipe() | {"probe_dir": "{state_dir}/probe"})
+    )
+    assert result.error is None
+    assert fake.cwds == [str(probe.resolve())]
+    assert list(probe.iterdir()) == []
+
+
+def test_a_probe_recipe_never_borrows_a_project_folder(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    data = _recipe() | {"probe_dir": "{state_dir}/probe"}
+    missing = FakeHerdr()
+    missing.inventory = [_live_pane("w1", KIND, str(project))]
+    result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, missing, data))
+    assert result.error is LimitError.UNAVAILABLE and result.note == "no_space"
+    assert missing.cwds == []  # the probe folder is missing; no tab opened anywhere else
+    (tmp_path / "probe").mkdir()
+    nowhere = FakeHerdr()
+    result = TuiUsagePaneProvider().fetch(_ctx(tmp_path, nowhere, data))
+    assert result.error is LimitError.UNAVAILABLE and result.note == "no_space"
+    assert nowhere.cwds == []  # no workspace exists to host the tab
+
+
 def test_probe_folder_creation_is_private_and_leaves_an_existing_folder_alone(
     tmp_path: Path,
 ) -> None:
@@ -2272,14 +2552,14 @@ def test_probe_folder_creation_is_private_and_leaves_an_existing_folder_alone(
     assert ensure_probe_folder(link) is False
 
 
-def test_the_probe_dir_is_validated_and_shipped_for_muse_only() -> None:
+def test_the_probe_dir_is_validated_and_shipped() -> None:
     for bad in ("/abs/path", "{state_dir}/../x", "relative", "{state_dir}/{state_dir}/x", 3):
         _rejected(_recipe() | {"probe_dir": bad})
     by_binary = {
         e.tui.binary: e.tui for e in load_catalog().entries if e.limits == FORMAT_ID and e.tui
     }
     assert by_binary["muse"].probe_dir == "{state_dir}/muse-probe"
-    assert by_binary["kiro-cli"].probe_dir is None
+    assert by_binary["kiro-cli"].probe_dir == "{state_dir}/kiro-probe"
 
 
 def test_the_refresh_status_names_the_probe_folder_only_after_an_untrusted_stop(

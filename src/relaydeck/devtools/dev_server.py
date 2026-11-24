@@ -1,41 +1,39 @@
-"""Local-runner seed data and the loopback dev login for `relaydeck.client.serve`.
+"""Synthetic snapshots, terminal greetings and loopback sign-in for explicit development modes.
 
-Development only: the empty and demo snapshots, the demo backend that greets each attachment with
-synthetic bytes, and the single-use loopback sign-in behind `--dev-login`. They live outside
-`serve.py` so the file that owns the web sign-in boundary carries only production paths, and
-outside `relaydeck.client` so the native packager never stages them. `serve.py` re-exports these
-names; the two state dicts are shared by identity, so tests and `main()` mutate one object.
+The hosted runner loads these only for dev login or demo sessions; native payloads exclude them.
 """
 
 from __future__ import annotations
 
 import hmac
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 from fastapi import Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.devtools.fakes.gateway import FakeBackend as FakeBackend
 
 if TYPE_CHECKING:
-    from relaydeck.client.serve import WebSessionStore
-    from relaydeck.gateway.app import GatewayState
+    from relaydeck.gateway.features.access.api import SessionStore
+
+
+class _WebSessions(Protocol):
+    def create_session(
+        self, account: str, device_id: str, access: str, refresh: str, access_expires_ms: int
+    ) -> str: ...
+
+    def cookie_headers(self, sid: str) -> dict[str, str]: ...
+
+
+class _GatewaySessions(Protocol):
+    @property
+    def sessions(self) -> SessionStore: ...
 
 
 def dev_snapshot(host_id: str, cursor_secret: bytes) -> dict[str, Any]:
-    """Empty development snapshot for the local-runner host.
-
-    The local runner has no connector, so no host ever enrolls; without
-    a seeded snapshot every sync attempt 404s and the app sits at
-    DISCONNECTED. Seeding an empty-but-valid snapshot shows LIVE with
-    empty inventory instead. Must validate against the snapshot schema
-    (pinned by test).
-
-    The cursor is a real HMAC cursor over sequence 0: the schema
-    requires a non-empty cursor and the events route 409s anything it
-    cannot authenticate, so there is no valid seed without a secret
-    (encode_cursor raises loudly on b"").
+    """Build a schema-valid empty inventory for the local runner using an authenticated
+    sequence-zero cursor.
     """
     from relaydeck.gateway.cursors import encode_cursor
 
@@ -71,10 +69,9 @@ _DEV_HOSTS = {"value": frozenset({"home-mac"})}
 
 
 class DemoBackend(FakeBackend):
-    """Local-runner backend that greets every new attachment with fixed
-    synthetic VT bytes (behind --dev-demo-sessions). There is no PTY
-    and no connector: the greeting is the only byte source, and input
-    frames are only logged. Never production."""
+    """Demo backend that emits fixed synthetic terminal bytes for each attachment. Input is
+    logged without a PTY or connector.
+    """
 
     def create_attachment(
         self,
@@ -112,13 +109,9 @@ DEMO_GREETING = b"\x1b[1;36mRelayDeck demo terminal\x1b[0m\r\n\x1b[32mdemo $\x1b
 
 
 def dev_demo_snapshot(host_id: str, cursor_secret: bytes) -> dict[str, Any]:
-    """Demo seed for renderer QA: `dev_snapshot` plus one synthetic
-    workspace with a shell tab and an agent tab (all ids demo-*).
-
-    Local runner only, behind --dev-demo-sessions. Never production:
-    there is no connector, no PTY, and no real host behind these rows;
-    the greeting below is the only byte source. Must validate against
-    the snapshot schema (pinned by test)."""
+    """Build a schema-valid demo workspace with one shell and one agent for the explicitly
+    enabled local demo mode.
+    """
     doc = dev_snapshot(host_id, cursor_secret)
     doc["workspaces"] = [
         {
@@ -197,8 +190,8 @@ def dev_demo_snapshot(host_id: str, cursor_secret: bytes) -> dict[str, Any]:
 async def _dev_login(request: Request) -> Any:
     """Loopback-only single-use dev login. Enabled only with an explicit
     local-run flag; never in production (no upstream IdP is configured)."""
-    store: WebSessionStore = request.app.state.rd_store
-    gateway_state: GatewayState = request.app.state.rd_gateway_state
+    store: _WebSessions = request.app.state.rd_store
+    gateway_state: _GatewaySessions = request.app.state.rd_gateway_state
     client = request.client.host if request.client else ""
     if client not in ("127.0.0.1", "::1", "localhost"):
         return JSONResponse(

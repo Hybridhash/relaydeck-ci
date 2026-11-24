@@ -17,18 +17,24 @@ from typing import Any
 import httpx
 import pytest
 
-from relaydeck.client.serve import build_web_app
+from relaydeck.companion.app.hosted_web.serve import build_web_app
 from relaydeck.connector.attach import AttachSession
 from relaydeck.connector.link import ConnectorLink, LinkConfig, TunnelTransport
 from relaydeck.connector.source import TerminalRelay
 from relaydeck.contracts.tunnel import SnapshotIntake, parse_terminal_input
 from relaydeck.contracts.wire import terminal as terminal_wire
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.hosts import write_revoke_request
-from relaydeck.gateway.identity import TicketGrant
-from relaydeck.gateway.sockets import SocketRegistry
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.features.access.hosts import write_revoke_request
+from relaydeck.gateway.features.access.identity import TicketGrant
+from relaydeck.gateway.features.terminals.sockets import SocketRegistry
 from tests.security.helpers import ALL_CAPS, NOW, auth, mint_token
 from tests.support.asgi_socket import AsgiSocket
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.sync.transport_fixtures import _state, _wait
 
 
@@ -547,7 +553,7 @@ def test_host_rotation_fences_old_tunnel_and_foreign_dispatch(tmp_path: Path) ->
 
 
 def test_socket_send_and_close_deadlines_release_registry(monkeypatch: pytest.MonkeyPatch) -> None:
-    import relaydeck.gateway.sockets as sockets
+    import relaydeck.gateway.features.terminals.sockets as sockets
 
     monkeypatch.setattr(sockets, "SEND_TIMEOUT_S", 0.02)
 

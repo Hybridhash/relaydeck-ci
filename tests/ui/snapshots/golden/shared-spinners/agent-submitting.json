@@ -1,0 +1,364 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "key": "sheet-title",
+             "props": {
+              "size": 22,
+              "value": "Start agent",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "bold"
+              }
+             },
+             "slot": "content",
+             "type": "Text"
+            }
+           ],
+           "key": "[\"heading\", \"str\", \"sheet-title\"]",
+           "props": {
+            "header": true
+           },
+           "slot": "controls",
+           "type": "Semantics"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "key": "host-a",
+               "props": {
+                "text": "Example host"
+               },
+               "slot": "options",
+               "type": "DropdownOption"
+              }
+             ],
+             "key": "agent-host",
+             "props": {
+              "content_padding": {
+               "@": "Padding",
+               "bottom": 16,
+               "left": 12,
+               "right": 12,
+               "top": 16
+              },
+              "expand": true,
+              "expanded_insets": 0,
+              "label": "Host",
+              "value": "host-a"
+             },
+             "slot": "controls",
+             "type": "Dropdown"
+            }
+           ],
+           "slot": "controls",
+           "type": "Row"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "key": "space-a",
+               "props": {
+                "text": "Example space"
+               },
+               "slot": "options",
+               "type": "DropdownOption"
+              }
+             ],
+             "key": "agent-workspace",
+             "props": {
+              "content_padding": {
+               "@": "Padding",
+               "bottom": 16,
+               "left": 12,
+               "right": 12,
+               "top": 16
+              },
+              "expand": true,
+              "expanded_insets": 0,
+              "label": "Workspace",
+              "value": "space-a"
+             },
+             "slot": "controls",
+             "type": "Dropdown"
+            }
+           ],
+           "slot": "controls",
+           "type": "Row"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "key": "existing",
+               "props": {
+                "text": "Existing workspace"
+               },
+               "slot": "options",
+               "type": "DropdownOption"
+              },
+              {
+               "key": "new",
+               "props": {
+                "text": "New workspace"
+               },
+               "slot": "options",
+               "type": "DropdownOption"
+              }
+             ],
+             "key": "agent-workspace-mode",
+             "props": {
+              "content_padding": {
+               "@": "Padding",
+               "bottom": 16,
+               "left": 12,
+               "right": 12,
+               "top": 16
+              },
+              "expand": true,
+              "expanded_insets": 0,
+              "label": "Launch target",
+              "value": "existing"
+             },
+             "slot": "controls",
+             "type": "Dropdown"
+            }
+           ],
+           "slot": "controls",
+           "type": "Row"
+          },
+          {
+           "key": "agent-workspace-directory",
+           "props": {
+            "content_padding": {
+             "@": "Padding",
+             "bottom": 16,
+             "left": 12,
+             "right": 12,
+             "top": 16
+            },
+            "hint_text": "Home directory when empty",
+            "label": "Directory (optional)",
+            "visible": false
+           },
+           "slot": "controls",
+           "type": "TextField"
+          },
+          {
+           "key": "agent-workspace-label",
+           "props": {
+            "content_padding": {
+             "@": "Padding",
+             "bottom": 16,
+             "left": 12,
+             "right": 12,
+             "top": 16
+            },
+            "label": "Workspace label (optional)",
+            "visible": false
+           },
+           "slot": "controls",
+           "type": "TextField"
+          },
+          {
+           "key": "agent-name",
+           "props": {
+            "content_padding": {
+             "@": "Padding",
+             "bottom": 16,
+             "left": 12,
+             "right": 12,
+             "top": 16
+            },
+            "error_max_lines": 3,
+            "helper": "lowercase letters, digits, - or _; start with a letter; up to 32",
+            "helper_max_lines": 3,
+            "hint_text": "tool",
+            "label": "Name (optional)",
+            "max_length": 32
+           },
+           "slot": "controls",
+           "type": "TextField"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "key": "tool",
+               "props": {
+                "text": "Tool"
+               },
+               "slot": "options",
+               "type": "DropdownOption"
+              }
+             ],
+             "key": "agent-kind",
+             "props": {
+              "content_padding": {
+               "@": "Padding",
+               "bottom": 16,
+               "left": 12,
+               "right": 12,
+               "top": 16
+              },
+              "expand": true,
+              "expanded_insets": 0,
+              "label": "Agent",
+              "value": "tool"
+             },
+             "slot": "controls",
+             "type": "Dropdown"
+            }
+           ],
+           "slot": "controls",
+           "type": "Row"
+          },
+          {
+           "key": "agent-argv",
+           "props": {
+            "content_padding": {
+             "@": "Padding",
+             "bottom": 16,
+             "left": 12,
+             "right": 12,
+             "top": 16
+            },
+            "label": "Arguments (optional)"
+           },
+           "slot": "controls",
+           "type": "TextField"
+          },
+          {
+           "key": "sheet-status",
+           "props": {
+            "value": "Submitting"
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "key": "agent-catalog-empty",
+           "props": {
+            "value": "No agent kinds are configured on this Mac. Add agent_kinds to companion.toml.",
+            "visible": false
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "key": "sheet-error",
+           "props": {
+            "visible": false
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "key": "sheet-spinner",
+           "slot": "controls",
+           "type": "ProgressRing"
+          },
+          {
+           "children": [
+            {
+             "key": "sheet-cancel",
+             "props": {
+              "content": "Cancel",
+              "disabled": true,
+              "expand": true,
+              "height": 48
+             },
+             "slot": "controls",
+             "type": "Button"
+            },
+            {
+             "key": "sheet-submit",
+             "props": {
+              "content": "Start",
+              "disabled": true,
+              "expand": true,
+              "height": 48
+             },
+             "slot": "controls",
+             "type": "Button"
+            }
+           ],
+           "key": "sheet-actions",
+           "props": {
+            "alignment": {
+             "enum": "MainAxisAlignment",
+             "value": "end"
+            }
+           },
+           "slot": "controls",
+           "type": "Row"
+          }
+         ],
+         "props": {
+          "horizontal_alignment": {
+           "enum": "CrossAxisAlignment",
+           "value": "stretch"
+          },
+          "spacing": 16,
+          "tight": true
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "key": "sheet-frame",
+       "props": {
+        "theme": {
+         "@": "Theme",
+         "icon_button_theme": {
+          "@": "IconButtonTheme",
+          "style": {
+           "@": "ButtonStyle",
+           "bgcolor": "transparent",
+           "color": "#F5F2FF",
+           "side": {
+            "@": "BorderSide",
+            "color": "transparent",
+            "width": 0
+           }
+          }
+         }
+        }
+       },
+       "slot": "controls",
+       "type": "Container"
+      }
+     ],
+     "key": "start-agent-sheet",
+     "props": {
+      "horizontal_alignment": {
+       "enum": "CrossAxisAlignment",
+       "value": "stretch"
+      },
+      "spacing": 16,
+      "tight": true
+     },
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:StartAgentSheet"
+  }
+ ]
+}

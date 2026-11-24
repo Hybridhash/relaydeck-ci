@@ -1,0 +1,86 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "key": "section-title",
+       "props": {
+        "color": "#17122B",
+        "font_family": "Bricolage Grotesque ExtraBold",
+        "max_lines": 1,
+        "overflow": {
+         "enum": "TextOverflow",
+         "value": "ellipsis"
+        },
+        "size": 18,
+        "text_align": null,
+        "value": "Example section",
+        "weight": {
+         "enum": "FontWeight",
+         "value": "w700"
+        }
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "[\"heading\", \"str\", \"section-title\"]",
+     "props": {
+      "header": true
+     },
+     "slot": "controls",
+     "type": "Semantics"
+    },
+    {
+     "props": {
+      "expand": true
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "props": {
+        "color": "#4A2BB5",
+        "font_family": "Bricolage Grotesque Bold",
+        "max_lines": 1,
+        "overflow": {
+         "enum": "TextOverflow",
+         "value": "ellipsis"
+        },
+        "size": 14,
+        "text_align": null,
+        "value": "Show all",
+        "weight": {
+         "enum": "FontWeight",
+         "value": "w700"
+        }
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "key": "section-title-link",
+     "props": {
+      "alignment": {
+       "@": "Alignment",
+       "x": 1.0,
+       "y": 0.0
+      },
+      "height": 44
+     },
+     "slot": "controls",
+     "type": "Container"
+    }
+   ],
+   "props": {
+    "spacing": 8
+   },
+   "slot": "root",
+   "type": "Row"
+  }
+ ]
+}

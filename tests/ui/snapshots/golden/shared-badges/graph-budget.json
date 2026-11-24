@@ -1,0 +1,85 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#C8F03C",
+          "max_lines": 1,
+          "no_wrap": true,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 10,
+          "value": "HEAD"
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "bgcolor": "#C8F03C,0.14",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#C8F03C,0.45"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#C8F03C,0.45"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#C8F03C,0.45"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#C8F03C,0.45"
+         }
+        },
+        "border_radius": 6,
+        "padding": {
+         "@": "Padding",
+         "bottom": 2,
+         "left": 5,
+         "right": 5,
+         "top": 2
+        },
+        "width": 34.8
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "props": {
+        "color": "#B7AFDA",
+        "size": 10,
+        "value": "+4"
+       },
+       "slot": "controls",
+       "type": "Text"
+      }
+     ],
+     "props": {
+      "scroll": {
+       "enum": "ScrollMode",
+       "value": "hidden"
+      },
+      "spacing": 4,
+      "tight": true
+     },
+     "slot": "controls",
+     "type": "Row"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

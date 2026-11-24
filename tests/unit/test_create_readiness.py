@@ -9,10 +9,10 @@ from typing import Any
 import pytest
 
 import relaydeck.connector.journal as dispatch_module
-from relaydeck.connector.fixture import FixtureAdapter
 from relaydeck.connector.herdr import HerdrError, HerdrProtocolError
 from relaydeck.connector.journal import ConnectorDispatch
-from relaydeck.journal import CommandJournal
+from relaydeck.devtools.fakes.connector import FixtureAdapter
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.support.creation.command_journal import NOW
 from tests.support.creation.create_readiness import _message
 from tests.support.host_harness import run

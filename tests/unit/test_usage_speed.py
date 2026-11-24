@@ -9,9 +9,9 @@ import time
 from dataclasses import asdict
 from pathlib import Path
 
-from relaydeck.companion.config import UsageConfig, UsageSourceConfig
-from relaydeck.gateway.usage import UsageService
+from relaydeck.gateway.features.usage_read.api import UsageService
 from relaydeck.usage.collector import DUTY_FLOOR_MS, UsageCollector
+from relaydeck.usage.config import UsageConfig, UsageSourceConfig
 from relaydeck.usage.contracts import (
     Basis,
     Counters,
@@ -22,6 +22,7 @@ from relaydeck.usage.contracts import (
 from relaydeck.usage.pricing import PriceRate, PriceTable
 from relaydeck.usage.store import SqliteUsageStore
 from tests.support.usage.collector import FakeReader
+from tests.support.usage.results import wire_page
 from tests.support.usage.store import NOW, SOURCE, event, mapping, write
 
 PRICES = PriceTable(
@@ -168,13 +169,13 @@ def test_gateway_serves_asof_until_generation_refresh_completes(tmp_path: Path) 
         query = UsageQuery("h1", "2026-10-11", "2026-10-11")
 
         async def run() -> tuple[bytes, bytes, bytes, bytes]:
-            first = await service.page(query, "owner", "device-a")
-            second = await service.page(query, "owner", "device-a")
+            first = await wire_page(service, query, "owner", "device-a")
+            second = await wire_page(service, query, "owner", "device-a")
             await asyncio.gather(*tuple(service._inflight.values()))
             write(store, (event("k2"),))
-            third = await service.page(query, "owner", "device-a")
+            third = await wire_page(service, query, "owner", "device-a")
             await asyncio.gather(*tuple(service._inflight.values()))
-            fourth = await service.page(query, "owner", "device-a")
+            fourth = await wire_page(service, query, "owner", "device-a")
             await asyncio.gather(*tuple(service._inflight.values()))
             await service.close()
             return bytes(first.body), bytes(second.body), bytes(third.body), bytes(fourth.body)

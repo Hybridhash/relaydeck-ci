@@ -24,13 +24,14 @@ from relaydeck.connector.enrollment import (
     claim_enrollment,
     generate_keys,
 )
-from relaydeck.connector.fixture import FIXTURE_EPOCH, FixtureAdapter, fixture_event
 from relaydeck.connector.journal import ConnectorDispatch
 from relaydeck.connector.link import ConnectorLink, LinkConfig, TunnelTransport
 from relaydeck.contracts.schemas import GATEWAY_PROTOCOL
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal, digest_for
+from relaydeck.devtools.fakes.connector import FIXTURE_EPOCH, FixtureAdapter, fixture_event
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.host.persistence.command_journal import CommandJournal, digest_for
 from tests.support.live_server import LiveGateway
 from tests.support.sync.scripted_transport import _ScriptedTransport
 

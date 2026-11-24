@@ -1,0 +1,517 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "props": {
+                  "style": {
+                   "@": "TextStyle",
+                   "color": "#F5F2FF",
+                   "font_family": "Bricolage Grotesque ExtraBold",
+                   "font_family_fallback": [
+                    "Noto Sans Symbols 2"
+                   ],
+                   "height": 1.1538461538461537,
+                   "letter_spacing": -0.52,
+                   "size": 26,
+                   "weight": {
+                    "enum": "FontWeight",
+                    "value": "w800"
+                   }
+                  },
+                  "value": "Pair a host"
+                 },
+                 "slot": "content",
+                 "type": "Text"
+                }
+               ],
+               "props": {
+                "header": true
+               },
+               "slot": "controls",
+               "type": "Semantics"
+              },
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "style": {
+                       "@": "TextStyle",
+                       "color": "#1A2400",
+                       "font_family": "Bricolage Grotesque Bold",
+                       "font_family_fallback": [
+                        "Noto Sans Symbols 2"
+                       ],
+                       "height": 1.2,
+                       "size": 14,
+                       "weight": {
+                        "enum": "FontWeight",
+                        "value": "bold"
+                       }
+                      },
+                      "value": "1"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "props": {
+                    "alignment": {
+                     "@": "Alignment",
+                     "x": 0.0,
+                     "y": 0.0
+                    },
+                    "bgcolor": "#C8F03C",
+                    "border_radius": {
+                     "@": "BorderRadius",
+                     "bottom_left": 13,
+                     "bottom_right": 13,
+                     "top_left": 13,
+                     "top_right": 13
+                    },
+                    "height": 26,
+                    "width": 26
+                   },
+                   "slot": "controls",
+                   "type": "Container"
+                  },
+                  {
+                   "props": {
+                    "expand": true,
+                    "style": {
+                     "@": "TextStyle",
+                     "color": "#F5F2FF",
+                     "font_family": "Bricolage Grotesque Bold",
+                     "font_family_fallback": [
+                      "Noto Sans Symbols 2"
+                     ],
+                     "height": 1.375,
+                     "size": 16,
+                     "weight": {
+                      "enum": "FontWeight",
+                      "value": "bold"
+                     }
+                    },
+                    "value": "Open a pairing window on your Mac"
+                   },
+                   "slot": "controls",
+                   "type": "Text"
+                  }
+                 ],
+                 "slot": "controls",
+                 "type": "Row"
+                },
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "key": "connect-open-command-text",
+                     "props": {
+                      "selectable": true,
+                      "style": {
+                       "@": "TextStyle",
+                       "color": "#D9D3F2",
+                       "font_family": "JetBrains Mono",
+                       "font_family_fallback": [
+                        "Noto Sans Symbols 2"
+                       ],
+                       "height": 1.391304347826087,
+                       "size": 11.5,
+                       "weight": {
+                        "enum": "FontWeight",
+                        "value": "normal"
+                       }
+                      },
+                      "value": "relaydeck pairing open --ttl-seconds 120"
+                     },
+                     "slot": "controls",
+                     "type": "Text"
+                    },
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "props": {
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#C4B0FF",
+                           "font_family": "Bricolage Grotesque Bold",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 14,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "bold"
+                           }
+                          },
+                          "value": "Copy"
+                         },
+                         "slot": "content",
+                         "type": "Text"
+                        }
+                       ],
+                       "key": "connect-open-command-copy",
+                       "props": {
+                        "action": {
+                         "@": "CopyToClipboard",
+                         "method": "set"
+                        },
+                        "height": 48,
+                        "style": {
+                         "@": "ButtonStyle",
+                         "overlay_color": {
+                          "ControlState.FOCUSED": "#33FFFFFF"
+                         },
+                         "shape": {
+                          "@": "RoundedRectangleBorder",
+                          "radius": 12
+                         },
+                         "side": {
+                          "ControlState.FOCUSED": {
+                           "@": "BorderSide",
+                           "color": "#F5F2FF",
+                           "width": 2
+                          }
+                         }
+                        },
+                        "tooltip": "Copy command",
+                        "width": 88
+                       },
+                       "slot": "controls",
+                       "type": "TextButton"
+                      }
+                     ],
+                     "props": {
+                      "alignment": {
+                       "enum": "MainAxisAlignment",
+                       "value": "end"
+                      }
+                     },
+                     "slot": "controls",
+                     "type": "Row"
+                    }
+                   ],
+                   "props": {
+                    "spacing": 4
+                   },
+                   "slot": "content",
+                   "type": "Column"
+                  }
+                 ],
+                 "key": "connect-open-command",
+                 "props": {
+                  "bgcolor": "#0B0818",
+                  "border": {
+                   "@": "Border",
+                   "bottom": {
+                    "@": "BorderSide",
+                    "color": "#3B3270"
+                   },
+                   "left": {
+                    "@": "BorderSide",
+                    "color": "#3B3270"
+                   },
+                   "right": {
+                    "@": "BorderSide",
+                    "color": "#3B3270"
+                   },
+                   "top": {
+                    "@": "BorderSide",
+                    "color": "#3B3270"
+                   }
+                  },
+                  "border_radius": {
+                   "@": "BorderRadius",
+                   "bottom_left": 18,
+                   "bottom_right": 18,
+                   "top_left": 18,
+                   "top_right": 18
+                  },
+                  "padding": {
+                   "@": "Padding",
+                   "bottom": 12,
+                   "left": 14,
+                   "right": 14,
+                   "top": 12
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Container"
+                }
+               ],
+               "slot": "controls",
+               "type": "Column"
+              },
+              {
+               "key": "connect-status",
+               "props": {
+                "style": {
+                 "@": "TextStyle",
+                 "color": "#D9D3F2",
+                 "font_family": "Bricolage Grotesque Medium",
+                 "font_family_fallback": [
+                  "Noto Sans Symbols 2"
+                 ],
+                 "height": 1.3333333333333333,
+                 "size": 13.5,
+                 "weight": {
+                  "enum": "FontWeight",
+                  "value": "w500"
+                 }
+                },
+                "value": "Waiting for Mac approval."
+               },
+               "slot": "controls",
+               "type": "Text"
+              },
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "props": {
+                    "style": {
+                     "@": "TextStyle",
+                     "color": "#C4B0FF",
+                     "font_family": "Bricolage Grotesque Bold",
+                     "font_family_fallback": [
+                      "Noto Sans Symbols 2"
+                     ],
+                     "height": 1.2,
+                     "size": 16,
+                     "weight": {
+                      "enum": "FontWeight",
+                      "value": "bold"
+                     }
+                    },
+                    "value": "Cancel"
+                   },
+                   "slot": "content",
+                   "type": "Text"
+                  }
+                 ],
+                 "props": {
+                  "alignment": {
+                   "@": "Alignment",
+                   "x": 0.0,
+                   "y": 0.0
+                  },
+                  "height": 52
+                 },
+                 "slot": "content",
+                 "type": "Container"
+                }
+               ],
+               "key": "connect-cancel",
+               "props": {
+                "disabled": true,
+                "style": {
+                 "@": "ButtonStyle",
+                 "bgcolor": "transparent",
+                 "overlay_color": {
+                  "ControlState.DEFAULT": "transparent",
+                  "ControlState.FOCUSED": "#33FFFFFF"
+                 },
+                 "padding": 0,
+                 "shape": {
+                  "@": "RoundedRectangleBorder",
+                  "radius": 26
+                 },
+                 "side": {
+                  "ControlState.DEFAULT": {
+                   "@": "BorderSide",
+                   "color": "#A98BFF"
+                  },
+                  "ControlState.FOCUSED": {
+                   "@": "BorderSide",
+                   "color": "#F5F2FF",
+                   "width": 3
+                  }
+                 }
+                }
+               },
+               "slot": "controls",
+               "type": "TextButton"
+              },
+              {
+               "key": "connect-message",
+               "props": {
+                "style": {
+                 "@": "TextStyle",
+                 "color": "#D9D3F2",
+                 "font_family": "Bricolage Grotesque Medium",
+                 "font_family_fallback": [
+                  "Noto Sans Symbols 2"
+                 ],
+                 "height": 1.3333333333333333,
+                 "size": 13.5,
+                 "weight": {
+                  "enum": "FontWeight",
+                  "value": "w500"
+                 }
+                },
+                "value": "Compare this code with the one on your Mac."
+               },
+               "slot": "controls",
+               "type": "Text"
+              },
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "props": {
+                    "color": "#5CCBFF",
+                    "icon": 69374,
+                    "size": 22
+                   },
+                   "slot": "controls",
+                   "type": "Icon"
+                  },
+                  {
+                   "props": {
+                    "expand": true,
+                    "style": {
+                     "@": "TextStyle",
+                     "color": "#D9D3F2",
+                     "font_family": "Bricolage Grotesque",
+                     "font_family_fallback": [
+                      "Noto Sans Symbols 2"
+                     ],
+                     "height": 1.4074074074074074,
+                     "size": 13.5,
+                     "weight": {
+                      "enum": "FontWeight",
+                      "value": "normal"
+                     }
+                    },
+                    "value": "Pairing grants this device scoped access to one host. Approve only a code you compare on your Mac. Closing the pairing window invalidates unused approvals."
+                   },
+                   "slot": "controls",
+                   "type": "Text"
+                  }
+                 ],
+                 "props": {
+                  "spacing": 12,
+                  "vertical_alignment": {
+                   "enum": "CrossAxisAlignment",
+                   "value": "start"
+                  }
+                 },
+                 "slot": "content",
+                 "type": "Row"
+                }
+               ],
+               "key": "connect-note",
+               "props": {
+                "bgcolor": "#1F1840",
+                "border": {
+                 "@": "Border",
+                 "bottom": {
+                  "@": "BorderSide",
+                  "color": "#3B3270"
+                 },
+                 "left": {
+                  "@": "BorderSide",
+                  "color": "#3B3270"
+                 },
+                 "right": {
+                  "@": "BorderSide",
+                  "color": "#3B3270"
+                 },
+                 "top": {
+                  "@": "BorderSide",
+                  "color": "#3B3270"
+                 }
+                },
+                "border_radius": {
+                 "@": "BorderRadius",
+                 "bottom_left": 16,
+                 "bottom_right": 16,
+                 "top_left": 16,
+                 "top_right": 16
+                },
+                "padding": {
+                 "@": "Padding",
+                 "bottom": 14,
+                 "left": 14,
+                 "right": 14,
+                 "top": 14
+                }
+               },
+               "slot": "controls",
+               "type": "Container"
+              }
+             ],
+             "key": "connect-panel",
+             "props": {
+              "horizontal_alignment": {
+               "enum": "CrossAxisAlignment",
+               "value": "stretch"
+              },
+              "spacing": 18
+             },
+             "slot": "content",
+             "type": "Column"
+            }
+           ],
+           "key": "connect-form",
+           "props": {
+            "width": 680
+           },
+           "slot": "content",
+           "type": "Container"
+          }
+         ],
+         "key": "connect-panel-frame",
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": -1.0
+          },
+          "padding": {
+           "@": "Padding",
+           "bottom": 16,
+           "left": 16,
+           "right": 16,
+           "top": 16
+          }
+         },
+         "slot": "body",
+         "type": "Container"
+        }
+       ],
+       "slot": "controls",
+       "type": "Component:PairingPanel"
+      }
+     ],
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:Host"
+  }
+ ]
+}

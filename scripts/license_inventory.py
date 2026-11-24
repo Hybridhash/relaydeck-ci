@@ -64,6 +64,8 @@ def fingerprint_license_file(text: str) -> str | None:
 # Proof: docs/acknowledgements.md. Anything not listed here fails the scan.
 DART_LICENSES = {
     # (spdx, proof)
+    "fake_async": ("Apache-2.0", "pub.dev archive fake_async-1.3.3 LICENSE (Apache-2.0)"),
+    "provider": ("MIT", "pub.dev archive provider-6.1.5+1 LICENSE (MIT, (c) 2019 Remi Rousselet)"),
     "xterm2": ("MIT", "pub.dev archive xterm2-5.2.0 LICENSE (MIT, (c) 2020 xuty)"),
     "firebase_core": (
         "BSD-3-Clause",

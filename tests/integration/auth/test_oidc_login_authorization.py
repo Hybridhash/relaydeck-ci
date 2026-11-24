@@ -15,25 +15,33 @@ import pytest
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
+from relaydeck.client.app.native.runtime import PackagedRuntime
+from relaydeck.client.app.notifications import NotificationRuntime
 from relaydeck.client.features.auth.service import ACCESS_KEY, AuthState
-from relaydeck.client.notifications_runtime import NotificationRuntime
-from relaydeck.client.packaged_runtime import PackagedRuntime
-from relaydeck.client.serve import COOKIE_NAME, WebSessionStore, build_web_app
+from relaydeck.companion.app.hosted_web.serve import COOKIE_NAME, WebSessionStore, build_web_app
+from relaydeck.companion.app.runtime import CompanionRuntime
 from relaydeck.companion.config import load_config
-from relaydeck.companion.runtime import CompanionRuntime
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.authorization import (
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.features.access.authorization import (
     FLOW_LIMIT,
     FLOW_TTL_MS,
     AuthorizationError,
     OidcProvider,
 )
-from relaydeck.gateway.identity import pkce_challenge
+from relaydeck.gateway.features.access.identity import pkce_challenge
 from tests.security.helpers import ALL_CAPS, NOW, make_state
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.companion.asgi_companion import AsgiServer, config_file
 from tests.support.fakes import FakeClipboard, FakeCredentialStore, FakeNotifications
 from tests.support.host_harness import render_component, run
 from tests.support.ui.packaged import Preferences
+
+pytestmark = pytest.mark.usefixtures("hosted_web_bundle")
 
 
 def _b64(value: bytes) -> str:

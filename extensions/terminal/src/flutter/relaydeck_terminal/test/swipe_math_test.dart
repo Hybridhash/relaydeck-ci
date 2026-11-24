@@ -2,7 +2,7 @@
 // fractional thresholds. Pure Dart, mirrors what the idle flush sends.
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/src/swipe_math.dart';
+import 'package:relaydeck_terminal/src/swipe_math.dart';
 
 const double line = 20;
 

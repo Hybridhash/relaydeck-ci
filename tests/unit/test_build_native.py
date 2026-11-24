@@ -74,7 +74,7 @@ def test_overrides_file_is_the_single_source_of_the_mobile_pins() -> None:
     assert overrides["python_version"] == "3.14"
     assert overrides["requires_python"] == ">=3.13,<3.15"
     assert overrides["python_pins"] == {"cffi": "2.0.0", "msgpack": "1.1.2"}
-    assert overrides["flutter_overrides"] == {"jni_flutter": "1.0.3"}
+    assert overrides["flutter_overrides"] == {"jni": "1.1.0", "jni_flutter": "1.0.3"}
 
 
 # --------------------------------------------------------------------- staging
@@ -96,7 +96,7 @@ def test_stage_copies_only_the_allow_listed_layers(android_stage: Path) -> None:
     assert not list(android_stage.rglob("serve.py"))
     assert not list(android_stage.rglob("fake_gateway.py"))
     assert not (package / "devtools").exists()
-    for server in ("gateway", "connector", "companion"):
+    for server in ("gateway", "connector", "companion", "devtools", "host", "releases"):
         assert not (package / server).exists()
     assert not list(android_stage.rglob(".env*"))
 
@@ -109,7 +109,7 @@ def test_stage_applies_the_mobile_overrides(android_stage: Path) -> None:
     assert not any(d.startswith("cryptography") for d in deps)
     assert not any(d.startswith(("colorama", "fastapi", "uvicorn", "pytest")) for d in deps)
     overrides = config["tool"]["flet"]["flutter"]["pubspec"]["dependency_overrides"]
-    assert overrides == {"jni_flutter": "1.0.3"}
+    assert overrides == {"jni": "1.1.0", "jni_flutter": "1.0.3"}
     assert config["tool"]["flet"]["app"] == {"path": "app", "module": "main"}
     for name in ("terminal", "notifications"):
         ext = tomllib.loads((android_stage / f"extensions/{name}/pyproject.toml").read_text())
@@ -242,7 +242,7 @@ def _apk(path: Path, members: dict[str, bytes]) -> Path:
 
 GOOD = {
     "main.py": b"x",
-    "relaydeck/client/app.py": b"x",
+    "relaydeck/client/app/root.py": b"x",
     "relaydeck/client/main.cpython-314.pyc": b"x",
     "relaydeck/domain/models.py": b"x",
 }
@@ -262,7 +262,14 @@ def test_clean_payload_passes_and_gets_sizes_and_hashes(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     "extra",
     [
-        "relaydeck/gateway/app.py",
+        "relaydeck/gateway/app/bootstrap.py",
+        "relaydeck/connector/app/bootstrap.py",
+        "relaydeck/host/runtime.py",
+        "relaydeck/releases/web.py",
+        "relaydeck/companion/app/hosted_web/serve.py",
+        "relaydeck/companion/app/hosted_web/storage.py",
+        "relaydeck/companion/app/hosted_web/setup_panel.py",
+        "relaydeck/companion/app/hosted_web/web_recovery.py",
         "relaydeck/devtools/fake_host.py",
         "relaydeck/client/serve.cpython-314.pyc",
         "relaydeck/client/adapters/fake_gateway.py",

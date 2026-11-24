@@ -1,12 +1,5 @@
-"""Browser paste bridge: a layout-neutral region around real inputs.
-
-Dart owns the clipboard event and the retained Blob; Python only receives a request id and
-metadata (`offer`), decides, and asks the same control to `upload` that request to a grant URL
-or to `abort` it. Image bytes never cross Flet events or the terminal channel. Text pasted
-while a terminal has focus arrives as `text` for the terminal's reviewed paste; text for a text
-field is inserted in Dart and never crosses as an event.
-
-No `from __future__ import annotations`: Flet 1.0.3 reads raw event annotations (see terminal.py).
+"""Bridge browser paste offers while Dart retains image Blobs for approved upload or abort.
+Event annotations must evaluate at definition time for framework reflection.
 """
 
 import re

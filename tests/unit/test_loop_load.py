@@ -13,14 +13,15 @@ import httpx
 import pytest
 
 from relaydeck.connector.journal import ConnectorDispatch
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.command_io import command_io
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.gateway.usage import UsageService
-from relaydeck.journal import CommandJournal
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.command_io import command_io
+from relaydeck.gateway.features.usage_read.api import UsageService
+from relaydeck.host.persistence.command_journal import CommandJournal
 from relaydeck.usage.contracts import UsageQuery
 from relaydeck.usage.store import SqliteUsageStore
 from tests.support.pairing import foundation, proof
+from tests.support.usage.results import wire_page
 
 
 async def _load(path: Path, offloaded: bool, contended: bool) -> dict[str, float | int]:
@@ -42,7 +43,7 @@ async def _load(path: Path, offloaded: bool, contended: bool) -> dict[str, float
         now,
     )
     query = UsageQuery("home-mac", "1970-01-01", "1970-01-01")
-    assert (await service.page(query, "owner", "phone")).status_code == 200
+    assert (await wire_page(service, query, "owner", "phone")).status_code == 200
     state.pairing.open_window(
         state.hosts.record_for_host("home-mac"), state.public_origin, now(), 300
     )
@@ -143,7 +144,7 @@ async def _load(path: Path, offloaded: bool, contended: bool) -> dict[str, float
             # Inline cache validation, the baseline, using the real collector lock.
             store.data_generation()
             service._fingerprint(now())
-        assert (await service.page(query, "owner", "phone")).status_code == 200
+        assert (await wire_page(service, query, "owner", "phone")).status_code == 200
 
     async def pairing(client):
         if offloaded:

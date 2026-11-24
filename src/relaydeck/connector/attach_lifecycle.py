@@ -8,8 +8,8 @@ import logging
 from collections.abc import Awaitable, Callable
 
 from relaydeck.connector.attach import AttachError, AttachSession
-from relaydeck.offload import run_blocking
-from relaydeck.tunnel_queue import BoundedInbox
+from relaydeck.host.concurrency.offload import run_blocking
+from relaydeck.host.transport.queues import BoundedInbox
 
 
 class AttachLifecycle:

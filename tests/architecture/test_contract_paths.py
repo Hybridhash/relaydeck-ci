@@ -13,12 +13,19 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.routing import WebSocketRoute
 
-from relaydeck.client.features.auth import web_recovery
-from relaydeck.client.serve import WebSessionStore, build_web_app
+from relaydeck.companion.app.hosted_web import web_recovery
+from relaydeck.companion.app.hosted_web.serve import WebSessionStore, build_web_app
 from relaydeck.contracts import paths
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
-from relaydeck.gateway.webpush_routes import WebPushSettings, build_router
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.http.webpush import WebPushSettings, build_router
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 
 SRC = Path(__file__).resolve().parents[2] / "src" / "relaydeck"
 CONSTANTS = {
@@ -28,7 +35,7 @@ CONSTANTS = {
 }
 # A path inside a string: not the tail of a schema name or a host URL.
 PATH_IN_STRING = re.compile(r"(?<![\w.])/v1(?!\w)")
-ALLOWED_PREFIX_TEST = ("companion/runtime.py", "/v1/")
+ALLOWED_PREFIX_TEST = ("companion/app/hosted_web/static.py", "/v1/")
 JS_MARKERS = ("fetch(", "location.pathname")
 
 
@@ -68,7 +75,10 @@ def _registered_paths() -> set[str]:
             preferences=None,
         )
     )
-    return _v1_paths(gateway) | _v1_paths(web) | _v1_paths(push)
+    # The companion-only release notice is registered only when the companion supplies it.
+    state.updates = object()
+    companion = create_app(state)
+    return _v1_paths(gateway) | _v1_paths(companion) | _v1_paths(web) | _v1_paths(push)
 
 
 def test_registered_v1_routes_equal_the_path_constants() -> None:
@@ -115,7 +125,7 @@ def test_no_module_but_paths_spells_a_v1_path() -> None:
 
 def _js_strings() -> list[str]:
     strings = [web_recovery.RECOVERY_SCRIPT]
-    tree = ast.parse((SRC / "client" / "serve.py").read_text())
+    tree = ast.parse((SRC / "companion" / "app" / "hosted_web" / "serve.py").read_text())
     strings += [
         node.value
         for node in ast.walk(tree)
@@ -158,3 +168,14 @@ def test_builders_produce_the_urls_the_call_sites_always_built() -> None:
     assert paths.attachment("a1") == "/v1/terminal-attachments/a1"
     assert paths.lease("l1") == "/v1/terminal-leases/l1"
     assert paths.lease_renew("l1") == "/v1/terminal-leases/l1/renew"
+
+
+def test_graph_builder_quotes_worktree_identity() -> None:
+    assert (
+        paths.git_graph("host/one", "worktree/one")
+        == "/v1/hosts/host%2Fone/git/worktrees/worktree%2Fone/graph"
+    )
+    assert (
+        paths.git_commit_changes("host/one", "worktree/one", "sealed/id")
+        == "/v1/hosts/host%2Fone/git/worktrees/worktree%2Fone/commits/sealed%2Fid/changes"
+    )

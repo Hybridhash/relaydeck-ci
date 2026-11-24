@@ -13,6 +13,9 @@ from relaydeck.client.features.terminal.models import (
     history_notice,
 )
 from relaydeck.client.features.terminal.stream import INCOMPLETE_HISTORY
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
 from tests.support.host_harness import run
 from tests.support.ui.split_harness import split_mounted
 

@@ -1,0 +1,55 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#E9E5FA",
+         "font_family": "Bricolage Grotesque SemiBold",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.5,
+         "size": 12.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w600"
+         }
+        },
+        "value": "Example connection"
+       },
+       "slot": "content",
+       "type": "Text"
+      }
+     ],
+     "props": {
+      "bgcolor": "#2B2356",
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 13,
+       "bottom_right": 13,
+       "top_left": 13,
+       "top_right": 13
+      },
+      "padding": {
+       "@": "Padding",
+       "bottom": 4,
+       "left": 10,
+       "right": 10,
+       "top": 4
+      }
+     },
+     "slot": "controls",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

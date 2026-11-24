@@ -1,10 +1,5 @@
-"""Limits-plane scheduler.
-
-One worker thread refreshes each configured provider outside the token-ledger
-pass: it never takes the collector's pass lock and is not bound by the ledger
-50 ms budget. Per provider it enforces `min_interval`, exponential backoff on
-error (capped at 30 minutes) with jitter, and a throttle floor so visibility
-refreshes and expiry re-fetches cannot hammer a backend.
+"""Refresh allowance providers on a separate worker with per-provider intervals, backoff and
+throttling. Do not hold the token collector's pass lock or use its reader budget.
 """
 
 from __future__ import annotations
@@ -67,12 +62,8 @@ def run_bounded_command(
     extra_env: Mapping[str, str] | None = None,
     max_bytes: int = MAX_FETCH_BYTES,
 ) -> bytes:
-    """Run argv without a shell and return up to `max_bytes` of stdout.
-
-    Own process group, minimal env (HOME, PATH, LANG plus `extra_env`),
-    stdin and stderr discarded. A timeout kills the whole process group,
-    reaps the child, and raises TimeoutError: a thread timeout alone never
-    orphans the child. argv[0] must be absolute; shell strings are rejected.
+    """Run absolute argv without a shell using a minimal environment and bounded stdout. On
+    timeout, kill the process group, reap the child and raise TimeoutError.
     """
     args, timeout, env, _ = _checked_launch(argv, timeout_s, extra_env, max_bytes)
     try:
@@ -157,18 +148,8 @@ def run_line_session(
     extra_env: Mapping[str, str] | None = None,
     max_bytes: int = MAX_FETCH_BYTES,
 ) -> list[bytes | None]:
-    """Request/response exchange with a stdio child.
-
-    Same guarantees as `run_bounded_command` (no shell, absolute argv[0],
-    minimal env, own process group, stderr discarded), plus: at most
-    `max_bytes` of stdout are read across the whole session, `timeout_s` is a
-    total deadline, and the child is ALWAYS killed and reaped before return,
-    success or failure. Returns the matched line per step (None for
-    send-only steps); unmatched lines are dropped but count toward the cap.
-
-    Raises TimeoutError on deadline overrun, OutputCapExceeded past the cap,
-    EOFError when the child goes quiet early, UsageUnavailable when the child
-    cannot spawn, and ValueError for bad input.
+    """Exchange bounded stdio requests within one deadline and always kill and reap the child.
+    Return matched lines per step, counting discarded unmatched output toward the total cap.
     """
     args, timeout, env, bound = _checked_launch(argv, timeout_s, extra_env, max_bytes)
     if isinstance(steps, str | bytes) or not isinstance(steps, Sequence) or not steps:
@@ -284,13 +265,8 @@ class _ProviderState:
 
 
 class LimitsScheduler:
-    """Refreshes limits providers on one worker thread.
-
-    `clock` returns epoch milliseconds; `sleep` waits seconds (wakeable);
-    `jitter` returns 0..1 for backoff spread. A failure keeps the
-    previous stored reading (last-good) only for a positively identified account and a transient
-    error; an unknown identity or an `auth_required` failure replaces it with an error reading.
-    Only a reading for the same account can replace a kept one (the store keys by account).
+    """Refreshes limits providers on one worker thread. `clock` returns epoch milliseconds;
+    `sleep` waits seconds (wakeable); `jitter` returns 0..1 for backoff spread.
     """
 
     def __init__(
@@ -402,9 +378,10 @@ class LimitsScheduler:
         return RefreshDecision("started", attempt_id)
 
     def request_auto_on_open(self) -> int:
-        """A client opened the Usage page: read each pane block whose tool was used since its last
-        reading, without waiting out the background interval. Each block is weighed at most once per
-        cooldown however many devices open the page. Returns how many reads were started."""
+        """A client opened the Usage page: read each pane block whose tool was used since its
+        last reading, without waiting out the background interval. Each block is weighed at
+        most once per cooldown however many devices open the page.
+        """
         return self._auto_sweep(self._clock(), on_open=True)
 
     def notify_usage_open(self) -> None:

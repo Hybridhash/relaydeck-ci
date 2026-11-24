@@ -1,0 +1,175 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "key": "dot-idle",
+             "props": {
+              "bgcolor": "#606570",
+              "border_radius": 6,
+              "height": 12,
+              "tooltip": "Idle",
+              "width": 12
+             },
+             "slot": "body",
+             "type": "Container"
+            }
+           ],
+           "slot": "controls",
+           "type": "Component:StatusDot"
+          },
+          {
+           "children": [
+            {
+             "key": "detail-title",
+             "props": {
+              "color": "#191B20",
+              "expand": true,
+              "max_lines": 2,
+              "overflow": {
+               "enum": "TextOverflow",
+               "value": "ellipsis"
+              },
+              "size": 22,
+              "tooltip": "Example title",
+              "value": "Example title",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w700"
+              }
+             },
+             "slot": "content",
+             "type": "Text"
+            }
+           ],
+           "key": "[\"heading\", \"str\", \"detail-title\"]",
+           "props": {
+            "expand": true,
+            "header": true
+           },
+           "slot": "controls",
+           "type": "Semantics"
+          }
+         ],
+         "slot": "controls",
+         "type": "Row"
+        },
+        {
+         "key": "detail-subtitle",
+         "props": {
+          "color": "#606570",
+          "value": "Example subtitle"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "detail-open",
+         "props": {
+          "content": "Open terminal",
+          "height": 48,
+          "style": {
+           "@": "ButtonStyle",
+           "bgcolor": {
+            "ControlState.DEFAULT": "#E9EAEE",
+            "ControlState.DISABLED": "#E9EAEE",
+            "ControlState.FOCUSED": "#E0EDFF",
+            "ControlState.HOVERED": "#E0EDFF"
+           },
+           "color": {
+            "ControlState.DEFAULT": "#191B20",
+            "ControlState.DISABLED": "#606570"
+           },
+           "elevation": 0,
+           "icon_size": 20,
+           "overlay_color": "transparent",
+           "padding": {
+            "@": "Padding",
+            "bottom": 8,
+            "left": 12,
+            "right": 12,
+            "top": 8
+           },
+           "shape": {
+            "@": "RoundedRectangleBorder",
+            "radius": 8
+           },
+           "side": {
+            "ControlState.DEFAULT": {
+             "@": "BorderSide",
+             "color": "#747B88"
+            },
+            "ControlState.FOCUSED": {
+             "@": "BorderSide",
+             "color": "#0063CC",
+             "width": 2
+            }
+           },
+           "text_style": {
+            "@": "TextStyle",
+            "font_family_fallback": [
+             "Noto Sans Symbols 2",
+             "Noto Sans Symbols"
+            ],
+            "size": 14,
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w500"
+            }
+           }
+          }
+         },
+         "slot": "controls",
+         "type": "Button"
+        }
+       ],
+       "props": {
+        "expand": true,
+        "spacing": 14
+       },
+       "slot": "content",
+       "type": "Column"
+      }
+     ],
+     "props": {
+      "bgcolor": "#FFFFFF",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#C9CDD5"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#C9CDD5"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#C9CDD5"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#C9CDD5"
+       }
+      },
+      "border_radius": 24,
+      "expand": true,
+      "padding": 20
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:SessionDetail"
+  }
+ ]
+}

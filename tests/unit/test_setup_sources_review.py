@@ -10,8 +10,9 @@ from pathlib import Path
 
 import pytest
 
-from relaydeck.companion import detect, setup
-from relaydeck.companion.detect import DetectReport
+from relaydeck.companion import setup
+from relaydeck.companion.inspection import detect
+from relaydeck.companion.inspection.detect import DetectReport
 from relaydeck.usage.contracts import Budget, Coverage, Cursor
 from relaydeck.usage.readers import READERS
 from tests.support.companion.setup_sources import (

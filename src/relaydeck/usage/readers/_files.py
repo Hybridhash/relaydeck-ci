@@ -1,32 +1,5 @@
-"""Shared, safe file access for the format readers.
-
-Every reader declares a Layout (where it may look, relative to its configured root) and a per-unit
-process function. `run_units` drives one pass:
-
-- Layout-pinned enumeration. Only the directories a layout descends into are listed, each with
-  O_NOFOLLOW descriptors relative to its parent. Entries are counted while iterating, before any
-  sort: a per-directory cap, a global examined-entry cap and a share of the deadline bound the walk.
-  Any cap, timeout or permission failure makes the enumeration incomplete. An incomplete
-  enumeration preserves every stored cursor and context, marks the pass PARTIAL with an
-  enumeration-gap marker ("e:"), and reports more=False. A complete enumeration is the only thing
-  that can delete a checkpoint, so absence is never guessed.
-- Newest first. The complete candidate set is sorted by modification time, descending, every pass.
-  A settled file (same identity, size and modification time, read to its end, head digest
-  unchanged) costs one open and nothing else.
-- Commit ledger. Each unit's changes (file cursor, discard position, gap evidence, reader context)
-  are staged and applied only if the whole encoded cursor still fits MAX_CURSOR_BYTES and the state
-  bounds. A unit that cannot fit is blocked: its events are dropped, and its last intact offset and
-  context are kept. Required accounting context is never evicted. Gap evidence that does not fit
-  becomes the overflow marker "o:", which keeps the batch PARTIAL.
-- Only complete lines are committed. A partial final line is an incomplete tail: PARTIAL, but not
-  gap evidence. A line longer than MAX_LINE_BYTES, or one that alone fills a whole pass budget, is
-  skipped as gap evidence, and its discard position is stored as a content-free pair of offsets.
-- Permanent gap evidence per file survives clean suffixes and unvisited files, and is dropped only
-  when that file is restarted (rotation, truncation or head replacement).
-- `more` is True only for known unread changed work left by a budget: a file read partly, or a
-  changed file never reached. Tails, blocked files, permanent gaps and enumeration gaps do not
-  set it.
-- No exception carries a path or content, and nothing is logged.
+"""Enumerate configured format layouts through bounded no-follow reads and stage complete file
+units. Commit checkpoints only with their events and bounded accounting context.
 """
 
 from __future__ import annotations
@@ -35,7 +8,9 @@ import hashlib
 import json
 import os
 import stat
+import threading
 import time
+from collections import OrderedDict
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
@@ -80,8 +55,7 @@ ENUM_GAP_KEY = "e:"
 SCHEMA_KEY = "v:"
 LEGACY_POSITION_KEY = "d:"
 REASON_KEY = "k"  # per-file gap reasons: a bounded list drawn from REASONS, beside "g"
-# Gap reasons. Several may coexist. A permanent gap with no recorded reason is "unknown": an
-# old flag is never reclassified, only labelled as having no known cause.
+# Multiple gap reasons may coexist; an unrecorded cause remains unknown.
 REASON_SKIP = "skip"  # a malformed or refused record was skipped
 REASON_LEGACY = "legacy"  # cumulative-only usage: counted as history the ledger cannot derive
 REASON_OVERSIZE = "oversize"  # a line or file over the bound
@@ -95,12 +69,10 @@ PRUNED_PREFIXES = (DISCARD_PREFIX, GAP_PREFIX, PENDING_PREFIX, "t:", "f:")
 
 
 class LineHandler:
-    """Receives one complete line at a time. `line` returning False refuses the line: it is not
-    committed, and the pass stops before it. `end` may return True to record a gap for the file.
-    `collector` is the pending event set of the file being read; it is committed only if the file's
-    unit fits the cursor. `reader_context` returns the reader's per-file entries (kept in the file's
-    FileCursor.context, not in the cursor state). `reached_end` is set before `end` is called: True
-    only when the file was read to its verified end in this unit, never after a budget stop."""
+    """Receive complete lines: line=False stops before committing that line, and end=True
+    records a file gap. The driver sets reached_end before end and commits events/context
+    only when the whole file unit fits.
+    """
 
     skipped: int = 0
     reached_end: bool = False
@@ -308,6 +280,129 @@ def settled(prev: FileCursor, listed: Listed, root_fd: int) -> bool:
         )
     finally:
         os.close(fd)
+
+
+# Reverify unchanged stat stamps periodically because coarse timestamps can hide same-size rewrites.
+
+RECONCILE_PASSES = 16
+MAX_RECONCILE_PASSES = 256
+MAX_INDEX_ROOTS = 32
+
+
+@dataclass(frozen=True)
+class _IndexedFile:
+    dev: int
+    ino: int
+    size: int
+    mtime_ns: int
+    ctime_ns: int
+    head_digest: str
+    verified_pass: int
+
+
+def _stamp_matches(entry: _IndexedFile, st: os.stat_result) -> bool:
+    return (
+        entry.dev == st.st_dev
+        and entry.ino == st.st_ino
+        and entry.size == st.st_size
+        and entry.mtime_ns == st.st_mtime_ns
+        and entry.ctime_ns == st.st_ctime_ns
+    )
+
+
+class _ChangeIndex:
+    def __init__(self) -> None:
+        self.files: dict[str, _IndexedFile] = {}
+        self.pass_no = 0
+        self.reconcile_every = RECONCILE_PASSES
+        self.round_checked = 0
+        self.round_dirty = False
+
+
+_IndexKey = tuple[int, int, str, int]
+_indexes: OrderedDict[_IndexKey, _ChangeIndex] = OrderedDict()
+_index_lock = threading.Lock()
+
+
+def _index_for(root_fd: int, schema: str, layout: Layout) -> _ChangeIndex:
+    st = os.fstat(root_fd)
+    key: _IndexKey = (st.st_dev, st.st_ino, schema, id(layout))
+    with _index_lock:
+        index = _indexes.get(key)
+        if index is None:
+            index = _ChangeIndex()
+            _indexes[key] = index
+            while len(_indexes) > MAX_INDEX_ROOTS:
+                _indexes.popitem(last=False)
+        else:
+            _indexes.move_to_end(key)
+        index.pass_no += 1
+        return index
+
+
+def _index_skip(index: _ChangeIndex, key: str, prev: FileCursor, st: os.stat_result) -> bool:
+    """True when this file's head was verified against exactly this stamp recently enough."""
+    with _index_lock:
+        entry = index.files.get(key)
+    if entry is None or entry.head_digest != prev.head_digest:
+        return False
+    if not _stamp_matches(entry, st):
+        return False
+    return index.pass_no - entry.verified_pass < index.reconcile_every
+
+
+def _index_reverifying(index: _ChangeIndex, key: str, st: os.stat_result) -> bool:
+    """True when an indexed file with an unchanged stamp is being re-verified this pass."""
+    with _index_lock:
+        entry = index.files.get(key)
+    return entry is not None and _stamp_matches(entry, st)
+
+
+def _index_store(index: _ChangeIndex, key: str, st: os.stat_result, head_digest: str) -> None:
+    entry = _IndexedFile(
+        dev=st.st_dev,
+        ino=st.st_ino,
+        size=st.st_size,
+        mtime_ns=st.st_mtime_ns,
+        ctime_ns=st.st_ctime_ns,
+        head_digest=head_digest,
+        verified_pass=index.pass_no,
+    )
+    with _index_lock:
+        if key not in index.files and len(index.files) >= MAX_TRACKED_FILES:
+            index.files.clear()  # bounded: forget rather than grow past the cursor bound
+        index.files[key] = entry
+
+
+def _index_drop(index: _ChangeIndex, key: str) -> None:
+    with _index_lock:
+        index.files.pop(key, None)
+
+
+def _index_prune(index: _ChangeIndex, present: set[str]) -> None:
+    with _index_lock:
+        for key in list(index.files):
+            if key not in present:
+                index.files.pop(key, None)
+
+
+def _index_note_round(index: _ChangeIndex, *, dirty: bool) -> None:
+    with _index_lock:
+        index.round_checked += 1
+        index.round_dirty = index.round_dirty or dirty
+
+
+def _index_close_round(index: _ChangeIndex) -> None:
+    """Back the re-verification interval off after a clean round; reset it after a dirty one."""
+    with _index_lock:
+        if index.round_checked:
+            index.reconcile_every = (
+                RECONCILE_PASSES
+                if index.round_dirty
+                else min(MAX_RECONCILE_PASSES, index.reconcile_every * 2)
+            )
+        index.round_checked = 0
+        index.round_dirty = False
 
 
 def context_of(file: FileCursor | None) -> dict[str, object]:
@@ -572,9 +667,9 @@ class Ledger:
         )
 
     def summarise_gaps(self) -> bool:
-        """Overflow: every per-file gap flag becomes the retained overflow marker. Removing a flag
-        frees more bytes than the marker costs, so this only shrinks the cursor. Returns True when a
-        flag was summarised. Accounting context is untouched."""
+        """Replace per-file gap flags with one retained overflow marker when space is needed.
+        Preserve accounting context and return whether a flag was summarized.
+        """
         changed: dict[str, FileCursor | None] = {}
         for key, file in self.files.items():
             context = context_of(file)
@@ -627,8 +722,9 @@ class Unit:
 
 
 def reasons_of(file: FileCursor | None) -> frozenset[str]:
-    """The recorded reasons of a file's permanent gap. A gap flag with no recorded reason decodes as
-    UNKNOWN, so an old flag is labelled honestly and never erased. No gap means no reasons."""
+    """Decode permanent gap reasons, retaining UNKNOWN when no cause was recorded. Return no
+    reasons when there is no gap.
+    """
     context = context_of(file)
     if context.get("g") != 1:
         return frozenset()
@@ -666,10 +762,10 @@ def file_context(
 
 
 def _commit(ledger: Ledger, unit: Unit) -> bool:
-    """Stage the unit's file entry with its context. A file that has no checkpoint yet and could not
-    be read records its gap in the global overflow marker, never with an invented checkpoint. A
-    context over its bound, or a file entry that does not fit the cursor, blocks the unit. Gap
-    evidence that does not fit is summarised by the overflow marker (still PARTIAL)."""
+    """Stage the file checkpoint and its bounded context, blocking the unit if they cannot fit.
+    Preserve unread-file uncertainty in the global overflow marker without inventing a
+    checkpoint.
+    """
     key = unit.key
     prev = ledger.files.get(key)
     if unit.file is None and prev is None:
@@ -821,9 +917,9 @@ def run_units(
     schema: str = "",
     rewind: bool = True,
 ) -> PassResult:
-    """One bounded pass: enumerate the layout, then process candidates newest first. With
-    `rewind`, a stored cursor from another schema restarts from zero (readers dedupe on their
-    keys). Without it, the stored files and state are kept and the reader migrates what it needs."""
+    """Enumerate bounded layout candidates and process them newest first. Rewind incompatible
+    cursors only when requested; otherwise preserve stored state for compatible conversion.
+    """
     base = cursor
     if rewind and schema and cursor.state.get(SCHEMA_KEY) != schema:
         base = Cursor(files={}, state={}, revision=cursor.revision)
@@ -838,6 +934,7 @@ def run_units(
     root_fd = open_root(root)
     if root_fd is None:
         return PassResult((), cursor, True, False, 0, unavailable=True, retry_blocked=True)
+    change_index = _index_for(root_fd, schema, layout)
     blocked: set[str] = set()  # could not commit this pass
     obstructed = False  # a current obstruction in this pass: the scheduler may back off
     unreadable: set[str] = set()  # a new file that could not be read: its gap is global
@@ -863,10 +960,21 @@ def run_units(
                 break
             if prev is not None and _unchanged(prev, item.st) and prev.offset == prev.size:
                 state.examined += 1
-                if settled(prev, item, root_fd):
+                if _index_skip(change_index, key, prev, item.st):
                     if _has_legacy_entries(ledger, key):
                         _commit(ledger, Unit(key=key))  # migrate the earlier layout, no read
                     continue
+                reverifying = _index_reverifying(change_index, key, item.st)
+                if settled(prev, item, root_fd):
+                    _index_store(change_index, key, item.st, prev.head_digest)
+                    if reverifying:
+                        _index_note_round(change_index, dirty=False)
+                    if _has_legacy_entries(ledger, key):
+                        _commit(ledger, Unit(key=key))  # migrate the earlier layout, no read
+                    continue
+                if reverifying:
+                    _index_note_round(change_index, dirty=True)
+                _index_drop(change_index, key)
                 observed.add(key)  # the head changed: the file is known unread work
                 if _budget_gone(state, collector):
                     more, stopped_partial = _stopped_before(
@@ -890,6 +998,16 @@ def run_units(
                     collector.offer(event)
                 if prev is None and unit.file is None and unit.gap:
                     unreadable.add(key)
+                # A file read to its end against this exact stamp is verified
+                # work for the index; anything else must be re-verified.
+                if (
+                    unit.file is not None
+                    and unit.file.offset == unit.file.size
+                    and _unchanged(unit.file, item.st)
+                ):
+                    _index_store(change_index, key, item.st, unit.file.head_digest)
+                else:
+                    _index_drop(change_index, key)
             else:
                 blocked.add(key)
                 partial = True
@@ -907,8 +1025,10 @@ def run_units(
     finally:
         os.close(root_fd)
     excluded = blocked | unreadable
+    _index_close_round(change_index)
     if complete:
         ledger.drop_absent(present)
+        _index_prune(change_index, present)
         ledger.apply({}, {}, {ENUM_GAP_KEY})
     else:
         partial = True
@@ -1098,7 +1218,8 @@ def counters_of(
 
 class EventCollector:
     """Deduplicates events by (session, event key). A new key beyond the limit is refused: the
-    caller does not commit that line. Each unit collects into its own pending set first."""
+    caller does not commit that line.
+    """
 
     def __init__(self, limit: int = MAX_EVENTS_PER_BATCH) -> None:
         self.limit = limit

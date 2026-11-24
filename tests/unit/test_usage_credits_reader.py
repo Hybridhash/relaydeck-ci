@@ -10,12 +10,12 @@ from pathlib import Path
 from typing import Any
 
 from relaydeck.usage.contracts import Basis, Budget, Counters, Coverage, Cursor
-from relaydeck.usage.link_digests import cwd_digest
+from relaydeck.usage.linking.digests import cwd_digest
 from relaydeck.usage.readers import READERS
 from relaydeck.usage.readers.json_session_credits import FORMAT_ID, READER
 
 T0 = 1_790_000_000_000  # synthetic epoch ms, inside the millisecond band
-LINK_KEY = b"uh5-test-link-key-32-bytes-long!!"
+LINK_KEY = b"test-link-key-for-credit-padded33"
 FOLDER = "/synthetic/work/alpha"
 
 

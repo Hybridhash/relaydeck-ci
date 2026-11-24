@@ -1,22 +1,5 @@
-"""Output selection and copy domain. Flet-free.
-
-Anchor/focus selection over projected screen+scrollback text, explicit
-copy through the clipboard port, and the live-selection pull against the
-terminal extension. Pure functions plus one clipboard write; nothing here
-touches the PTY input path, the composer draft, or any socket.
-
-Behaviour:
-- the sheet shows the full output text with an optional anchor range;
-- a nil or out-of-bounds anchor selects ALL text (`normalize_range`);
-- content is read-only, selectable, and monospaced (see selection_sheet);
-- dismissal is explicit (Done), never a background action.
-
-Wrap rule: `TerminalProjection` exposes physical rows without wrap flags,
-so a row whose display width fills the full terminal width is treated as
-soft-wrapped and joins with the next row WITHOUT a newline. A hard newline
-immediately after a full-width row is indistinguishable from a wrap and
-joins too; that accepted difference is pinned by
-`test_full_row_hard_newline_joins_documented`.
+"""Map selectable output text to logical lines and bounded copy ranges without sending terminal
+input.
 """
 
 from __future__ import annotations
@@ -26,9 +9,9 @@ from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Protocol
 
-from relaydeck.client.adapters.ports import ClipboardPort
 from relaydeck.client.features.terminal.models import SelectionState, TerminalViewState
 from relaydeck.client.features.terminal.projection import TerminalProjection
+from relaydeck.client.ports.clipboard import ClipboardPort
 
 if TYPE_CHECKING:
     from relaydeck_terminal.terminal import RelayDeckTerminal
@@ -50,10 +33,9 @@ def display_width(text: str) -> int:
 
 
 def _continues_cluster(text: str, index: int) -> bool:
-    """True when `text[index]` belongs to the previous grapheme cluster:
-    a zero-width mark following a base character on the same line. Wide
-    and emoji characters are single code points and always start their
-    own cluster, so str slicing can never corrupt them."""
+    """Return whether a zero-width character continues the preceding same-line base. This
+    grouping is not a complete Unicode grapheme-break algorithm.
+    """
     if index <= 0 or index >= len(text):
         return False
     if text[index - 1] == "\n" or text[index] == "\n":

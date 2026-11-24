@@ -1,0 +1,186 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "key": "command-note",
+           "props": {
+            "color": "#A9A2C8",
+            "font_family": "Bricolage Grotesque Medium",
+            "size": 13,
+            "text_align": null,
+            "value": "Example explanation",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w500"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "children": [
+            {
+             "key": "command-line",
+             "props": {
+              "color": "#F2EFFA",
+              "font_family": "Bricolage Grotesque SemiBold",
+              "size": 12,
+              "text_align": null,
+              "value": "example setup --local",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w500"
+              }
+             },
+             "slot": "content",
+             "type": "Text"
+            }
+           ],
+           "props": {
+            "bgcolor": "#241E3D",
+            "border_radius": 10,
+            "padding": {
+             "@": "Padding",
+             "bottom": 10,
+             "left": 10,
+             "right": 10,
+             "top": 10
+            }
+           },
+           "slot": "controls",
+           "type": "Container"
+          },
+          {
+           "key": "command-doctor",
+           "props": {
+            "color": "#CFC9E6",
+            "font_family": "Bricolage Grotesque SemiBold",
+            "size": 13,
+            "text_align": null,
+            "value": "Example check",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w500"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "tight": true
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "props": {
+        "width": 340
+       },
+       "slot": "content",
+       "type": "Container"
+      },
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#F2EFFA",
+          "font_family": "Bricolage Grotesque ExtraBold",
+          "max_lines": 2,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 17,
+          "text_align": null,
+          "value": "Example setup",
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "header": true
+       },
+       "slot": "title",
+       "type": "Semantics"
+      },
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#B9A4FF",
+          "font_family": "Bricolage Grotesque ExtraBold",
+          "max_lines": 1,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 14,
+          "text_align": null,
+          "value": "Copy command",
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "key": "usage-command-copy",
+       "slot": "actions",
+       "type": "TextButton"
+      },
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#CFC9E6",
+          "font_family": "Bricolage Grotesque Bold",
+          "max_lines": 1,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 14,
+          "text_align": null,
+          "value": "Close",
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "key": "usage-command-close",
+       "slot": "actions",
+       "type": "TextButton"
+      }
+     ],
+     "key": "usage-command-dialog",
+     "props": {
+      "open": true
+     },
+     "slot": "body",
+     "type": "AlertDialog"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:CommandDialog"
+  }
+ ]
+}

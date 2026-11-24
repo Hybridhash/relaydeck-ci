@@ -6,7 +6,7 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.features.terminal.surfaces import mount_agent_screen
+from relaydeck.client.screens.terminal.screen import mount_agent_screen
 
 
 @ft.component

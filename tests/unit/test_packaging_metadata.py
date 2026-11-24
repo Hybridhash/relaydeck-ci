@@ -12,9 +12,11 @@ import re
 import sys
 import tomllib
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
-RUNTIME_PACKAGES = ("companion", "gateway", "connector", "client", "usage")
+# Every package under src/relaydeck ships at runtime except the development tools.
+DEV_ONLY_PACKAGES = {"devtools"}
 IN_WHEEL = {"relaydeck", "relaydeck_terminal", "relaydeck_notifications"}
 # Import name -> the distribution that provides it (the names used in pyproject dependencies).
 DISTRIBUTION = {
@@ -25,6 +27,7 @@ DISTRIBUTION = {
     "flet": "flet",
     "flet_secure_storage": "flet-secure-storage",
     "flet_web": "flet-web",
+    "httpcore": "httpcore",
     "httpx": "httpx",
     "msgpack": "msgpack",
     "qrcode": "qrcode",
@@ -34,7 +37,7 @@ DISTRIBUTION = {
 }
 
 
-def _pyproject() -> dict:
+def _pyproject() -> dict[str, Any]:
     return tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
 
@@ -55,11 +58,21 @@ def _declared_names(dependencies: list[str]) -> set[str]:
     return names
 
 
+def _runtime_packages() -> list[Path]:
+    base = ROOT / "src" / "relaydeck"
+    return sorted(
+        path
+        for path in base.iterdir()
+        if (path / "__init__.py").is_file() and path.name not in DEV_ONLY_PACKAGES
+    )
+
+
 def _runtime_third_party_imports() -> dict[str, set[str]]:
     found: dict[str, set[str]] = {}
-    sources = [ROOT / "src" / "relaydeck" / "cli.py"]
-    for package in RUNTIME_PACKAGES:
-        sources.extend((ROOT / "src" / "relaydeck" / package).rglob("*.py"))
+    # Root-level modules (cli.py, ...) are runtime code too.
+    sources = sorted((ROOT / "src" / "relaydeck").glob("*.py"))
+    for package in _runtime_packages():
+        sources.extend(package.rglob("*.py"))
     stdlib = set(sys.stdlib_module_names)
     for path in sources:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -128,3 +141,15 @@ def test_the_dev_group_keeps_the_editable_extensions_for_the_source_checkout() -
     sources = _pyproject()["tool"]["uv"]["sources"]
     assert sources["relaydeck-terminal"]["path"] == "extensions/terminal"
     assert sources["relaydeck-notifications"]["path"] == "extensions/notifications"
+
+
+def test_every_runtime_package_is_scanned() -> None:
+    names = {path.name for path in _runtime_packages()}
+    assert {"host", "releases", "contracts", "git", "domain", "client", "companion"} <= names
+    assert not names & DEV_ONLY_PACKAGES
+
+
+def test_moved_release_modules_are_scanned_and_httpcore_is_declared() -> None:
+    assert "src/relaydeck/releases/web.py" in _runtime_third_party_imports()["httpcore"]
+    extra = _declared_names(_pyproject()["project"]["optional-dependencies"]["companion"])
+    assert "httpcore" in extra

@@ -7,16 +7,17 @@ from typing import Any, cast
 
 import flet as ft
 
-from relaydeck.client.app import Root
-from relaydeck.client.components.appearance import AppearanceBridge
-from relaydeck.client.features.a11y.focus import iter_controls
-from relaydeck.client.features.inventory.routing import RouteBridge
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport
-from relaydeck.client.retained_sessions import RetainedSessions
+from relaydeck.client.app.appearance import AppearanceBridge
+from relaydeck.client.app.navigation import RouteBridge
+from relaydeck.client.app.root import Root
+from relaydeck.client.app.sessions.retained import RetainedSessions
+from relaydeck.client.app.state.sync import SyncController
+from relaydeck.client.platform.session_drafts import session_drafts
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
 from relaydeck.domain.models import Host
 from tests.support.host_harness import render_component
 from tests.support.scripted_sessions import make_scripted_sessions
+from tests.support.ui.focus import iter_controls
 from tests.support.ui.navigation import _state, _StubController, _StubTransport
 
 
@@ -26,11 +27,16 @@ async def _render(
     appearance: AppearanceBridge | None = None,
     pending_commands: Any = None,
     touch: bool = False,
+    platform_name: str = "",
     go: Any = None,
     preferences: Any = None,
+    transport: Any = None,
+    draft_store: Any = None,
 ) -> tuple[Any, ...]:
     controller = _StubController()
     sessions = make_scripted_sessions()
+    sessions.factory.draft_store = session_drafts(draft_store)
+    transport = transport if transport is not None else _StubTransport()
     now = [1000]
     pool = RetainedSessions(clock=lambda: now[0])
     state = _state()
@@ -56,7 +62,7 @@ async def _render(
             controls=[
                 Root(
                     controller=cast(SyncController, controller),
-                    transport=cast(HttpxGatewayTransport, _StubTransport()),
+                    transport=cast(HttpxGatewayTransport, transport),
                     host_id="home-mac",
                     bridge=bridge,
                     appearance=appearance,
@@ -68,6 +74,7 @@ async def _render(
                     pending_commands=pending_commands,
                     foreground=foreground,
                     touch=touch,
+                    platform_name=platform_name,
                 )
                 if mounted
                 else ft.Text("Closed"),

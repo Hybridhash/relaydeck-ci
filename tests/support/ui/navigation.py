@@ -6,10 +6,10 @@ import asyncio
 from dataclasses import replace
 from typing import Any
 
-from relaydeck.client.app import Root
-from relaydeck.client.features.inventory.components import AppShell
-from relaydeck.client.features.inventory.routing import RouteBridge
-from relaydeck.client.features.sync.backoff import Backoff
+from relaydeck.client.app.navigation import RouteBridge
+from relaydeck.client.app.root import Root
+from relaydeck.client.app.shell.shell import AppShell
+from relaydeck.client.platform.transport.backoff import Backoff
 from relaydeck.contracts.catalog import AgentCatalog
 from relaydeck.domain import reducers
 from relaydeck.domain.models import (
@@ -143,7 +143,7 @@ class _StubController:
         return self.state
 
     def accept_snapshot(self, host_id: str, doc: dict[str, Any]) -> AppState:
-        from relaydeck.client.features.sync.controller import snapshot_from_wire
+        from relaydeck.client.app.state.sync import snapshot_from_wire
 
         self.push(reducers.apply_snapshot(self.state, snapshot_from_wire(doc)))
         return self.state

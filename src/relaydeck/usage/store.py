@@ -176,10 +176,8 @@ LOCK_WAIT_SECONDS = 0.25
 
 
 class SqliteUsageStore:
-    """Host-partitioned ledger, with optional prices and injectable epoch-ms clock.
-
-    Default prices are absent, never inferred. `clock` supplies apply's retention time;
-    query/prune use their explicit now_ms. Neither optional input changes UsageStore.
+    """Host-partitioned ledger, with optional prices and injectable epoch-ms clock. Default
+    prices are absent, never inferred.
     """
 
     def __init__(
@@ -423,9 +421,8 @@ class SqliteUsageStore:
 
     @contextmanager
     def _transaction(self, *, write: bool = True) -> Iterator[sqlite3.Connection]:
-        # Admitted reports and ingest may legitimately take seconds. Polling this
-        # mutex bounds shutdown responsiveness, not their execution/admission time.
-        # HTTP deadlines and dedicated worker slots bound request-side work instead.
+        # Mutex polling bounds shutdown responsiveness; HTTP deadlines and worker slots bound
+        # request work.
         while not self._lock.acquire(timeout=LOCK_WAIT_SECONDS):
             if self._closed or self._stopping.is_set():
                 raise UsageUnavailable("closed")
@@ -554,12 +551,10 @@ class SqliteUsageStore:
         snapshots: tuple[LimitSnapshot, ...],
         observed_ms: int,
     ) -> None:
-        """Limits-plane write: atomically replace, per (host, kind, account, quota),
-        the full latest window set. Windows a reading no longer reports are removed;
-        a zero-window snapshot replaces its quota's set with an empty one. Other
-        accounts' readings are untouched, cursors and revisions are untouched, and a
-        reading older than the retention horizon is skipped. Never call this with a
-        failed fetch: failures keep last-good by not writing at all."""
+        """Limits-plane write: atomically replace, per (host, kind, account, quota), the full
+        latest window set. Windows a reading no longer reports are removed; a zero-window
+        snapshot replaces its quota's set with an empty one.
+        """
         try:
             self._apply_limits(kind, provider_key, snapshots, observed_ms)
         except (ValueError, TypeError, OverflowError):
@@ -574,15 +569,8 @@ class SqliteUsageStore:
         sources: Collection[str] = (),
     ) -> int:
         """Limits-plane failure: decide whether the previous reading may still be shown.
-
-        Last-good is reused only for an account that was positively identified. A reading with no
-        account identity, or any `auth_required` failure (the sign-in may now be another account or
-        none), is replaced by an error reading with no windows, so the old percentage is never
-        shown. A transient failure (timeout, unavailable, offline, parse) for an identified account
-        keeps its readings, which then age. Other sources and other accounts' stored rows are not
-        read as current by the display path (see `_limits`). The block's own readings are the rows
-        whose source is its format, or one of `sources` (the source labels it has written).
-        Returns the number of quotas suppressed."""
+        Last-good is reused only for an account that was positively identified.
+        """
         host = _source(provider_key, kind)
         names = sorted({provider_key.split("/")[2], *sources} - {""})
         LimitError(error)
@@ -1167,10 +1155,8 @@ class SqliteUsageStore:
 
     @staticmethod
     def _attributed_sql(*, inferred: bool) -> str:
-        # Evidence ladder. `ambig` counts distinct spaces among the episodes containing the event;
-        # more than one stays not_linked, never inferred. `inf` holds sessions with one candidate by
-        # digest+kind+overlap (empty when inferred linking is off). Rank 1 (reported identity) beats
-        # rank 2 (process evidence); `ambig` is judged within the best joined rank only.
+        # Choose attribution within the best evidence rank; multiple spaces remain unlinked rather
+        # than inferred.
         if inferred:
             inf = (
                 ", inf AS (SELECT s.host,s.kind,s.source,s.session,"
@@ -1247,10 +1233,8 @@ class SqliteUsageStore:
         )
 
     def recent_linked_workspace(self, host_id: str, kind: str) -> str | None:
-        """Most recently active linked workspace for host+kind, if any.
-
-        Tab placement: a workspace where this kind's
-        usage is already linked. Name only; never paths or prompts.
+        """Most recently active linked workspace for host+kind, if any. Tab placement: a
+        workspace where this kind's usage is already linked.
         """
         _key(host_id)
         _key(kind)
@@ -1335,9 +1319,7 @@ class SqliteUsageStore:
         prices = self.prices
 
         class Totals:
-            # Each event is priced on its own (tier thresholds are per event), then summed.
-            # An event is empty (no counter nonzero), priced (cost known, possibly 0) or unpriced.
-            # credit events bypass token accounting entirely; their milli-credits sum.
+            # Price token events individually before summing; credit events only sum milli-credits.
             def __init__(self) -> None:
                 self.counts = Counters()
                 self.cost: int | None = 0
@@ -1427,8 +1409,8 @@ class SqliteUsageStore:
             }
             if space_ws is not None and space_gen is None:
                 space_gen = current_gen.get(space_ws, 0)
-            # Hourly mode groups by the host-local wall-clock hour of each event; daily mode keeps
-            # NULL, so the grouping and the keyset are the same as before for every other query.
+            # Hourly grouping uses each event's host-local wall-clock hour; daily grouping uses
+            # NULL.
             hour = "usage_hour(occurred)" if query.hour else "NULL"
             sql = (
                 cte  # noqa: S608 - literal SQL fragments and placeholders, values bound
@@ -1779,10 +1761,8 @@ class SqliteUsageStore:
             grouped.setdefault((kind, quota, account), []).append(
                 (observed, window, current, source, error, plan_label)
             )
-        # Each window has its own observation time, so a window a newer reading dropped would
-        # survive. Return only the quota's latest observation set. Only the source's newest account
-        # is current; an unknown identity ("") is its own account, and a switched account's rows
-        # stay stored but hidden.
+        # Display the latest quota observation set for the active source account; retain other
+        # accounts hidden.
         latest_by_source: dict[tuple[str, str], int] = {}
         for (kind, _quota, _account), rows in grouped.items():
             for row in rows:
@@ -1832,12 +1812,11 @@ class SqliteUsageStore:
         active_sources: Collection[str],
         active_limits: Collection[str],
     ) -> int:
-        """Mark this host's coverage/cursor/cursor_files rows retired unless their
-        source is still configured, and its limits rows retired unless their
-        (kind, format) pair is still configured; un-mark rows that are
-        configured again. Events and all other history are untouched, so a
-        re-added source resumes from its kept cursor. Returns the number of
-        rows flipped. Other hosts' rows are never touched."""
+        """Mark this host's coverage/cursor/cursor_files rows retired unless their source is
+        still configured, and its limits rows retired unless their (kind, format) pair is
+        still configured; un-mark rows that are configured again. Events and all other
+        history are untouched, so a re-added source resumes from its kept cursor.
+        """
         _key(host_id)
         sources = tuple(dict.fromkeys(active_sources))
         limits = tuple(dict.fromkeys(active_limits))

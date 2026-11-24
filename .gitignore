@@ -8,6 +8,7 @@ __pycache__/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+.import_linter_cache/
 *.egg-info/
 .coverage
 htmlcov/
@@ -43,9 +44,11 @@ flutter_*.log
 extensions/terminal/third_party/file_picker-11.0.3-rd1/example/screenshots/
 extensions/terminal/third_party/file_picker-11.0.3-rd1/test/test_files/
 
-# Local files and tool folders at the root (only README.md and CHANGELOG.md are tracked)
+# Public root documentation is tracked; other root Markdown files remain local.
 /*.md
 !/README.md
 !/CHANGELOG.md
+!/SECURITY.md
+!/CONTRIBUTING.md
 /.*/
 !/.github/

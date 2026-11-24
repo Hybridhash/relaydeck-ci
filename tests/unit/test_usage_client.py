@@ -14,6 +14,7 @@ from typing import Any
 import pytest
 
 from relaydeck.client.features.usage import api, loop, model
+from relaydeck.client.features.usage.selectors import console_card as usage_console_card
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "usage" / "client"
 TODAY = date(2026, 10, 11)
@@ -90,7 +91,7 @@ def test_reasoning_is_inside_output_and_not_added_to_tokens() -> None:
 
 
 def test_console_picks_the_highest_used_fresh_window_with_its_own_reset() -> None:
-    card = model.console_card(page(), NOW_MS)
+    card = usage_console_card(page(), NOW_MS)
     assert card.has_today and card.cost_micro_usd is None  # kind-b unpriced today: unavailable
     assert card.pick is not None
     assert card.pick.window_key == "secondary" and card.pick.used_percent == 88.0
@@ -124,13 +125,13 @@ def test_console_ties_go_to_the_earliest_reset_and_expired_windows_never_win() -
             "status": "expired",
         }
     ]
-    card = model.console_card(model.parse_usage_page(doc), NOW_MS)
+    card = usage_console_card(model.parse_usage_page(doc), NOW_MS)
     assert card.pick is not None and card.pick.window_key == "secondary"
     assert card.pick.used_percent == 70.0
 
 
 def test_no_fresh_window_means_no_console_pick() -> None:
-    card = model.console_card(page("page-no-limits.json"), NOW_MS)
+    card = usage_console_card(page("page-no-limits.json"), NOW_MS)
     assert card.pick is None
 
 
@@ -351,6 +352,58 @@ def test_the_loop_stops_at_once_when_hidden_and_resumes_by_refreshing_first() ->
     assert calls[0] == "refresh"  # resume fetches immediately
 
 
+def test_an_oversize_page_stops_auto_refresh_for_its_query_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(loop, "CACHE_MAX_BYTES", 1)
+    feed = loop.UsageFeed()
+    key = ("host-a", "7d")
+    generation = feed.set_key(key)
+    assert feed.accept(generation, page(), NOW_MS)
+    assert feed.state.error == loop.PAGE_TOO_LARGE and feed.state.page is None
+    assert feed.auto_stopped() and feed.retry_delay() is None
+    feed.set_key(key)  # an effect restart on the same query does not clear it
+    assert feed.auto_stopped()
+    feed.clear_page_too_large()  # a manual refresh gets exactly one new try
+    assert not feed.auto_stopped() and feed.retry_delay() is not None
+    feed.accept(generation, page(), NOW_MS)  # still oversize: stopped again
+    assert feed.auto_stopped()
+    feed.set_key(("host-a", "30d"))  # another query never inherits the stop
+    assert not feed.auto_stopped()
+
+
+def test_a_none_delay_ends_the_loop_after_one_refresh() -> None:
+    calls: list[str] = []
+
+    async def refresh() -> None:
+        calls.append("refresh")
+
+    async def sleep(seconds: float) -> None:
+        calls.append("sleep")
+
+    asyncio.run(
+        loop.run_usage_loop(active=lambda: True, refresh=refresh, sleep=sleep, delay=lambda: None)
+    )
+    assert calls == ["refresh"]
+
+
+def test_page_bytes_counts_nested_containers_once_and_survives_cycles() -> None:
+    shared = ["x" * 512]
+    nested = {"a": [shared, {frozenset({"y" * 64})}, (shared,)]}
+    counted = loop.page_bytes(nested)
+    assert counted > loop.page_bytes({"a": []})
+    assert loop.page_bytes((shared, shared)) - loop.page_bytes((shared,)) < 100
+    cyclic: list[Any] = []
+    cyclic.append(cyclic)
+    assert loop.page_bytes(cyclic) > 0  # terminates
+    deep = current = []
+    for _ in range(200):
+        nxt: list[Any] = ["z" * 256]
+        current.append(nxt)
+        current = nxt
+    assert loop.page_bytes(deep, limit=128) < loop.page_bytes(deep)
+
+
 def test_cancelling_the_loop_stops_it_during_the_wait() -> None:
     async def refresh() -> None:
         return None
@@ -371,7 +424,7 @@ def test_cancelling_the_loop_stops_it_during_the_wait() -> None:
 def _transport(handler: Any) -> Any:
     import httpx
 
-    from relaydeck.client.features.sync.transport import HttpxGatewayTransport
+    from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
 
     async def token() -> str:
         return "token-a"
@@ -401,8 +454,8 @@ def test_the_transport_sends_days_and_returns_the_gateway_document() -> None:
 def test_a_refused_usage_request_keeps_its_safe_code_for_the_feed() -> None:
     import httpx
 
+    from relaydeck.client.app.resources import gateway_usage_fetch
     from relaydeck.client.features.usage.api import UsageHttpError
-    from relaydeck.client.features.usage.source import gateway_usage_fetch
 
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(404, json={"error": "usage_disabled"})
@@ -414,7 +467,7 @@ def test_a_refused_usage_request_keeps_its_safe_code_for_the_feed() -> None:
 
 
 def test_the_base_transport_reports_usage_unavailable_without_a_network() -> None:
-    from relaydeck.client.features.sync.transport import GatewayTransport, TransportError
+    from relaydeck.client.ports.transport import GatewayTransport, TransportError
 
     class Minimal(GatewayTransport):  # type: ignore[misc]
         async def me(self) -> dict[str, Any]:
@@ -507,7 +560,7 @@ def test_console_picks_a_fresh_weekly_window_even_when_the_aggregate_is_expired(
     doc = fixture("page-overall.json")
     doc["limits"][0]["status"] = "expired"  # the aggregate snapshot is expired ...
     parsed = model.parse_usage_page(doc)
-    card = model.console_card(parsed, NOW_MS)  # ... but the weekly window is still fresh
+    card = usage_console_card(parsed, NOW_MS)  # ... but the weekly window is still fresh
     assert card.pick is not None and card.pick.window_key == "secondary"
     assert card.pick.resets_at_ms == 1791900000000
 

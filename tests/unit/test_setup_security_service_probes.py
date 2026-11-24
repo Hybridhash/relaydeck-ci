@@ -13,7 +13,9 @@ from typing import Any
 
 import pytest
 
-from relaydeck.companion import detect, prereqs, service, tailscale
+from relaydeck.companion.adapters import launchd as service
+from relaydeck.companion.adapters import tailscale
+from relaydeck.companion.inspection import detect, prereqs
 
 
 def _install(home: Path) -> service.Outcome:
@@ -85,6 +87,8 @@ def test_probes_never_run_a_candidate_in_a_writable_directory(
     binary.write_text("#!/bin/sh\nexit 0\n")
     binary.chmod(0o755)
     monkeypatch.setenv("PATH", str(folder))
+    # the lookup also searches ~/.local/bin; a private empty home keeps this Mac's own tools out
+    monkeypatch.setenv("HOME", str(tmp_path / "empty-home"))
     monkeypatch.setattr(tailscale, "CANDIDATES", ("tailscale",))
     monkeypatch.setattr(tailscale, "APP_BUNDLE_CLI", str(tmp_path / "absent"))
     calls: list[Any] = []

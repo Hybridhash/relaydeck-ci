@@ -1,11 +1,6 @@
-"""Select-text/copy surface shared by AgentSession and ShellSession.
-
-Owns the frozen engine snapshot of an open selection sheet and drives the
-terminal view state's selection slice through the pure reducers in
-`models`/`selection_model`. It holds no session reference: state access,
-the bound renderer, the output log, notification and the clipboard port all
-arrive through `SelectionHooks`. Copy writes only to the clipboard port; it
-never emits PTY input and never touches a composer draft.
+"""Select-text/copy surface shared by AgentSession and ShellSession. Owns the frozen engine
+snapshot of an open selection sheet and drives the terminal view state's selection slice
+through the pure reducers in `models`/`selection_model`.
 """
 
 from __future__ import annotations
@@ -58,14 +53,9 @@ class SelectionController:
         return self._hooks.output_text()
 
     async def open_snapshot(self, anchor: int | None = None, focus: int | None = None) -> None:
-        """Open Select Text on a frozen ENGINE snapshot.
-
-        Fetches the live emulator buffer from the bound renderer and
-        freezes it for the sheet lifetime, so cursor overwrites and the
-        alternate screen render as the engine shows them, never raw
-        ANSI bytes. When no renderer is bound (or it cannot snapshot),
-        falls back to the raw output log; a failed fetch additionally
-        records a visible error instead of silently showing raw bytes.
+        """Open Select Text on a frozen ENGINE snapshot. Fetches the live emulator buffer from
+        the bound renderer and freezes it for the sheet lifetime, so cursor overwrites and
+        the alternate screen render as the engine shows them, never raw ANSI bytes.
         """
         hooks = self._hooks
         term = hooks.term()

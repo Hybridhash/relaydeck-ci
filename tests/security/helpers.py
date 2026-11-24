@@ -13,8 +13,9 @@ from typing import Any
 
 from fastapi.testclient import TestClient
 
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
 
 FIXTURES = Path(__file__).resolve().parent.parent / "fixtures" / "gateway"
 SECRET = b"synthetic-security-test-secret-32b!!"

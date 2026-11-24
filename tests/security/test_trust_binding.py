@@ -18,7 +18,7 @@ import pytest
 from starlette.websockets import WebSocketDisconnect
 
 from relaydeck.connector.herdr import DEFAULT_SOCKET
-from relaydeck.connector.pubkey import _origin_ok as qr_origin_ok
+from relaydeck.contracts.enrollment import _origin_ok as qr_origin_ok
 from tests.security.helpers import make_client
 
 
@@ -26,7 +26,7 @@ def test_enrollment_key_binding_rejects_mismatch() -> None:
     """Covered at the HTTP boundary in test_enrollment_replay
     (wrong-key and proof/host/id binding); this pins the primitive:
     a proof verifies only for its exact (invitation, host, key)."""
-    from relaydeck.connector.pubkey import generate, sign_proof, verify_proof
+    from relaydeck.host.security.enrollment import generate, sign_proof, verify_proof
 
     seed_a, pub_a = generate()
     _, pub_b = generate()

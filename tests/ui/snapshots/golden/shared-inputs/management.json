@@ -1,0 +1,530 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "key": "management-title",
+         "props": {
+          "selectable": true,
+          "style": {
+           "@": "TextStyle",
+           "color": "#F5F2FF",
+           "font_family": "Bricolage Grotesque ExtraBold",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.1818181818181819,
+           "size": 22,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "w800"
+           }
+          },
+          "value": "Host management"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "management-loading",
+         "props": {
+          "visible": false
+         },
+         "slot": "controls",
+         "type": "ProgressBar"
+        },
+        {
+         "key": "management-error",
+         "props": {
+          "selectable": true,
+          "style": {
+           "@": "TextStyle",
+           "color": "#FFB4AB",
+           "font_family": "Bricolage Grotesque",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.4,
+           "size": 16,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "unauthenticated"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "management-notice",
+         "props": {
+          "selectable": true,
+          "style": {
+           "@": "TextStyle",
+           "color": "#F5F2FF",
+           "font_family": "Bricolage Grotesque",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.4,
+           "size": 16,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "management-refresh",
+         "props": {
+          "content": "Refresh management",
+          "height": 48,
+          "style": {
+           "@": "ButtonStyle",
+           "bgcolor": {
+            "ControlState.DEFAULT": "#2B2356",
+            "ControlState.DISABLED": "#2B2356",
+            "ControlState.FOCUSED": "#1F1840",
+            "ControlState.HOVERED": "#1F1840"
+           },
+           "color": {
+            "ControlState.DEFAULT": "#F5F2FF",
+            "ControlState.DISABLED": "#B7AFDA"
+           },
+           "elevation": 0,
+           "icon_size": 20,
+           "overlay_color": "transparent",
+           "padding": {
+            "@": "Padding",
+            "bottom": 8,
+            "left": 12,
+            "right": 12,
+            "top": 8
+           },
+           "shape": {
+            "@": "RoundedRectangleBorder",
+            "radius": 8
+           },
+           "side": {
+            "ControlState.DEFAULT": {
+             "@": "BorderSide",
+             "color": "#8E86B8"
+            },
+            "ControlState.FOCUSED": {
+             "@": "BorderSide",
+             "color": "#A98BFF",
+             "width": 2
+            }
+           },
+           "text_style": {
+            "@": "TextStyle",
+            "font_family_fallback": [
+             "Noto Sans Symbols 2",
+             "Noto Sans Symbols"
+            ],
+            "size": 14,
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w500"
+            }
+           }
+          }
+         },
+         "slot": "controls",
+         "type": "Button"
+        },
+        {
+         "key": "managed-hosts-empty",
+         "props": {
+          "selectable": true,
+          "style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA",
+           "font_family": "Bricolage Grotesque",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.4,
+           "size": 16,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "No managed hosts loaded. Refresh to load host detail."
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "enroll-host-open",
+         "props": {
+          "content": "Enroll a host",
+          "disabled": true,
+          "height": 48,
+          "style": {
+           "@": "ButtonStyle",
+           "bgcolor": {
+            "ControlState.DEFAULT": "#2B2356",
+            "ControlState.DISABLED": "#2B2356",
+            "ControlState.FOCUSED": "#1F1840",
+            "ControlState.HOVERED": "#1F1840"
+           },
+           "color": {
+            "ControlState.DEFAULT": "#F5F2FF",
+            "ControlState.DISABLED": "#B7AFDA"
+           },
+           "elevation": 0,
+           "icon_size": 20,
+           "overlay_color": "transparent",
+           "padding": {
+            "@": "Padding",
+            "bottom": 8,
+            "left": 12,
+            "right": 12,
+            "top": 8
+           },
+           "shape": {
+            "@": "RoundedRectangleBorder",
+            "radius": 8
+           },
+           "side": {
+            "ControlState.DEFAULT": {
+             "@": "BorderSide",
+             "color": "#8E86B8"
+            },
+            "ControlState.FOCUSED": {
+             "@": "BorderSide",
+             "color": "#A98BFF",
+             "width": 2
+            }
+           },
+           "text_style": {
+            "@": "TextStyle",
+            "font_family_fallback": [
+             "Noto Sans Symbols 2",
+             "Noto Sans Symbols"
+            ],
+            "size": 14,
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w500"
+            }
+           }
+          }
+         },
+         "slot": "controls",
+         "type": "Button"
+        },
+        {
+         "key": "enroll-host-disabled-reason",
+         "props": {
+          "selectable": true,
+          "style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA",
+           "font_family": "Bricolage Grotesque",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.4,
+           "size": 16,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "Enrollment needs the hosts.enroll capability."
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "enroll-host-label",
+         "props": {
+          "border": {
+           "ControlState.DEFAULT": {
+            "@": "OutlineInputBorder",
+            "border_radius": 12,
+            "side": {
+             "@": "BorderSide",
+             "color": "#8E86B8"
+            }
+           },
+           "ControlState.FOCUSED": {
+            "@": "OutlineInputBorder",
+            "border_radius": 12,
+            "side": {
+             "@": "BorderSide",
+             "color": "#A98BFF",
+             "width": 2
+            }
+           }
+          },
+          "color": "#F5F2FF",
+          "content_padding": 12,
+          "cursor_color": "#A98BFF",
+          "fill_color": "#2B2356",
+          "filled": true,
+          "label": "Host label",
+          "label_style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA"
+          },
+          "text_size": 16,
+          "value": "Example host"
+         },
+         "slot": "controls",
+         "type": "TextField"
+        },
+        {
+         "key": "enroll-host-key",
+         "props": {
+          "border": {
+           "ControlState.DEFAULT": {
+            "@": "OutlineInputBorder",
+            "border_radius": 12,
+            "side": {
+             "@": "BorderSide",
+             "color": "#8E86B8"
+            }
+           },
+           "ControlState.FOCUSED": {
+            "@": "OutlineInputBorder",
+            "border_radius": 12,
+            "side": {
+             "@": "BorderSide",
+             "color": "#A98BFF",
+             "width": 2
+            }
+           }
+          },
+          "color": "#F5F2FF",
+          "content_padding": 12,
+          "cursor_color": "#A98BFF",
+          "fill_color": "#2B2356",
+          "filled": true,
+          "label": "Mac connector public key",
+          "label_style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA"
+          },
+          "text_size": 16
+         },
+         "slot": "controls",
+         "type": "TextField"
+        },
+        {
+         "key": "enroll-fingerprint-preview",
+         "props": {
+          "selectable": true,
+          "style": {
+           "@": "TextStyle",
+           "color": "#F5F2FF",
+           "font_family": "JetBrains Mono",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.4,
+           "size": 14,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "Paste the Mac connector's Ed25519 public key."
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "enroll-fingerprint",
+         "props": {
+          "border": {
+           "ControlState.DEFAULT": {
+            "@": "OutlineInputBorder",
+            "border_radius": 12,
+            "side": {
+             "@": "BorderSide",
+             "color": "#8E86B8"
+            }
+           },
+           "ControlState.FOCUSED": {
+            "@": "OutlineInputBorder",
+            "border_radius": 12,
+            "side": {
+             "@": "BorderSide",
+             "color": "#A98BFF",
+             "width": 2
+            }
+           }
+          },
+          "color": "#F5F2FF",
+          "content_padding": 12,
+          "cursor_color": "#A98BFF",
+          "fill_color": "#2B2356",
+          "filled": true,
+          "label": "Full SHA256 fingerprint from Mac",
+          "label_style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA"
+          },
+          "text_size": 16
+         },
+         "slot": "controls",
+         "type": "TextField"
+        },
+        {
+         "key": "enroll-fingerprint-confirm",
+         "props": {
+          "height": 48,
+          "label": "I checked this fingerprint on my Mac"
+         },
+         "slot": "controls",
+         "type": "Checkbox"
+        },
+        {
+         "key": "enroll-host-create",
+         "props": {
+          "content": "Create one-use invitation",
+          "disabled": true,
+          "height": 48,
+          "style": {
+           "@": "ButtonStyle",
+           "bgcolor": {
+            "ControlState.DEFAULT": "#2B2356",
+            "ControlState.DISABLED": "#2B2356",
+            "ControlState.FOCUSED": "#1F1840",
+            "ControlState.HOVERED": "#1F1840"
+           },
+           "color": {
+            "ControlState.DEFAULT": "#F5F2FF",
+            "ControlState.DISABLED": "#B7AFDA"
+           },
+           "elevation": 0,
+           "icon_size": 20,
+           "overlay_color": "transparent",
+           "padding": {
+            "@": "Padding",
+            "bottom": 8,
+            "left": 12,
+            "right": 12,
+            "top": 8
+           },
+           "shape": {
+            "@": "RoundedRectangleBorder",
+            "radius": 8
+           },
+           "side": {
+            "ControlState.DEFAULT": {
+             "@": "BorderSide",
+             "color": "#8E86B8"
+            },
+            "ControlState.FOCUSED": {
+             "@": "BorderSide",
+             "color": "#A98BFF",
+             "width": 2
+            }
+           },
+           "text_style": {
+            "@": "TextStyle",
+            "font_family_fallback": [
+             "Noto Sans Symbols 2",
+             "Noto Sans Symbols"
+            ],
+            "size": 14,
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w500"
+            }
+           }
+          }
+         },
+         "slot": "controls",
+         "type": "Button"
+        },
+        {
+         "key": "enroll-host-explanation",
+         "props": {
+          "selectable": true,
+          "style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA",
+           "font_family": "Bricolage Grotesque",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.4,
+           "size": 16,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "Share this short-lived code only with your Mac connector. Pairing does not establish a private route or prove reachability."
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "expand": true,
+        "scroll": {
+         "enum": "ScrollMode",
+         "value": "auto"
+        },
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Column"
+      }
+     ],
+     "key": "management-bounds",
+     "props": {
+      "bgcolor": "#191335",
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       },
+       "left": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       },
+       "right": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       },
+       "top": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "border_radius": {
+       "@": "BorderRadius",
+       "bottom_left": 24,
+       "bottom_right": 24,
+       "top_left": 24,
+       "top_right": 24
+      },
+      "expand": true,
+      "padding": 22
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:ManagementPane"
+  }
+ ]
+}

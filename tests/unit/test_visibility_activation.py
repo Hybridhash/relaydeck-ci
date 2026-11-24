@@ -14,12 +14,18 @@ from typing import Any
 import httpx
 import pytest
 
-from relaydeck.client import serve
-from relaydeck.client.features.auth.web_recovery import RECOVERY_SCRIPT
-from relaydeck.client.features.terminal.input_modes import WORKFLOW_AGENT_DIRECT
-from relaydeck.client.resources import AppResources
-from relaydeck.client.retained_sessions import RetainedSessions
+from relaydeck.client.app.resources import AppResources
+from relaydeck.client.app.sessions.retained import RetainedSessions
+from relaydeck.client.models.input.modes import WORKFLOW_AGENT_DIRECT
+from relaydeck.companion.app.hosted_web import serve
+from relaydeck.companion.app.hosted_web.web_recovery import RECOVERY_SCRIPT
 from relaydeck.contracts.wire.terminal import decode_input
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.gateway.flet_gateway import _gateway_state
 from tests.support.scripted_sessions import make_scripted_sessions
 
@@ -57,8 +63,8 @@ async def _web(monkeypatch: pytest.MonkeyPatch) -> tuple[Any, ...]:
         run_task=lambda handler: asyncio.ensure_future(handler()),
     )
     store.bind_flet(sid, page.session.id, serve._Handshake("", "synthetic", ""))
-    monkeypatch.setattr("relaydeck.client.app.run_app", lambda *a, **kw: resources)
-    from relaydeck.gateway.app import create_app
+    monkeypatch.setattr("relaydeck.client.app.root.run_app", lambda *a, **kw: resources)
+    from relaydeck.gateway.app.bootstrap import create_app
 
     state = _gateway_state()
     gateway = create_app(state)
@@ -139,7 +145,7 @@ def test_visibility_auth_matrix_has_one_uniform_no_effect_response(
             transport=httpx.ASGITransport(app=app), base_url=ORIGIN
         ) as http:
             if cookie:
-                headers.append(("Cookie", "rd_session=" + cookie))
+                headers.append(("Cookie", "__Host-rd_session=" + cookie))
             response = await http.post("/v1/ui/visibility", headers=headers, json=body)
         assert response.status_code == 204 and response.content == b""
         assert response.headers["cache-control"] == "no-store"
@@ -160,7 +166,7 @@ def test_own_page_visibility_logs_and_activates_without_pausing(
             async with httpx.AsyncClient(
                 transport=httpx.ASGITransport(app=app),
                 base_url=ORIGIN,
-                headers={"Origin": ORIGIN, "Cookie": "rd_session=" + cookie},
+                headers={"Origin": ORIGIN, "Cookie": "__Host-rd_session=" + cookie},
             ) as http:
                 hidden = {"state": "hidden", "persisted": False, "flet": "own-page"}
                 assert (await http.post("/v1/ui/visibility", json=hidden)).status_code == 204
@@ -189,7 +195,7 @@ def test_a_visible_report_before_the_socket_reconnects_leaves_activation_to_reco
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app),
             base_url=ORIGIN,
-            headers={"Origin": ORIGIN, "Cookie": "rd_session=" + cookie},
+            headers={"Origin": ORIGIN, "Cookie": "__Host-rd_session=" + cookie},
         ) as http:
             visible = {"state": "visible", "persisted": False, "flet": "own-page"}
             assert (await http.post("/v1/ui/visibility", json=visible)).status_code == 204
@@ -205,7 +211,7 @@ def test_visibility_limits_reports_per_page_without_timers(monkeypatch: pytest.M
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app),
             base_url=ORIGIN,
-            headers={"Origin": ORIGIN, "Cookie": "rd_session=" + cookie},
+            headers={"Origin": ORIGIN, "Cookie": "__Host-rd_session=" + cookie},
         ) as http:
             body = {"state": "visible", "persisted": False, "flet": "own-page"}
             for _ in range(12):
@@ -239,7 +245,7 @@ def test_page_must_still_be_live_after_identity_revalidation(
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app),
             base_url=ORIGIN,
-            headers={"Origin": ORIGIN, "Cookie": "rd_session=" + cookie},
+            headers={"Origin": ORIGIN, "Cookie": "__Host-rd_session=" + cookie},
         ) as http:
             response = await http.post(
                 "/v1/ui/visibility",
@@ -271,7 +277,7 @@ def test_visibility_ignores_malformed_and_oversize_bodies(
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app),
             base_url=ORIGIN,
-            headers={"Origin": ORIGIN, "Cookie": "rd_session=" + cookie},
+            headers={"Origin": ORIGIN, "Cookie": "__Host-rd_session=" + cookie},
         ) as http:
             response = await http.post("/v1/ui/visibility", content=raw)
         assert response.status_code == 204
@@ -325,7 +331,7 @@ def test_input_observation_failure_is_content_free_and_does_not_escape(
     now = [1000.0]
     resources = _resources(now)
     monkeypatch.setattr(
-        "relaydeck.client.resources.diagnostics_logger",
+        "relaydeck.client.app.resources.diagnostics_logger",
         lambda: logging.getLogger("visibility-test"),
     )
 

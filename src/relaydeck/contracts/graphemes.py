@@ -1,7 +1,5 @@
-"""Extended grapheme clusters per Unicode UAX #29 (rules GB1 to GB999, with GB9c).
-
-The property tables are generated (grapheme_data.py). One function serves the client
-counter, the input clamp and the gateway policy, so they always agree.
+"""Extended grapheme clusters per Unicode UAX #29 (rules GB1 to GB999, with GB9c). The property
+tables are generated (grapheme_data.py).
 """
 
 from __future__ import annotations

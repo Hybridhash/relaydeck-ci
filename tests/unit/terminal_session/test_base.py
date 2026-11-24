@@ -1,4 +1,4 @@
-"""Q5f: TerminalSessionBase skeleton, template order and abstract hooks."""
+"""TerminalSessionBase skeleton, template order and abstract hooks."""
 
 from __future__ import annotations
 
@@ -8,24 +8,27 @@ from typing import Any, cast
 
 import pytest
 
-from relaydeck.client.features.shell.ops import LeaseInfo, ShellOpError
-from relaydeck.client.features.shell.session import ShellSession
-from relaydeck.client.features.sync.transport import TransportError
 from relaydeck.client.features.terminal.agent_session import AgentSession
 from relaydeck.client.features.terminal.controller import TerminalController
-from relaydeck.client.features.terminal.input_modes import (
+from relaydeck.client.features.terminal.input_modes import InputModeState
+from relaydeck.client.features.terminal.renewal import utc_stamp_in
+from relaydeck.client.features.terminal.session.base import TerminalSessionBase
+from relaydeck.client.features.terminal.sessions import DetailSessions
+from relaydeck.client.features.terminal.shell_session import ShellSession
+from relaydeck.client.models.input.modes import (
     WORKFLOW_AGENT_COMPOSER,
     WORKFLOW_AGENT_DIRECT,
     WORKFLOW_SHELL,
-    InputModeState,
 )
-from relaydeck.client.features.terminal.renewal import utc_stamp_in
-from relaydeck.client.features.terminal.session.base import TerminalSessionBase
-from relaydeck.client.features.terminal.surfaces import DetailSessions
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
+)
+from relaydeck.client.ports.terminal import LeaseInfo, ShellOpError
+from relaydeck.client.ports.transport import TransportError
 from tests.support.scripted_sessions import make_scripted_sessions
 
-# Q5g merged `_spawn_controller`, `_classify_run_exit`, `drive_recovery` and the shared
-# core of `_on_renewal_terminal` into the base: only genuine differences stay abstract.
+# `_spawn_controller`, `_classify_run_exit`, `drive_recovery` and the shared core of
+# `_on_renewal_terminal` live in the base: only genuine differences stay abstract.
 ABSTRACT = {"_on_attach_lost", "_workflow_kind", "_reconnect_flow", "_terminal_label"}
 
 
@@ -90,6 +93,7 @@ class Stub(TerminalSessionBase):
         self.calls: list[str] = []
         self.ops = FakeOps(self.calls)
         super().__init__(
+            stream_factory=_terminal_stream_factory,
             ops=cast(Any, self.ops),
             host_id="mac",
             device_id="dev",
