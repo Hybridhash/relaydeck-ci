@@ -61,7 +61,7 @@ dev = [
   "pytest>=9.0.3,<9.1",
   "ruff>=0.11,<0.13",
   "mypy>=1.15,<2",
-  "import-linter==2.15",
+  "import-linter==2.16",
 ]
 
 [project.scripts]
