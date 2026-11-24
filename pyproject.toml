@@ -58,7 +58,7 @@ dev = [
   "flet-cli==1.0.3",
   "flet-web==1.0.3",
   "flet-desktop==1.0.3",
-  "pytest>=9.0.3,<9.1",
+  "pytest>=9.2.0,<9.3",
   "ruff>=0.11,<0.13",
   "mypy>=1.15,<2",
   "import-linter==2.15",
