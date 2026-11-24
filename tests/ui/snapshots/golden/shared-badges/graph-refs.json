@@ -1,0 +1,241 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#C8F03C",
+          "max_lines": 1,
+          "no_wrap": true,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 10,
+          "value": "HEAD"
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "bgcolor": "#C8F03C,0.14",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#C8F03C,0.45"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#C8F03C,0.45"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#C8F03C,0.45"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#C8F03C,0.45"
+         }
+        },
+        "border_radius": 6,
+        "padding": {
+         "@": "Padding",
+         "bottom": 2,
+         "left": 5,
+         "right": 5,
+         "top": 2
+        },
+        "width": 34.8
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#C4B0FF",
+          "max_lines": 1,
+          "no_wrap": true,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 10,
+          "value": "main · base"
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "bgcolor": "#A98BFF,0.16",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#A98BFF,0.5"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#A98BFF,0.5"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#A98BFF,0.5"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#A98BFF,0.5"
+         }
+        },
+        "border_radius": 6,
+        "padding": {
+         "@": "Padding",
+         "bottom": 2,
+         "left": 5,
+         "right": 5,
+         "top": 2
+        },
+        "width": 78.2
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#F5F2FF",
+          "max_lines": 1,
+          "no_wrap": true,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 10,
+          "value": "split"
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "bgcolor": "#27204E",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         }
+        },
+        "border_radius": 6,
+        "padding": {
+         "@": "Padding",
+         "bottom": 2,
+         "left": 5,
+         "right": 5,
+         "top": 2
+        },
+        "width": 41.0
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#F5F2FF",
+          "max_lines": 1,
+          "no_wrap": true,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "size": 10,
+          "value": "feature/example"
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "bgcolor": "#27204E",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         }
+        },
+        "border_radius": 6,
+        "padding": {
+         "@": "Padding",
+         "bottom": 2,
+         "left": 5,
+         "right": 5,
+         "top": 2
+        },
+        "width": 103.0
+       },
+       "slot": "controls",
+       "type": "Container"
+      },
+      {
+       "props": {
+        "color": "#B7AFDA",
+        "size": 10,
+        "value": "+1"
+       },
+       "slot": "controls",
+       "type": "Text"
+      }
+     ],
+     "props": {
+      "scroll": {
+       "enum": "ScrollMode",
+       "value": "hidden"
+      },
+      "spacing": 4,
+      "tight": true
+     },
+     "slot": "controls",
+     "type": "Row"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

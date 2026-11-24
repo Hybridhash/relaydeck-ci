@@ -12,27 +12,35 @@ import flet as ft
 import httpx
 import pytest
 
-from relaydeck.client.app import Root
-from relaydeck.client.features.composer.observation import CommandOutcomeUnknown, CommandRefused
+from relaydeck.client.app.navigation import RouteBridge
+from relaydeck.client.app.root import Root
+from relaydeck.client.app.sessions.factory import SessionFactory
+from relaydeck.client.app.state.sync import SyncController
 from relaydeck.client.features.create.commands import agent_start_command, shell_create_command
 from relaydeck.client.features.create.components import NewTerminalSheet, StartAgentSheet
 from relaydeck.client.features.create.observation import CreationObserver
 from relaydeck.client.features.create.validation import parse_argv
-from relaydeck.client.features.inventory.routing import RouteBridge
-from relaydeck.client.features.shell.ops import HttpxShellGatewayOps
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport, TransportError
-from relaydeck.client.sessions import SessionFactory
-from relaydeck.connector.fixture import FixtureAdapter
+from relaydeck.client.features.terminal.pictures import PictureApi as PictureApiFactory
+from relaydeck.client.platform.transport.shell_ops import HttpxShellGatewayOps
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.client.ports.commands import CommandOutcomeUnknown, CommandRefused
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.connector.herdr import HerdrError
 from relaydeck.connector.link import ConnectorLink, LinkConfig
 from relaydeck.contracts.launch import default_agent_name, public_command_result
 from relaydeck.contracts.schemas import validate
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.backend import BackendError
-from relaydeck.gateway.production import MAX_OUTBOX_PER_HOST, JournalBackend
+from relaydeck.devtools.fakes.connector import FixtureAdapter
+from relaydeck.gateway.app.backend import MAX_OUTBOX_PER_HOST, JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.ports import BackendError
 from tests.security.helpers import mint_token
 from tests.support.asgi_socket import AsgiSocket
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.gateway.asgi_terminal import AsgiTerminal
 from tests.support.host_harness import render_component, run
 from tests.support.sync.transport_fixtures import _state, _wait
@@ -333,7 +341,7 @@ def test_root_launch_observes_http_outcome_and_fences_duplicate_clicks(
                 yield None
 
         transport = RootTransport("http://gw", get_token, http)
-        from relaydeck.client.pending_commands import PendingCommands
+        from relaydeck.client.features.commands.recovery import PendingCommands
         from tests.support.fakes import FakeCredentialStore
 
         transport.commands = PendingCommands(
@@ -349,7 +357,9 @@ def test_root_launch_observes_http_outcome_and_fences_duplicate_clicks(
             return AsgiTerminal(gateway, lease, ticket)
 
         factory = SessionFactory(
-            ops=HttpxShellGatewayOps("http://gw", get_token, http),
+            ops=HttpxShellGatewayOps(
+                "http://gw", get_token, http, picture_api_factory=PictureApiFactory
+            ),
             open_stream=open_stream,
             submit_command=transport.submit_command,
             prompt_text=None,

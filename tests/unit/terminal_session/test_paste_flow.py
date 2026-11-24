@@ -1,4 +1,4 @@
-"""Q5d: PasteFlow alone, over the real generation-bound PasteReviewSession."""
+"""PasteFlow alone, over the real generation-bound PasteReviewSession."""
 
 from __future__ import annotations
 
@@ -7,9 +7,6 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.adapters.clipboard import ClipboardReadStatus
-from relaydeck.client.adapters.ports import ClipboardPort
-from relaydeck.client.features.terminal.paste_policy import BRACKET_END, BRACKET_START
 from relaydeck.client.features.terminal.paste_review import (
     REQUEST_BLOCKED,
     REQUEST_INSERTED,
@@ -19,6 +16,9 @@ from relaydeck.client.features.terminal.paste_review import (
     PasteReviewSession,
 )
 from relaydeck.client.features.terminal.session.paste import PasteFlow, PasteHooks
+from relaydeck.client.models.input.paste_policy import BRACKET_END, BRACKET_START
+from relaydeck.client.platform.flet.clipboard import ClipboardReadStatus
+from relaydeck.client.ports.clipboard import ClipboardPort
 
 MULTILINE = "echo one\necho two"
 

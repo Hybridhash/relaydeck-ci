@@ -9,7 +9,7 @@ from typing import Any
 import flet as ft
 import pytest
 
-from relaydeck.client.features.shell.ops import ShellGatewayOps
+from relaydeck.client.ports.terminal import ShellGatewayOps
 from tests.support.paths import TESTS_DIR
 
 PATH = "/Users/synthetic/Library/Application Support/RelayDeck/attachments/abcdef.jpg"

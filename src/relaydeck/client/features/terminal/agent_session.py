@@ -1,8 +1,6 @@
-"""Agent composer and generation-bound terminal interaction.
-
-Draft edits stay local; sending requires committed input and the current writer.
-Agent attach takes upstream ownership, so open and reconnect arm disclosure
-without attaching. Confirmation authorizes takeover."""
+"""Agent composer and generation-bound terminal interaction. Draft edits stay local; sending
+requires committed input and the current writer.
+"""
 
 from __future__ import annotations
 
@@ -12,48 +10,44 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from relaydeck.client.adapters.ports import CredentialStore
+    from relaydeck.contracts.storage import CredentialStore
 
-from relaydeck.client import open_timing
-from relaydeck.client.features.composer.domain import (
+from relaydeck.client.features.composer.api import (
     SEND_IGNORED,
+    CommandSubscriber,
     ComposerStore,
-    bind_blocked_writer,
-)
-from relaydeck.client.features.lifecycle.persist import (
     PausePersistReport,
     ResumeRestoreReport,
+    bind_blocked_writer,
     draft_key,
     pause_persist,
-    resume_restore,
 )
-from relaydeck.client.features.shell.ops import (
+from relaydeck.client.features.terminal import draft_preparation
+from relaydeck.client.features.terminal.controller import WATCH_RETRY_DELAYS_S, TerminalController
+from relaydeck.client.features.terminal.geometry import DEFAULT_GEOMETRY, reported_geometry
+from relaydeck.client.features.terminal.input_modes import InputModeState
+from relaydeck.client.features.terminal.models import TerminalViewState
+from relaydeck.client.features.terminal.session.base import TerminalSessionBase
+from relaydeck.client.features.terminal.session.lease import LeaseHooks
+from relaydeck.client.features.terminal.sessions import (
+    TAKEOVER_DISCLOSURE_AGENT,
+    DetailSessions,
+    gated_composer_send,
+)
+from relaydeck.client.features.terminal.stream import EMULATOR_FRESH, EMULATOR_PRESERVED
+from relaydeck.client.features.terminal.ui_resume import terminal_transition
+from relaydeck.client.features.terminal.warm_watch import watch_only
+from relaydeck.client.models.input.modes import KEYBOARD_TEXT, WORKFLOW_AGENT_COMPOSER
+from relaydeck.client.platform.diagnostics import open_timing
+from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
+from relaydeck.client.ports.terminal import (
     AttachmentInfo,
     LeaseInfo,
     ShellGatewayOps,
     ShellOpError,
     owner_display_from_details,
 )
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
-from relaydeck.client.features.terminal.controller import WATCH_RETRY_DELAYS_S, TerminalController
-from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
-from relaydeck.client.features.terminal.geometry import DEFAULT_GEOMETRY, reported_geometry
-from relaydeck.client.features.terminal.input_modes import (
-    KEYBOARD_TEXT,
-    WORKFLOW_AGENT_COMPOSER,
-    InputModeState,
-)
-from relaydeck.client.features.terminal.models import TerminalViewState
-from relaydeck.client.features.terminal.session.base import TerminalSessionBase
-from relaydeck.client.features.terminal.session.lease import LeaseHooks
-from relaydeck.client.features.terminal.stream import EMULATOR_FRESH, EMULATOR_PRESERVED
-from relaydeck.client.features.terminal.surfaces import (
-    TAKEOVER_DISCLOSURE_AGENT,
-    DetailSessions,
-    gated_composer_send,
-)
-from relaydeck.client.features.terminal.ui_resume import terminal_transition
-from relaydeck.client.features.terminal.warm_watch import watch_only
+from relaydeck.client.ports.transport import TerminalSocket, TerminalStreamFactory, TransportError
 from relaydeck.contracts.terminal_ownership import is_control_revision
 
 AGENT_CONNECTING = "connecting"
@@ -141,6 +135,7 @@ class AgentSession(TerminalSessionBase):
         host_id: str,
         device_id: str,
         socket_factory: Callable[[str], TerminalSocket],
+        stream_factory: TerminalStreamFactory,
         submit_command: Callable[[dict[str, Any]], Awaitable[dict[str, Any]]],
         prompt_text: Callable[[str, str], Awaitable[dict[str, Any]]] | None,
         host_epoch: str,
@@ -152,6 +147,7 @@ class AgentSession(TerminalSessionBase):
         draft_store: CredentialStore | None = None,
         renew_lease: Callable[[str], Awaitable[dict[str, Any]]] | None = None,
         observe_command: Callable[[str, str], Awaitable[dict[str, Any]]] | None = None,
+        subscribe_command: CommandSubscriber | None = None,
         expected_revision: int = 0,
     ) -> None:
         self._agent_id = agent_id
@@ -164,6 +160,7 @@ class AgentSession(TerminalSessionBase):
             agent_id=agent_id,
             initial_status=initial_status,
             observe_command=observe_command,
+            subscribe_command=subscribe_command,
             expected_revision=expected_revision,
             on_change=self._notify,
         )
@@ -177,6 +174,7 @@ class AgentSession(TerminalSessionBase):
             host_id=host_id,
             device_id=device_id,
             socket_factory=socket_factory,
+            stream_factory=stream_factory,
             clipboard=clipboard,
             on_bytes=on_bytes,
             sessions=DetailSessions(
@@ -197,6 +195,7 @@ class AgentSession(TerminalSessionBase):
         self._last_pause_persist: PausePersistReport | None = None
         self._last_resume_restore: ResumeRestoreReport | None = None
         self.draft_loading = False
+        self._draft_preparation = draft_preparation.DraftPreparation()
 
     # -- observable state -------------------------------------------------
     @property
@@ -214,6 +213,17 @@ class AgentSession(TerminalSessionBase):
     @property
     def store(self) -> ComposerStore:
         return self._store
+
+    @property
+    def question_readiness(self) -> str:
+        return draft_preparation.readiness(self)
+
+    def begin_draft_preparation(self) -> None:
+        if not self._draft_preparation.completed:
+            self.draft_loading = True
+
+    def stage_question(self, text: str, *, replace: bool = False) -> str:
+        return draft_preparation.stage(self, text, replace=replace)
 
     @property
     def last_pause_persist(self) -> PausePersistReport | None:
@@ -264,6 +274,8 @@ class AgentSession(TerminalSessionBase):
         self._cancel_watch_recovery()
 
     def _bump_generation(self, site: str) -> None:
+        if site in ("disconnect", "suspend", "unbind_view", "viewer_reopened"):
+            self._draft_preparation.fence(self._store)
         transition = terminal_transition(self)
         if (
             site in ("disconnect", "suspend")
@@ -273,7 +285,13 @@ class AgentSession(TerminalSessionBase):
             transition.invalidate()
         super()._bump_generation(site)
 
+    def set_foreground(self, active: bool) -> None:
+        if self.foreground != active:
+            self._draft_preparation.fence(self._store)
+        super().set_foreground(active)
+
     def _bump_epoch(self) -> None:
+        self._draft_preparation.synchronize(self._store)
         self._bump_composer_epoch()
 
     def _detach_store(self) -> None:
@@ -301,6 +319,7 @@ class AgentSession(TerminalSessionBase):
         return replace(hooks, on_terminal=failed)
 
     def _clear_composer(self) -> None:
+        draft_preparation.clear(self)
         self._store.clear_sensitive()
 
     async def _before_pause_close(self) -> None:
@@ -309,7 +328,7 @@ class AgentSession(TerminalSessionBase):
             self._controller.pause_writer()
 
     async def _after_resume_reconnect(self) -> None:
-        await self._restore_resume_draft()
+        await self.prepare_draft()
         self._notify()
 
     # -- run supervision (template hooks): only a dropped foreground VIEW may auto-resume.
@@ -439,15 +458,9 @@ class AgentSession(TerminalSessionBase):
         }
 
     def composer_callbacks(self) -> dict[str, Callable[..., Any]]:
-        """The five `ComposerBox` callbacks, lifetime-gated.
-
-        Each closure captures the current composer epoch: after any
-        lifecycle transition (disconnect, pause, reconnect, unbind,
-        dispose) saved closures go stale and fail closed (`ignored` /
-        `False` / no-op) with the draft preserved and nothing
-        submitted — so logout/switch/dispose never leave a stale
-        callback capable of submitting. Mounts re-fetch every render,
-        so live views always hold fresh closures."""
+        """Capture the composer epoch in each mounted callback. Lifecycle changes retire saved
+        closures so stale input cannot submit or mutate a successor draft.
+        """
         epoch = self._composer_epoch
 
         def _live() -> bool:
@@ -466,9 +479,7 @@ class AgentSession(TerminalSessionBase):
             # work is never trapped).
             return _live() and not self._auth_revoked and not self.ui_input_fenced
 
-        def _on_draft_change(text: str) -> None:
-            if _live():
-                self.on_draft_change(text)
+        _on_draft_change = draft_preparation.edit_callback(self, _live, epoch)
 
         async def _on_send() -> str:
             if not _send_live():
@@ -501,6 +512,7 @@ class AgentSession(TerminalSessionBase):
         """Invalidate existing composer callbacks (logout /
         switch / dispose path). The draft and uncertain outcomes are
         preserved; nothing is replayed."""
+        self._draft_preparation.retire()
         self._composer_epoch += 1
 
     def on_draft_change(self, text: str) -> None:
@@ -510,14 +522,21 @@ class AgentSession(TerminalSessionBase):
         self._store.replace_draft(text)
         self._notify()
 
-    async def on_send(self) -> str:
-        """Only route to store.send(): IME composition blocks without mutation.
-        Disposed, revoked and fenced sessions preserve the draft.
-        Successful delivery synchronizes the tools-keys latch."""
-        if self._disposed or self._auth_revoked or self.ui_input_fenced:
+    async def on_send(self, *, prompt_only: bool = False) -> str:
+        """Only route to store.send(): IME composition blocks without mutation. Disposed,
+        revoked and fenced sessions preserve the draft.
+        """
+        if (
+            self._disposed
+            or self._auth_revoked
+            or self.ui_input_fenced
+            or self.paused
+            or not self.foreground
+            or self.draft_loading
+        ):
             return SEND_IGNORED
         self.note_input()
-        result = await gated_composer_send(self._store, self._sessions.ime)
+        result = await gated_composer_send(self._store, self._sessions.ime, prompt_only=prompt_only)
         self._sessions.modes.sync_from_store()
         self._notify()
         return result
@@ -907,15 +926,14 @@ class AgentSession(TerminalSessionBase):
         return None
 
     async def _persist_pause_draft(self) -> None:
-        """Persist the settled pause draft per the storage policy.
-
-        Secure storage only; a secure outage holds the draft in memory
-        and appends the capability failure to the notice (never
-        plaintext). No draft store wired: nothing to persist.
+        """Persist the settled pause draft per the storage policy. Secure storage only; a secure
+        outage holds the draft in memory and appends the capability failure to the notice
+        (never plaintext).
         """
         if self._draft_store is None:
             self._last_pause_persist = None
             return
+        self._draft_preparation.synchronize(self._store)
         report = await pause_persist(
             self._draft_store,
             draft_key(self._host_id + ":" + self._agent_id),
@@ -928,36 +946,7 @@ class AgentSession(TerminalSessionBase):
 
     async def prepare_draft(self) -> None:
         """Show the terminal immediately while secure draft input remains gated."""
-        self.draft_loading = True
-        self._notify()
-        try:
-            await self._restore_resume_draft()
-        finally:
-            self.draft_loading = False
-            self._notify()
-
-    async def _restore_resume_draft(self) -> None:
-        """Restore the pause-persisted draft into the live store.
-
-        Runs after `reconnect()` settles (which clears the notice), so a
-        restore failure stays visible. Missing key or outage: keep the
-        live in-memory draft; corrupt payload: keep it and disclose.
-        """
-        if self._draft_store is None:
-            self._last_resume_restore = None
-            return
-        report = await resume_restore(
-            self._draft_store, draft_key(self._host_id + ":" + self._agent_id)
-        )
-        self._last_resume_restore = report
-        if report.snapshot is not None:
-            try:
-                self._store.import_draft(report.snapshot)
-            except ValueError as exc:
-                if not self._notice:
-                    self._notice = f"Stored draft unreadable ({exc}); kept the current draft."
-        elif report.capability_error is not None and not self._notice:
-            self._notice = report.capability_error
+        await draft_preparation.prepare(self)
 
     def _mark_viewer_reopened(self, notice: str) -> None:
         self._emulator_replaced = True
@@ -988,6 +977,8 @@ class AgentSession(TerminalSessionBase):
     def set_workflow(self, workflow: str) -> None:
         """Switch workflows, preserving the hidden draft and any active IME
         composition by construction (nothing autosent or cleared)."""
+        if workflow != self._sessions.modes.workflow:
+            self._draft_preparation.fence(self._store)
         self._sessions.modes.set_workflow(workflow)
         self._notify()
 

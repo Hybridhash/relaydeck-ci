@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from relaydeck.companion.config import CompanionConfig
-from relaydeck.companion.private import read_private, write_json
+from relaydeck.host.files.private import read_private, write_json
 
 
 def config_file(tmp_path: Path, **overrides: Any) -> Path:

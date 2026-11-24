@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from relaydeck.contracts.schemas import validate
-from relaydeck.gateway.inventory import InventoryView
+from relaydeck.gateway.features.metadata.inventory import InventoryView
 
 
 def snapshot_page(

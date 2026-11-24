@@ -9,15 +9,16 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from relaydeck_terminal.terminal import ResumeOutcome
+from relaydeck_terminal.resume import ResumeOutcome
 
-from relaydeck.client import open_timing
 from relaydeck.client.features.terminal.renewal import lease_deadline_monotonic
+from relaydeck.client.platform.diagnostics import open_timing
+from relaydeck.client.platform.diagnostics.client import failure_category
 from relaydeck.lease_diagnostics import log_ui_resume_incomplete
 
 if TYPE_CHECKING:
-    from relaydeck.client.features.terminal.agent_session import AgentSession
     from relaydeck.client.features.terminal.controller import TerminalController
+    from relaydeck.client.features.terminal.transition_port import TransitionSession as AgentSession
 
 _diag = logging.getLogger("relaydeck.client.typing_split")
 
@@ -583,8 +584,8 @@ class TerminalUIResumes:
                 return outcome
             except asyncio.CancelledError:
                 raise
-            except Exception:
-                _diag.warning("ui_resume_failed", exc_info=True)
+            except Exception as exc:
+                _diag.warning("ui_resume_failed category=%s", failure_category(exc))
                 if self._live(attempt):
                     controller.fence_ui_input(True)
                     term.set_input_enabled(False)

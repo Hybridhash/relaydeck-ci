@@ -25,10 +25,10 @@ from relaydeck.connector.enrollment import (
     save_keys,
     wipe_creds,
 )
-from relaydeck.connector.pubkey import generate
 from relaydeck.gateway import cli as gateway_cli
-from relaydeck.gateway.hosts import HostStore
-from relaydeck.gateway.identity import EnrollmentStore
+from relaydeck.gateway.features.access.hosts import HostStore
+from relaydeck.gateway.features.access.identity import EnrollmentStore
+from relaydeck.host.security.enrollment import generate
 
 
 def _keys() -> ConnectorKeys:
@@ -107,8 +107,44 @@ def test_keys_corrupt(tmp_path) -> None:  # type: ignore[no-untyped-def]
         load_keys(bad_path)
 
 
+def test_files_in_a_folder_others_can_read_still_load(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    folder = tmp_path / "relaydeck"
+    folder.mkdir(mode=0o700)
+    creds_file, key_file = str(folder / "connector.json"), str(folder / "connector_key.json")
+    keys = generate_keys()
+    save_creds(ConnectorCreds("https://gw", "h1", "rdh_x"), creds_file)
+    save_keys(keys, key_file)
+    folder.chmod(0o755)
+    assert load_creds(creds_file) == ConnectorCreds("https://gw", "h1", "rdh_x")
+    assert load_keys(key_file) == keys
+    save_creds(ConnectorCreds("https://gw", "h2", "rdh_y"), creds_file)
+    assert stat.S_IMODE(os.stat(creds_file).st_mode) == 0o600
+
+
+@pytest.mark.parametrize("mode", [0o775, 0o757, 0o777])
+def test_files_in_a_folder_others_can_write_are_refused(tmp_path, mode: int) -> None:  # type: ignore[no-untyped-def]
+    folder = tmp_path / "relaydeck"
+    folder.mkdir(mode=0o700)
+    creds_file = str(folder / "connector.json")
+    save_creds(ConnectorCreds("https://gw", "h1", "rdh_x"), creds_file)
+    folder.chmod(mode)
+    try:
+        with pytest.raises(EnrollmentError):
+            load_creds(creds_file)
+        with pytest.raises(EnrollmentError):
+            save_creds(ConnectorCreds("https://gw", "h2", "rdh_y"), creds_file)
+    finally:
+        folder.chmod(0o700)
+
+
+def test_a_missing_folder_is_made_owner_only(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    folder = tmp_path / "relaydeck"
+    save_keys(generate_keys(), str(folder / "connector_key.json"))
+    assert stat.S_IMODE(os.stat(folder).st_mode) == 0o700
+
+
 def test_parse_invitation() -> None:
-    from relaydeck.connector.pubkey import build_qr_payload
+    from relaydeck.contracts.enrollment import build_qr_payload
 
     qr = build_qr_payload("https://gw.example", "enr_1", "ABCD1234EFGH", "2026-10-03T07:00:00Z")
     assert parse_invitation(qr) == (

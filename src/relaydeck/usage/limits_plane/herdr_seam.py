@@ -1,19 +1,5 @@
-"""Bounded Herdr CLI seam for on-demand TUI limit reads.
-
-All pane/tab control flows through `HerdrSeam`; tests inject fakes. The
-production seam shells out to the absolute herdr binary via the scheduler's
-bounded runner (no shell, hard timeouts, stderr discarded). Every response is
-strictly validated: ids are short strings, lists are capped, and anything
-unexpected is an error, never a guess.
-
-Two sharp edges are handled by design, not by trust:
-- `send-text`/`send-keys`/`pane run` answer empty output on success, which is
-  indistinguishable from a CLI failure under a stdout-only runner. Writes are
-  therefore NEVER trusted alone: every write is followed by a `wait-output`
-  for the expected marker (send, verify, bounded retry, else abort).
-- `wait-output` answers JSON only when matched; anything else (including a
-  herdr-side timeout) reads as "not matched". The abort path then re-probes
-  the tab, so a sick herdr surfaces as unavailable rather than a tool timeout.
+"""Validate bounded Herdr CLI operations for allowance reads. Treat writes as unproven until an
+expected output marker is observed.
 """
 
 from __future__ import annotations

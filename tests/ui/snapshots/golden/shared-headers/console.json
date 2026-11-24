@@ -1,0 +1,337 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "props": {
+        "no_wrap": true,
+        "style": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family": "JetBrains Mono",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2"
+         ],
+         "height": 1.2173913043478262,
+         "letter_spacing": 0.69,
+         "size": 11.5,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "normal"
+         }
+        },
+        "value": "2 SESSIONS"
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "children": [
+        {
+         "props": {
+          "no_wrap": true,
+          "overflow": {
+           "enum": "TextOverflow",
+           "value": "ellipsis"
+          },
+          "style": {
+           "@": "TextStyle",
+           "color": "#F5F2FF",
+           "font_family": "Bricolage Grotesque ExtraBold",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.1176470588235294,
+           "letter_spacing": -0.68,
+           "size": 34,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "w800"
+           }
+          },
+          "value": "Sessions"
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "header": true
+       },
+       "slot": "controls",
+       "type": "Semantics"
+      },
+      {
+       "key": "agents-count",
+       "props": {
+        "color": "#B7AFDA",
+        "no_wrap": true,
+        "overflow": {
+         "enum": "TextOverflow",
+         "value": "ellipsis"
+        },
+        "size": 12,
+        "value": "2 of 2"
+       },
+       "slot": "controls",
+       "type": "Text"
+      }
+     ],
+     "props": {
+      "expand": true,
+      "spacing": 0
+     },
+     "slot": "controls",
+     "type": "Column"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#F5F2FF",
+          "icon": 71733,
+          "size": 20
+         },
+         "slot": "content",
+         "type": "Icon"
+        }
+       ],
+       "props": {
+        "alignment": {
+         "@": "Alignment",
+         "x": 0.0,
+         "y": 0.0
+        },
+        "bgcolor": "#1F1840",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         }
+        },
+        "border_radius": {
+         "@": "BorderRadius",
+         "bottom_left": 24,
+         "bottom_right": 24,
+         "top_left": 24,
+         "top_right": 24
+        }
+       },
+       "slot": "content",
+       "type": "Container"
+      }
+     ],
+     "key": "console-refresh",
+     "props": {
+      "expand": false,
+      "height": 48,
+      "style": {
+       "@": "ButtonStyle",
+       "bgcolor": "transparent",
+       "overlay_color": {
+        "ControlState.DEFAULT": "transparent",
+        "ControlState.FOCUSED": "#33FFFFFF"
+       },
+       "padding": 0,
+       "shape": {
+        "@": "RoundedRectangleBorder",
+        "radius": 24
+       },
+       "side": {
+        "ControlState.DEFAULT": {
+         "@": "BorderSide",
+         "color": "transparent",
+         "width": 3
+        },
+        "ControlState.FOCUSED": {
+         "@": "BorderSide",
+         "color": "#F5F2FF",
+         "width": 3
+        }
+       }
+      },
+      "tooltip": "Refresh agents",
+      "width": 48
+     },
+     "slot": "controls",
+     "type": "TextButton"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#F5F2FF",
+          "icon": 72141,
+          "size": 20
+         },
+         "slot": "content",
+         "type": "Icon"
+        }
+       ],
+       "props": {
+        "alignment": {
+         "@": "Alignment",
+         "x": 0.0,
+         "y": 0.0
+        },
+        "bgcolor": "#1F1840",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         }
+        },
+        "border_radius": {
+         "@": "BorderRadius",
+         "bottom_left": 24,
+         "bottom_right": 24,
+         "top_left": 24,
+         "top_right": 24
+        }
+       },
+       "slot": "content",
+       "type": "Container"
+      }
+     ],
+     "key": "console-search",
+     "props": {
+      "expand": false,
+      "height": 48,
+      "style": {
+       "@": "ButtonStyle",
+       "bgcolor": "transparent",
+       "overlay_color": {
+        "ControlState.DEFAULT": "transparent",
+        "ControlState.FOCUSED": "#33FFFFFF"
+       },
+       "padding": 0,
+       "shape": {
+        "@": "RoundedRectangleBorder",
+        "radius": 24
+       },
+       "side": {
+        "ControlState.DEFAULT": {
+         "@": "BorderSide",
+         "color": "transparent",
+         "width": 3
+        },
+        "ControlState.FOCUSED": {
+         "@": "BorderSide",
+         "color": "#F5F2FF",
+         "width": 3
+        }
+       }
+      },
+      "tooltip": "Search agents",
+      "width": 48
+     },
+     "slot": "controls",
+     "type": "TextButton"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#1A2400",
+          "icon": 65604,
+          "size": 20
+         },
+         "slot": "content",
+         "type": "Icon"
+        }
+       ],
+       "props": {
+        "alignment": {
+         "@": "Alignment",
+         "x": 0.0,
+         "y": 0.0
+        },
+        "bgcolor": "#C8F03C",
+        "border_radius": {
+         "@": "BorderRadius",
+         "bottom_left": 24,
+         "bottom_right": 24,
+         "top_left": 24,
+         "top_right": 24
+        }
+       },
+       "slot": "content",
+       "type": "Container"
+      }
+     ],
+     "key": "console-new-agent",
+     "props": {
+      "expand": false,
+      "height": 48,
+      "style": {
+       "@": "ButtonStyle",
+       "bgcolor": "transparent",
+       "overlay_color": {
+        "ControlState.DEFAULT": "transparent",
+        "ControlState.FOCUSED": "#33FFFFFF"
+       },
+       "padding": 0,
+       "shape": {
+        "@": "RoundedRectangleBorder",
+        "radius": 24
+       },
+       "side": {
+        "ControlState.DEFAULT": {
+         "@": "BorderSide",
+         "color": "transparent",
+         "width": 3
+        },
+        "ControlState.FOCUSED": {
+         "@": "BorderSide",
+         "color": "#1A2400",
+         "width": 3
+        }
+       }
+      },
+      "tooltip": "New agent",
+      "width": 48
+     },
+     "slot": "controls",
+     "type": "TextButton"
+    }
+   ],
+   "key": "console-header",
+   "slot": "root",
+   "type": "Row"
+  }
+ ]
+}

@@ -11,16 +11,9 @@ from relaydeck.gateway.cursors import (
     decode_cursor,
     encode_cursor,
 )
-from relaydeck.gateway.identity import (
-    SessionStore,
-    pkce_challenge,
-    pkce_verify,
-)
-from relaydeck.gateway.policy import (
-    authorize_command,
-    command_limiter,
-    input_limiter,
-)
+from relaydeck.gateway.features.access.identity import SessionStore, pkce_challenge, pkce_verify
+from relaydeck.gateway.features.commands.policy import authorize_command
+from relaydeck.gateway.http.rate_limits import command_limiter, input_limiter
 
 CAPS = frozenset({"sessions.read", "terminal.view", "terminal.control", "agents.prompt"})
 HOSTS = frozenset({"home-mac"})

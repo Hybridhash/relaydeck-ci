@@ -1,20 +1,13 @@
-"""Usage refresh lifecycle. Pure state plus one async loop; no Flet.
-
-- `UsageFeed` keeps the last good page and a generation counter. Every request is tagged with
-  the generation it started under; a result from an older generation (host, filter or account
-  changed) is discarded. A failure keeps the last good page, with its age and the error code.
-- `run_usage_loop` refreshes while active: one request at a time (the next wait starts only after
-  the previous request finished), then waits `interval` seconds. It stops as soon as `active()`
-  is false, and it refreshes immediately when it starts, which is how a resume fetches.
-"""
+"""Usage refresh lifecycle. Pure state plus one async loop; no Flet."""
 
 from __future__ import annotations
 
 import asyncio
+import sys
 import time
 from collections import OrderedDict
 from collections.abc import Awaitable, Callable, Hashable
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, fields, is_dataclass, replace
 
 from relaydeck.client.features.usage.model import UsagePage
 
@@ -28,6 +21,38 @@ UNAVAILABLE_AFTER_SECONDS = 30.0
 # only: switching back to a period shows its page at once, marked "updating…" while it refreshes.
 CACHE_ENTRIES = 4
 CACHE_MAX_AGE_SECONDS = 300.0
+CACHE_MAX_BYTES = 32 * 1024 * 1024
+UNCHANGED_MAX_SECONDS = 60.0
+PAGE_TOO_LARGE = "page_too_large"  # a page too big to retain here (not the server report cap)
+
+
+def page_bytes(value: object, limit: int | None = None) -> int:
+    """Bounded retained-object accounting, only when a new immutable page arrives."""
+    seen: set[int] = set()
+    pending = [value]
+    total = 0
+    ceiling = CACHE_MAX_BYTES if limit is None else limit
+    while pending and total <= ceiling:
+        item = pending.pop()
+        if id(item) in seen:
+            continue
+        seen.add(id(item))
+        # Include allocation rounding and per-object overhead beyond the
+        # shallow header. Admission deliberately errs toward eviction.
+        total += ((sys.getsizeof(item) + 15) // 16) * 16 + 16
+        if is_dataclass(item) and not isinstance(item, type):
+            pending.extend(getattr(item, field.name) for field in fields(item))
+            storage = getattr(item, "__dict__", None)
+            if storage is not None:
+                pending.append(storage)
+        elif isinstance(item, dict):
+            pending.extend(item.keys())
+            pending.extend(item.values())
+        elif isinstance(item, tuple | list | set | frozenset):
+            pending.extend(item)
+    return total
+
+
 TRANSIENT_CODES = frozenset({"usage_busy", "usage_unavailable", "host_offline", "usage_timeout"})
 
 STATUS_IDLE = "idle"
@@ -55,8 +80,11 @@ class UsageFeed:
         self._generation = 0
         self._clock = clock
         self._failures = 0  # consecutive failures of the current query
+        self._unchanged = 0
+        self._sizes: dict[Hashable, int] = {}
         self._first_failure: float | None = None
         self._scope: Hashable | None = None
+        self._too_large_key: Hashable | None = None
         self._cache: OrderedDict[Hashable, tuple[UsagePage, int, float]] = OrderedDict()
         self.state = FeedState()
 
@@ -71,24 +99,24 @@ class UsageFeed:
         page, observed_ms, stored = entry
         if self._clock() - stored > CACHE_MAX_AGE_SECONDS:
             del self._cache[key]
+            self._sizes.pop(key, None)
             return None
         return FeedState(status=STATUS_LOADING, page=page, observed_ms=observed_ms)
 
     def set_key(self, key: Hashable, scope: Hashable | None = None) -> int:
-        """A new identity (account, transport, host), query (days or space) or filter starts a new
-        generation and clears the page: data from another context is never shown under this one.
-        The same key keeps the last good page.
-
-        `scope` is the account and host. A new scope clears the page cache; a new query inside the
-        same scope starts from that query's cached page when it is recent, still "loading" so the
-        refresh runs and the screen says "updating…"."""
+        """Start a new request generation when identity, query or filters change. Scope changes
+        clear cached pages; a query can reuse its own recent page while refreshing.
+        """
         if key != self._key:
+            self._too_large_key = None  # a rejection never carries to another query
             if scope != self._scope:
                 self._cache.clear()
+                self._sizes.clear()
                 self._scope = scope
             self._key = key
             self._generation += 1
             self._failures = 0
+            self._unchanged = 0
             self._first_failure = None
             self.state = self._cached(key) or FeedState(status=STATUS_LOADING)
         return self._generation
@@ -108,6 +136,7 @@ class UsageFeed:
             return False
         self._failures = 0
         self._first_failure = None
+        self._unchanged = min(4, self._unchanged + 1) if self.state.page is page else 0
         if page.capacity != "ok":
             # Over the server's report cap: the report has no usable totals, so it is unavailable
             # and
@@ -118,11 +147,26 @@ class UsageFeed:
             )
             return True
         self.state = FeedState(status=STATUS_READY, page=page, observed_ms=observed_ms, error=None)
+        self._too_large_key = None
         if self._key is not None:
+            size = (
+                self._sizes.get(self._key)
+                if self._cache.get(self._key, (None,))[0] is page
+                else None
+            )
+            size = page_bytes(page) if size is None else size
+            if size > CACHE_MAX_BYTES:
+                self._cache.clear()
+                self._sizes.clear()
+                self._too_large_key = self._key
+                self.state = FeedState(status=STATUS_UNAVAILABLE, error=PAGE_TOO_LARGE)
+                return True
             self._cache[self._key] = (page, observed_ms, self._clock())
+            self._sizes[self._key] = size
             self._cache.move_to_end(self._key)
-            while len(self._cache) > CACHE_ENTRIES:
-                self._cache.popitem(last=False)
+            while len(self._cache) > CACHE_ENTRIES or sum(self._sizes.values()) > CACHE_MAX_BYTES:
+                key, _ = self._cache.popitem(last=False)
+                self._sizes.pop(key, None)
         return True
 
     def fail(self, generation: int, code: str, *, disabled: bool = False) -> bool:
@@ -130,6 +174,7 @@ class UsageFeed:
             return False
         now = self._clock()
         self._failures += 1
+        self._unchanged = 0
         if self._first_failure is None:
             self._first_failure = now
         if disabled:
@@ -149,26 +194,35 @@ class UsageFeed:
             )
         return True
 
-    def retry_delay(self) -> float:
+    def auto_stopped(self) -> bool:
+        """Automatic refresh is stopped for this query after an oversize page,
+        until a manual refresh or a different query clears the stop."""
+        return self._too_large_key is not None and self._too_large_key == self._key
+
+    def clear_page_too_large(self) -> None:
+        """A manual refresh clears the oversize stop exactly once; a repeated
+        oversize result sets it again."""
+        self._too_large_key = None
+
+    def retry_delay(self) -> float | None:
         """Seconds before the next request: the normal interval, or the backoff while the first
-        load of this query keeps failing transiently."""
+        load of this query keeps failing transiently. None ends the loop (oversize stop)."""
+        if self.auto_stopped():
+            return None
         if self._failures and self.state.page is None and self.state.status == STATUS_LOADING:
-            return min(RETRY_CAP_SECONDS, float(2 ** (self._failures - 1)))
-        return INTERVAL_SECONDS
+            return min(RETRY_CAP_SECONDS, float(2 ** min(self._failures - 1, 4)))
+        return min(UNCHANGED_MAX_SECONDS, INTERVAL_SECONDS * float(2**self._unchanged))
 
     def stop(self) -> None:
         """Polling stops (hidden, backgrounded or unmounted). In-flight results are obsolete, so
-        they
-        are dropped. The last page stays: it is the same context's data, and the view shows its age.
-        A change of host, account, query or space is what clears data (see `set_key`)."""
+        they are dropped.
+        """
         self._generation += 1
 
     def visible(self, key: Hashable, active: bool, scope: Hashable | None = None) -> FeedState:
         """What one render may show. Polling eligibility and display are separate: the same
-        context's
-        last page is shown, aged, while inactive or offline. Another context never shows this data:
-        a render that changes the context runs before the effect that clears the feed, so this gate
-        is what keeps the previous page off the screen."""
+        context's last page is shown, aged, while inactive or offline.
+        """
         if key != self._key:
             # Only the same account and host may show a cached page for another query.
             if scope is not None and scope == self._scope:
@@ -206,13 +260,16 @@ async def run_usage_loop(
     refresh: Callable[[], Awaitable[None]],
     sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
     interval: float = INTERVAL_SECONDS,
-    delay: Callable[[], float] | None = None,
+    delay: Callable[[], float | None] | None = None,
 ) -> None:
     """Refresh while active. Each refresh is awaited before the wait starts, so refreshes never
-    overlap. `delay`, when given, returns the wait after each refresh (the feed's backoff).
-    Cancellation (the caller's task) propagates out of the awaited refresh or wait."""
+    overlap.
+    """
     while active():
         await refresh()
         if not active():
             break
-        await sleep(delay() if delay is not None else interval)
+        wait = delay() if delay is not None else interval
+        if wait is None:
+            break
+        await sleep(wait)

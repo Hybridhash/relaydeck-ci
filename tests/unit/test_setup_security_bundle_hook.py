@@ -16,7 +16,8 @@ from typing import Any
 
 import pytest
 
-from relaydeck import webbundle
+from relaydeck.releases import bundles as webbundle
+from tests.support.companion.web_assets import write_bundle_manifest
 
 HOOK = Path(__file__).parents[2] / "scripts/statusline_limits_hook.py"
 GOOD_JS = (
@@ -25,6 +26,7 @@ GOOD_JS = (
     + '"abort";' * 3
     + '"flet_reconnect_merge_rd1";'
     + '"flet_reconnect_wake_rd1";'
+    + '"item_extents";'
     + "var app = 1;"
 )
 
@@ -35,8 +37,8 @@ def _bundle(root: Path, manifest: dict[str, Any] | None = None) -> Path:
     (out / "main.dart.js").write_text(GOOD_JS, encoding="utf-8")
     (out / "assets").mkdir()
     (out / "assets" / "font.bin").write_bytes(b"\x00\x01")
-    if manifest is not None:
-        (root / "out.build-manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    (out / "index.html").write_text("<html>app</html>")
+    write_bundle_manifest(out, **(manifest or {}))
     return out
 
 
@@ -210,7 +212,7 @@ def test_a_stdin_that_never_closes_ends_at_the_deadline(tmp_path: Path) -> None:
 def test_a_file_that_keeps_changing_is_neither_classified_nor_bound(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from relaydeck.usage import hook_repair
+    from relaydeck.usage.hooks import repair as hook_repair
 
     settings = tmp_path / "settings.json"
     settings.write_text("{}")
@@ -308,6 +310,8 @@ def test_the_size_limit_counts_the_bytes_actually_copied(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     source = _bundle(tmp_path / "src")
+    (source / "index.html").write_bytes(b"<html/>")
+    write_bundle_manifest(source)
     # The listed size is small; the budget is enforced on what is read.
     monkeypatch.setattr(webbundle, "MAX_BYTES", 8)
     store = _store(tmp_path)

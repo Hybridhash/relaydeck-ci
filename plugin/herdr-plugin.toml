@@ -1,6 +1,6 @@
 id = "relaydeck"
 name = "RelayDeck"
-version = "0.2.5"
+version = "0.3.0"
 min_herdr_version = "0.7.5"
 description = "Set up, pair and check the RelayDeck companion on this Mac"
 platforms = ["macos"]
@@ -22,7 +22,7 @@ command = ["/bin/sh", "bin/relaydeck-plugin.sh", "open", "setup"]
 [[actions]]
 id = "pair"
 title = "RelayDeck: Pair a device"
-description = "Open a bounded pairing window in a popup; you approve each device"
+description = "Open a bounded pairing window in a popup; you approve each device by typing its code"
 contexts = ["global"]
 # Herdr runs actions without a terminal: this only asks Herdr to open the popup pane (see [[panes]]).
 command = ["/bin/sh", "bin/relaydeck-plugin.sh", "open", "pair"]

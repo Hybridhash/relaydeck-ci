@@ -15,13 +15,16 @@ from typing import Any
 import pytest
 
 from relaydeck.client.features.composer.components import DRAFT_KEY, SEND_KEY
-from relaydeck.client.features.composer.domain import (
+from relaydeck.client.features.composer.model import (
     SEND_DELIVERED_VIA_PROMPT,
     SEND_IGNORED,
 )
-from relaydeck.client.features.sync.transport import TransportError
 from relaydeck.client.features.terminal.agent_session import AGENT_LIVE
-from relaydeck.client.features.terminal.surfaces import mount_agent_screen
+from relaydeck.client.ports.transport import TransportError
+from relaydeck.client.screens.terminal.screen import mount_agent_screen
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
 from tests.support.host_harness import render_component, run
 from tests.support.terminal.binding import _wait_for
 from tests.support.terminal.sessions import _agent_session

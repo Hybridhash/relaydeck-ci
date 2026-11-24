@@ -1,30 +1,6 @@
-"""Production Herdr source for the connector link.
-
-`HerdrSource` implements the `LinkSource` port over a real
-`HerdrAdapter`: handshake (protocol-22 ping gate), bootstrap
-(subscribe-ack, snapshot + agent_list, buffered events), metadata
-translation (frozen 0.9.1 export + golden fixtures -> gateway
-snapshot/event documents), and the typed terminal relay (attach-PT
-bytes -> tunnel `terminal.output` frames).
-
-The live loop (`LiveSource` port) consumes the held subscription
-post-bootstrap (`collect_live`: translate upstream events into gateway
-partials), pumps attached PTY bytes through the gateway epoch table
-(`pump_live`), and keeps per-pane `agent_status_changed` subscriptions
-in sync with the live pane set. Epoch routing is link state delivered
-by the gateway (`note_epochs`); the source never guesses epochs.
-
-Only upstream-evidenced shapes are translated; anything else is
-skipped and counted, never invented. There is no raw PTY byte-stream
-event upstream (the subscription enum holds exactly
-`pane.output_matched` / `pane.agent_status_changed` /
-`pane.scroll_changed`), so terminal bytes flow exclusively through the
-out-of-band attach clients (`attach.py`), chunked and typed here.
-
-CLI live runs require explicit owner authorization (flag + environment;
-see `connector/cli.py`). Every proof here runs against a scripted
-Unix-socket daemon (see tests/integration/test_herdr_*.py); the live
-user daemon is never touched by tests.
+"""Translate verified Herdr inventory and events and relay exact attachment bytes through
+gateway-supplied epochs. Own subscriptions, attachment recovery and bounded usage-linking
+evidence.
 """
 
 from __future__ import annotations
@@ -39,30 +15,40 @@ import time
 from collections import OrderedDict
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
+from types import MappingProxyType
 from typing import Any, Protocol, runtime_checkable
 
 from relaydeck.connector.attach import (
     AttachmentPool,
     AttachSession,
+    ControlSession,
     ObserveSession,
     PoolFullError,
+    ToolUnavailable,
     plan_agent_attach,
     plan_shell_attach,
 )
 from relaydeck.connector.attach_lifecycle import AttachLifecycle
 from relaydeck.connector.herdr import (
-    EXPECTED_PROTOCOL,
     HerdrAdapter,
     HerdrError,
     HerdrProtocolError,
     Subscription,
+    error_label,
 )
 from relaydeck.connector.journal import DispatchAdapter
+from relaydeck.connector.metadata import SubscriptionReads
+from relaydeck.contracts.protocol import EXPECTED_PROTOCOL
 from relaydeck.contracts.schemas import SchemaError, validate
-from relaydeck.usage import proc_link
-from relaydeck.usage.contracts import MappingGap, PaneCwdObservation, SessionMapping, UsageSource
-from relaydeck.usage.readers import READERS
-from relaydeck.usage.readers._files import session_text
+from relaydeck.usage import api as proc_link
+from relaydeck.usage.api import (
+    READERS,
+    MappingGap,
+    PaneCwdObservation,
+    SessionMapping,
+    UsageSource,
+    session_text,
+)
 
 __all__ = [
     "AGENT_STATUSES",
@@ -105,12 +91,8 @@ class _UsageEpisode:
 
 @dataclass
 class _ProcEpisode:
-    """One rank-2 episode: a pane's pid held a session lock open in a space.
-
-    `interval` carries a "p2:" prefix so rank-2 intervals never collide with
-    rank-1 ids. `last` advances only on confirmed re-observation (same pid and
-    start token still holding the lock); every close leaves `last` untouched,
-    so the window is exactly [first confirmation, last confirmation].
+    """One rank-2 episode: a pane's pid held a session lock open in a space. `interval` carries
+    a "p2:" prefix so rank-2 intervals never collide with rank-1 ids.
     """
 
     pane: str
@@ -140,10 +122,10 @@ class _ProcPane:
 
 @dataclass
 class _UsageSpace:
-    """One workspace id's generation. Herdr reuses ids across server restarts, so the
-    generation bumps when the id disappears from a complete snapshot, and on reconnect
-    when the stored (label, repo) fingerprint no longer matches. Raw values live here
-    in memory only; the store keeps the label and the keyed repo fingerprint."""
+    """One workspace id's generation. Herdr reuses ids across server restarts, so the generation
+    bumps when the id disappears from a complete snapshot, and on reconnect when the stored
+    (label, repo) fingerprint no longer matches.
+    """
 
     generation: int = 0
     label: str = ""
@@ -174,10 +156,6 @@ class _UsageGap:
     persisted: dict[str, int | None] = field(default_factory=dict)
 
 
-# Per-subscription drain slice inside collect_live: multiplexing N held
-# subscriptions means no single quiet subscription may hog the budget.
-_LIVE_SLICE_S = 0.01
-
 # Backoff before retrying a failed per-pane re-subscription, held or not, so a sick daemon is not
 # hit on every tick. Jitter is seeded (pane_sub_seed) to stay deterministic in tests.
 _PANE_SUB_RETRY_MS = 30_000
@@ -189,13 +167,13 @@ AGENT_STATUSES = frozenset({"idle", "working", "blocked", "done", "unknown"})
 
 BOOT_EPOCH_PREFIX = "herdr"
 
-# Mirror of the gateway tunnel bound (gateway/app.py TUNNEL_MAX_OUTPUT):
-# enforced there, chunked-to here so the relay never emits a frame the
-# gateway must refuse.
+# Mirror gateway/http/bounds.py TUNNEL_MAX_OUTPUT when chunking relay frames.
 TUNNEL_MAX_OUTPUT = 64 * 1024
 MAX_RELAY_BYTES = 1024 * 1024
 # Resize requests settle this long before one is applied (one repaint for a burst).
 RESIZE_SETTLE_S = 0.15
+# A controlled pane whose frames report another size is re-asserted at most this often.
+GEOMETRY_REASSERT_S = 2.0
 
 # Global subscriptions need no pane ids, so one ack covers the bootstrap with no missed-event
 # window; per-pane status subscriptions open post-snapshot (see _ensure_pane_subscriptions).
@@ -211,9 +189,7 @@ DEFAULT_SUBSCRIPTIONS: tuple[dict[str, str], ...] = (
     {"type": "layout.updated"},
 )
 
-# Upstream event -> (gateway type, id key, removed?). Only evidenced shapes or the *_id convention
-# are mapped; the rest is skipped and counted. pane.output_matched is deliberately excluded: its
-# preview text must not ride the exact-byte stream.
+# Map evidenced event shapes and IDs only; exclude output previews from the exact-byte stream.
 _EVENT_MAP: dict[str, tuple[str, str, bool]] = {
     "pane.agent_status_changed": ("pane.upserted", "pane_id", False),
     "workspace.created": ("workspace.upserted", "workspace_id", False),
@@ -256,13 +232,10 @@ class LinkSource(Protocol):
 
 @runtime_checkable
 class LiveSource(LinkSource, Protocol):
-    """Live-relay extension of the link port.
-
-    The link probes for this port at runtime: sources without it
-    (fixtures) keep the connect-time push + dispatch behavior, while
-    live sources additionally stream post-bootstrap events and PTY
-    bytes. All members are methods so `isinstance` probing stays
-    sound."""
+    """Live-relay extension of the link port. The link probes for this port at runtime: sources
+    without it (fixtures) keep the connect-time push + dispatch behavior, while live sources
+    additionally stream post-bootstrap events and PTY bytes.
+    """
 
     async def collect_live(self, timeout: float) -> list[dict[str, Any]]:
         """Drain translated live event partials (empty when quiet).
@@ -273,13 +246,13 @@ class LiveSource(LinkSource, Protocol):
         ...
 
     def pump_live(self) -> int:
-        """Pump attached PTY bytes for epoch-mapped terminals into the
-        relay (drained via `drain_outputs`). Dead sessions are reaped with
-        epochs kept: observers use timed retry, control shells re-note,
-        and control agents require explicit takeover. Returns bytes collected."""
+        """Pump attached PTY bytes for epoch-mapped terminals into the relay (drained via
+        `drain_outputs`). Dead sessions are reaped with epochs kept: observers use timed
+        retry, control shells re-note, and control agents require explicit takeover.
+        """
         ...
 
-    def note_epochs(self, routes: Mapping[str, Mapping[str, str]]) -> dict[str, str]:
+    def note_epochs(self, routes: Mapping[str, Mapping[str, Any]]) -> dict[str, str]:
         """Apply the gateway epoch table ({terminal_id: {"epoch",
         "kind", "mode"}} with kind shell|agent and mode control|observe)
         and best-effort auto-attach
@@ -323,9 +296,9 @@ def _status(value: Any) -> str:
 
 
 def wire_event_name(name: str) -> str:
-    """Herdr's live wire names use underscores (`tab_closed`, `pane_created`,
-    `pane_agent_status_changed`); the subscription types and `_EVENT_MAP` use dots. Replace the
-    first underscore only. Dotted input is already in map form and passes through unchanged."""
+    """Normalize the first underscore in Herdr event names to the dotted subscription form.
+    Leave already-dotted names unchanged.
+    """
     return name if "." in name else name.replace("_", ".", 1)
 
 
@@ -339,11 +312,8 @@ SKIP_LOG_INTERVAL_S = 60.0
 def translate_snapshot(
     host_id: str, epoch: str, session: dict[str, Any], agents: list[dict[str, Any]]
 ) -> dict[str, Any]:
-    """Translate a Herdr session snapshot + agent list into a gateway
-    snapshot document. Top-level shape failures raise ValueError (fail
-    closed); entries missing identity are skipped (one bad row must not
-    void the inventory). Display strings are clipped to the gateway
-    schema bounds. Raises ValueError when the result is schema-invalid.
+    """Translate snapshot and agent-list data, clipping display fields to gateway bounds. Reject
+    invalid top-level/result shapes and skip entries that lack identity.
     """
     if not isinstance(session, dict):
         raise ValueError("session snapshot is not an object")
@@ -406,27 +376,10 @@ def translate_snapshot(
             continue
         merged[str(entry["terminal_id"])] = entry
     out_agents: list[dict[str, Any]] = []
-    for terminal_id, entry in sorted(merged.items()):
+    for _terminal_id, entry in sorted(merged.items()):
         if not entry.get("workspace_id") or not entry.get("tab_id") or not entry.get("pane_id"):
             continue
-        title = entry.get("terminal_title") or entry.get("title") or entry.get("name") or ""
-        out_agents.append(
-            {
-                "terminal_id": _clip(terminal_id, 128),
-                "host_id": host_id,
-                "workspace_id": _clip(entry.get("workspace_id"), 128),
-                "tab_id": _clip(entry.get("tab_id"), 128),
-                "pane_id": _clip(entry.get("pane_id"), 128),
-                "name": _clip(entry.get("name"), 128),
-                "agent": _clip(entry.get("agent"), 64),
-                "title": _clip(title, 256),
-                "status": _status(entry.get("agent_status")),
-                "focused": _flag(entry.get("focused")),
-                "interactive_ready": _flag(entry.get("interactive_ready")),
-                "state_change_seq": _count(entry.get("state_change_seq")),
-                "revision": _count(entry.get("revision")),
-            }
-        )
+        out_agents.append(_agent_row(host_id, entry))
     doc: dict[str, Any] = {
         "host": {
             "id": host_id,
@@ -448,6 +401,25 @@ def translate_snapshot(
     except SchemaError as exc:
         raise ValueError(f"translated snapshot invalid: {exc}") from exc
     return doc
+
+
+def _agent_row(host_id: str, entry: dict[str, Any]) -> dict[str, Any]:
+    title = entry.get("terminal_title") or entry.get("title") or entry.get("name") or ""
+    return {
+        "terminal_id": _clip(entry.get("terminal_id"), 128),
+        "host_id": host_id,
+        "workspace_id": _clip(entry.get("workspace_id"), 128),
+        "tab_id": _clip(entry.get("tab_id"), 128),
+        "pane_id": _clip(entry.get("pane_id"), 128),
+        "name": _clip(entry.get("name"), 128),
+        "agent": _clip(entry.get("agent"), 64),
+        "title": _clip(title, 256),
+        "status": _status(entry.get("agent_status")),
+        "focused": _flag(entry.get("focused")),
+        "interactive_ready": _flag(entry.get("interactive_ready")),
+        "state_change_seq": _count(entry.get("state_change_seq")),
+        "revision": _count(entry.get("revision")),
+    }
 
 
 def translate_event(
@@ -533,17 +505,10 @@ class OutputFrame:
 
 
 class TerminalRelay:
-    """Typed PTY-byte relay: collects exact attach-client bytes and
-    drains them as bounded frames. No previews, no re-encoding: bytes
-    in, bytes out.
-
-    Capacity is per terminal, never fatal: when staged + in-flight bytes
-    would pass MAX_RELAY_BYTES, that terminal's staged frames are dropped,
-    the terminal is marked overflowed (its bytes are discarded until the
-    caller has asked for a resync and clears the mark) and every other
-    terminal keeps flowing. The producer should check `has_room` before
-    reading a PTY so a slow drain backs up into the PTY, not into this
-    buffer."""
+    """Relay exact attachment bytes in bounded, per-terminal frames without previews or
+    re-encoding. On overflow, fence that terminal for resync while other terminals keep
+    flowing.
+    """
 
     def __init__(self) -> None:
         self._frames: list[OutputFrame] = []
@@ -560,14 +525,10 @@ class TerminalRelay:
         """Bytes held: staged plus handed to a sender and not yet released."""
         return self._staged_bytes + self._reserved_bytes
 
-    def has_room(self, size: int) -> bool:
-        return self.load + size <= MAX_RELAY_BYTES
-
     def script(self, terminal_id: str, epoch: str, data: bytes) -> int:
-        """Stage exact bytes for relay; returns frames staged. Empty
-        identities or empty bytes are refused (fail closed). Returns 0
-        (nothing staged) when this terminal overflowed or is waiting for
-        its resync: the caller reads `overflowed`."""
+        """Stage exact bytes and return the number of frames staged, or zero on overflow or an
+        already fenced terminal. Missing identity or empty bytes raises ValueError.
+        """
         if not terminal_id or not epoch or not isinstance(data, bytes) or not data:
             raise ValueError("relay needs terminal_id, epoch, and bytes")
         if terminal_id in self.overflowed:
@@ -657,19 +618,27 @@ class HerdrSource:
         subscriptions: list[dict[str, Any]] | None = None,
         clock: Callable[[], int] | None = None,
         boot_tag: str | None = None,
-        binary: str = "herdr",
+        binary: str | None = "herdr",
         pool: AttachmentPool | None = None,
         observer_pool: AttachmentPool | None = None,
         retry_clock: Callable[[], float] = time.monotonic,
         pane_sub_seed: int | None = None,
         agent_kinds: tuple[str, ...] = (),
+        launch_programs: Mapping[str, str | None] | None = None,
         proc_probe: proc_link.ProbeFn | None = None,
         proc_clock: Callable[[], float] = time.monotonic,
+        controller_viewport: bool = False,
     ) -> None:
         self._adapter = adapter
+        # companion.toml [terminal] controller_viewport: control attaches through Herdr's
+        # controller viewport (the pane follows the viewer's grid) instead of the raw client.
+        self._controller_viewport = controller_viewport
         # the owner's allowlist (companion.toml agent_kinds); a kind also
         # has to be on PATH to be reported or started. Empty = nothing launchable.
         self._agent_kinds = tuple(agent_kinds)
+        # kind -> the program Herdr runs for it, built once by the companion; a configured kind
+        # it does not name is looked up by its own name.
+        self._launch_programs = MappingProxyType(dict(launch_programs or {}))
         self._subscriptions = (
             [dict(entry) for entry in subscriptions]
             if subscriptions is not None
@@ -695,6 +664,7 @@ class HerdrSource:
         self._cancel_output_wait: Callable[[], None] | None = None
         self._relay = TerminalRelay()
         self._subscription: Subscription | None = None
+        self._metadata_reads = SubscriptionReads()
         self._pane_subscription: Subscription | None = None
         self._pane_want: set[str] = set()
         self._pane_have: frozenset[str] = frozenset()
@@ -705,16 +675,21 @@ class HerdrSource:
         self._epochs: dict[str, str] = {}
         self._epoch_kinds: dict[str, str] = {}
         self._epoch_modes: dict[str, str] = {}
-        # Agent attaches that ended under an unchanged epoch (typically taken
-        # over by another client or a Herdr window). They are
-        # NOT re-attached until a new epoch arrives, i.e. an explicit Take
-        # over: automatic --takeover respawn stole the pane back in a loop.
+        # An ended agent attach requires a new explicit-takeover epoch before it can respawn.
         self._agent_lost: dict[str, str] = {}
         self._terminal_resets: dict[str, str] = {}
         # Resize requests are coalesced per terminal: the latest size wins and is applied once the
         # requests go quiet, so a resume/rotation burst causes one repaint, not one per event.
         self._resize_pending: dict[str, tuple[str, int, int]] = {}
         self._resize_timers: dict[str, asyncio.TimerHandle] = {}
+        # Last size applied to each controlled terminal, when it was last re-asserted, and the
+        # pending correction timer for a mismatch seen inside the cooldown.
+        self._geometry: dict[str, tuple[int, int]] = {}
+        self._reasserted_at: dict[str, float] = {}
+        self._correction_timers: dict[str, asyncio.TimerHandle] = {}
+        # Control attaches Herdr refused because another client owns the terminal, by epoch:
+        # never respawned under that epoch; the gateway gets a typed refusal instead of a reset.
+        self._attach_refused: dict[str, str] = {}
         self._snapshot: dict[str, Any] | None = None
         self._agents: list[dict[str, Any]] = []
         self._seeds: list[dict[str, Any]] = []
@@ -738,7 +713,7 @@ class HerdrSource:
         self._proc_cursor = 0
         self._proc_last_tick: int | None = None
         self._proc_clock = proc_clock
-        self._proc_probe = proc_probe or proc_link.default_probe((binary,))
+        self._proc_probe = proc_probe or proc_link.default_probe((binary,) if binary else ())
 
     def configure_usage(
         self,
@@ -1161,9 +1136,9 @@ class HerdrSource:
             return None  # Usage evidence never breaks observation; the label still stores.
 
     def _usage_observe_cwd(self, pane: dict[str, Any], now: int, *, close: bool) -> None:
-        """Pane-side cwd evidence for inferred linking. Called under _usage_lock; the raw
-        folder is digested in memory and never stored. With `close` (complete snapshots),
-        a pane without usable evidence closes its episode; partial events never close."""
+        """Pane-side cwd evidence for inferred linking. Called under _usage_lock; the raw folder
+        is digested in memory and never stored.
+        """
         if self._usage_digest is None:
             return
         pane_id = pane.get("pane_id")
@@ -1227,10 +1202,9 @@ class HerdrSource:
         self._usage_cwd_active[pane_id] = key
 
     def _usage_track_spaces(self, snapshot: dict[str, Any], *, revalidate: bool) -> None:
-        """Generations for the snapshot's workspace ids. Called under _usage_lock before
-        panes are observed. An id absent from a complete snapshot bumps at once; on a
-        reconnect boundary (`revalidate`), a changed (label, repo) fingerprint bumps too.
-        Plain reconnects with matching fingerprints never split history."""
+        """Generations for the snapshot's workspace ids. Called under _usage_lock before panes
+        are observed.
+        """
         seen: dict[str, tuple[str, str | None]] = {}
         workspaces = snapshot.get("workspaces")
         if not isinstance(workspaces, list):
@@ -1372,7 +1346,7 @@ class HerdrSource:
 
             doc = translate_snapshot(host_id, self.epoch, self._snapshot, self._agents)
             doc["host"]["agent_catalog"] = discover_agent_catalog(
-                self._now_ms(), kinds=self._agent_kinds
+                self._now_ms(), kinds=self._agent_kinds, programs=self._launch_programs
             )
             return doc
         except ValueError as exc:
@@ -1401,8 +1375,9 @@ class HerdrSource:
 
     def _stage(self, terminal_id: str, epoch: str, data: bytes) -> int:
         """Stage PTY bytes. A terminal that overflows the relay is a per-terminal condition: its
-        staged frames are dropped and a resync (`terminal.reset_required`) is requested; the link,
-        every other terminal and the UI keep running. One log line per overflow, no content."""
+        staged frames are dropped and a resync (`terminal.reset_required`) is requested; the
+        link, every other terminal and the UI keep running.
+        """
         staged = self._relay.script(terminal_id, epoch, data)
         if staged == 0 and terminal_id not in self._terminal_resets:
             self._terminal_resets[terminal_id] = epoch
@@ -1428,7 +1403,11 @@ class HerdrSource:
         from relaydeck.connector.catalog import discover_agent_catalog
         from relaydeck.contracts.catalog import catalog_from_wire
 
-        catalog = catalog_from_wire(discover_agent_catalog(self._now_ms(), kinds=self._agent_kinds))
+        catalog = catalog_from_wire(
+            discover_agent_catalog(
+                self._now_ms(), kinds=self._agent_kinds, programs=self._launch_programs
+            )
+        )
         if catalog is None or kind not in catalog.available:
             raise HerdrError("agent_kind_unavailable", "agent kind is unavailable on this host")
 
@@ -1517,16 +1496,17 @@ class HerdrSource:
         return datetime.fromtimestamp(self._now_ms() / 1000, UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     async def bootstrap(self) -> BootstrapData:
-        """Handshake + subscribe + snapshot + buffered-event translation.
-        Buffered (bootstrap-window) events become seed partials; live
-        events after handoff are consumed by `collect_live`. Per-pane
-        `agent_status_changed` subscriptions open post-snapshot (pane
-        ids exist only then); a pane-sub failure degrades status
-        freshness (retry with backoff) but never fails the bootstrap."""
+        """Handshake + subscribe + snapshot + buffered-event translation. Buffered
+        (bootstrap-window) events become seed partials; live events after handoff are
+        consumed by `collect_live`.
+        """
         result = await self._adapter.bootstrap(self._subscriptions)
-        if self._subscription is not None:
-            await self._subscription.aclose()
-        self._subscription = result.subscription
+        previous, self._subscription = self._subscription, result.subscription
+        try:
+            await self._metadata_reads.close()
+        finally:
+            if previous is not None:
+                await previous.aclose()
         inner = result.snapshot.get("snapshot", {})
         if not isinstance(inner, dict):
             raise HerdrProtocolError("bad_snapshot", "session.snapshot has no snapshot")
@@ -1620,7 +1600,11 @@ class HerdrSource:
         try:
             fresh = await self._adapter.open_subscription(entries)
         except Exception as exc:  # noqa: BLE001 - freshness degrades, link survives
-            LOG.warning("per-pane subscribe failed (%d panes), retrying later: %s", len(want), exc)
+            LOG.warning(
+                "per-pane subscribe failed (%d panes), retrying later: %s",
+                len(want),
+                error_label(exc),
+            )
             self._schedule_pane_retry(now_ms)
             return
         await self._drop_pane_subscription()
@@ -1665,6 +1649,13 @@ class HerdrSource:
         name = wire_event_name(name)
         self._usage_event(name, data)
         self._track_panes(name, data)
+        if name == "layout.updated":
+            self.reassert_geometry()
+        elif name == "pane.updated":
+            pane_id = _pane_id_from_event(data)
+            for terminal_id in list(self._geometry):
+                if pane_id is not None and self._pane_matches(terminal_id, pane_id):
+                    self.reassert_geometry(terminal_id)
         if name in REMOVAL_EVENTS:
             self._snapshot_dirty = True
         partial = translate_event(
@@ -1687,15 +1678,100 @@ class HerdrSource:
             self._skip_logged_at = now
             LOG.info("herdr_events_skipped n=%d", self._skipped)
 
-    async def collect_live(self, timeout: float) -> list[dict[str, Any]]:
-        """Drain translated live events from the held subscriptions.
+    async def wait_metadata_ready(self) -> None:
+        """Wait for a held stream or the next per-pane subscription retry."""
+        if self._subscription is None or not self.bootstrapped:
+            raise HerdrProtocolError("not_bootstrapped", "bootstrap before waiting")
+        try:
+            while True:
+                await self._ensure_pane_subscriptions()
+                subs = [s for s in (self._subscription, self._pane_subscription) if s is not None]
+                delay = (
+                    max(0.001, (self._pane_retry_after_ms - self._now_ms()) / 1000)
+                    if self._pane_dirty and self._pane_want
+                    else None
+                )
+                if await self._metadata_reads.wait(subs, delay):
+                    return
+        finally:
+            # Completed reads remain owned until collect_live consumes them.
+            await self._metadata_reads.cancel_pending()
 
-        Multiplexes the global and per-pane subscriptions within
-        `timeout` seconds (empty list when quiet). One corrupt event
-        line is skipped and counted, never fatal. EOF on the global
-        subscription raises HerdrProtocolError("upstream_closed"); EOF
-        on the per-pane subscription drops it for later re-open while
-        the global stream keeps serving."""
+    def metadata_requires_snapshot(self, events: list[dict[str, Any]]) -> bool:
+        """Only a status delta for a known agent's pane is complete without a refresh."""
+        panes = {row.get("pane_id") for row in self._agents if isinstance(row, dict)}
+        return any(
+            event.get("type") != "pane.upserted"
+            or set(event.get("payload", {})) != {"agent_status"}
+            or event.get("resource_id") not in panes
+            for event in events
+        )
+
+    async def metadata_deltas(
+        self, events: list[dict[str, Any]], host_id: str
+    ) -> list[dict[str, Any]] | None:
+        """Read only changed agents through the pinned agent.get / agent_info contract."""
+        if self.metadata_requires_snapshot(events):
+            return None
+        changed = dict.fromkeys(str(event["resource_id"]) for event in events)
+        staged: list[tuple[int, dict[str, Any], dict[str, Any]]] = []
+        for pane in changed:
+            matches = [
+                (i, row)
+                for i, row in enumerate(self._agents)
+                if isinstance(row, dict) and row.get("pane_id") == pane
+            ]
+            if len(matches) != 1:
+                return None
+            index, old = matches[0]
+            try:
+                result = await self._adapter.agent_get(str(old["terminal_id"]))
+            except HerdrError:
+                return None
+            agent = result.get("agent")
+            if (
+                result.get("type") != "agent_info"
+                or not isinstance(agent, dict)
+                or any(
+                    agent.get(key) != old.get(key)
+                    for key in ("terminal_id", "pane_id", "workspace_id", "tab_id")
+                )
+                or type(agent.get("revision")) is not int
+                or agent["revision"] < old.get("revision", 0)
+                or agent.get("agent_status") not in AGENT_STATUSES
+            ):
+                return None
+            row = _agent_row(host_id, agent)
+            staged.append(
+                (
+                    index,
+                    agent,
+                    row,
+                )
+            )
+        for index, agent, _event in staged:
+            self._agents[index] = agent
+        rows = {agent["pane_id"]: row for _index, agent, row in staged}
+        # Retain every transition in stream order, even when several share a target lookup.
+        return [
+            {
+                **event,
+                "type": "agent.upserted",
+                "resource_id": rows[event["resource_id"]]["terminal_id"],
+                "resource_revision": rows[event["resource_id"]]["revision"],
+                "payload": {
+                    **rows[event["resource_id"]],
+                    "status": _status(event["payload"]["agent_status"]),
+                    "status_changed": True,
+                },
+            }
+            for event in events
+        ]
+
+    async def collect_live(self, timeout: float) -> list[dict[str, Any]]:
+        """Drain translated live events from the held subscriptions. Multiplexes the global and
+        per-pane subscriptions within `timeout` seconds (empty list when quiet).
+        """
         if self._subscription is None or not self.bootstrapped:
             raise HerdrProtocolError("not_bootstrapped", "bootstrap before collect_live")
         await self._ensure_pane_subscriptions()
@@ -1706,18 +1782,16 @@ class HerdrSource:
             remaining = deadline - loop.time()
             if remaining <= 0:
                 break
-            progress = False
             subs = [sub for sub in (self._subscription, self._pane_subscription) if sub is not None]
+            if not await self._metadata_reads.wait(subs, remaining if not partials else 0):
+                break
             for sub in subs:
-                remaining = deadline - loop.time()
-                if remaining <= 0:
-                    break
-                try:
-                    name, data = await asyncio.wait_for(
-                        sub.__anext__(), min(remaining, _LIVE_SLICE_S)
-                    )
-                except TimeoutError:
+                task = self._metadata_reads.tasks.get(sub)
+                if task is None or not task.done():
                     continue
+                self._metadata_reads.tasks.pop(sub)
+                try:
+                    name, data = task.result()
                 except StopAsyncIteration:
                     if sub is self._subscription:
                         raise HerdrProtocolError(
@@ -1733,14 +1807,10 @@ class HerdrSource:
                         raise
                     self._event_seq += 1
                     self._skipped += 1
-                    progress = True
                     continue
-                progress = True
                 partial = self._consume_live_line(name, data)
                 if partial is not None:
                     partials.append(partial)
-            if not progress:
-                break
         if self._pane_dirty:
             await self._ensure_pane_subscriptions()
         return partials
@@ -1761,11 +1831,10 @@ class HerdrSource:
         await self.refresh()
 
     async def rebootstrap(self) -> str:
-        """LiveSource rebootstrap: sweep attach sessions (attach clients
-        do not survive daemon death), drop dead subscriptions, and
-        bootstrap fresh (new continuity epoch). Gateway epochs persist:
-        the next `note_epochs` respawns each mapped terminal. No input
-        is replayed; output resumes on respawn."""
+        """LiveSource rebootstrap: sweep attach sessions (attach clients do not survive daemon
+        death), drop dead subscriptions, and bootstrap fresh (new continuity epoch). Gateway
+        epochs persist: the next `note_epochs` respawns each mapped terminal.
+        """
         self._drop_all_attached()
         await self._drop_pane_subscription()
         data = await self.bootstrap()
@@ -1808,7 +1877,7 @@ class HerdrSource:
             if getattr(session, "spawn_pending", False) and ready is not None:
                 await ready.wait()
 
-    def note_epochs(self, routes: Mapping[str, Mapping[str, str]]) -> dict[str, str]:
+    def note_epochs(self, routes: Mapping[str, Mapping[str, Any]]) -> dict[str, str]:
         """Apply the gateway epoch table and auto-attach newly mapped
         terminals (shell kind without takeover, agent kind with the
         explicit-takeover agent planner). Never raises: per-terminal
@@ -1858,6 +1927,9 @@ class HerdrSource:
             if mode == "observe" and retry is not None and retry.deadline_ms is not None:
                 if self._observe_now_ms() < retry.deadline_ms:
                     continue
+            if mode == "control" and self._attach_refused.get(terminal_id) == epoch:
+                failures[terminal_id] = "attach refused upstream; explicit Take over required"
+                continue
             if kind == "agent" and mode == "control":
                 if self._agent_lost.get(terminal_id) == epoch:
                     failures[terminal_id] = "agent attach ended; explicit Take over required"
@@ -1883,7 +1955,7 @@ class HerdrSource:
                 if mode == "observe":
                     self.observe_terminal(terminal_id, kind)
                 elif kind == "shell":
-                    self.attach_shell(terminal_id)
+                    self.attach_shell(terminal_id, takeover=route.get("takeover") is True)
                 else:
                     self.attach_agent(terminal_id)
             except Exception as exc:  # noqa: BLE001 - reported, never raised
@@ -1897,7 +1969,7 @@ class HerdrSource:
                             else "observer spawn failed; timed retry scheduled"
                         )
                 else:
-                    failures[terminal_id] = f"{type(exc).__name__}: {exc}"
+                    failures[terminal_id] = error_label(exc)
         return failures
 
     def drop_terminal(self, terminal_id: str) -> None:
@@ -1919,6 +1991,10 @@ class HerdrSource:
         timer = self._resize_timers.pop(terminal_id, None)
         if timer is not None:
             timer.cancel()
+        self._geometry.pop(terminal_id, None)
+        self._reasserted_at.pop(terminal_id, None)
+        self._attach_refused.pop(terminal_id, None)
+        self._cancel_correction(terminal_id)
         if len(self._observer_pool) < observers_before:
             self._wake_capacity_retries()
         self._epochs.pop(terminal_id, None)
@@ -2013,8 +2089,9 @@ class HerdrSource:
 
     def resize_terminal(self, terminal_id: str, epoch: str, cols: int, rows: int) -> str | None:
         """Apply a controller resize. The latest request wins and is applied once requests
-        settle (RESIZE_SETTLE_S), so twenty rapid resume/rotate events replay the screen once.
-        A same-size request is still applied: a reattached viewer relies on that repaint."""
+        settle (RESIZE_SETTLE_S), so twenty rapid resume/rotate events replay the screen
+        once.
+        """
         session = self._input_session(terminal_id, epoch)
         if session is None:
             return "stale or unavailable terminal"
@@ -2048,7 +2125,69 @@ class HerdrSource:
             session.resize(cols, rows)
         except (OSError, RuntimeError) as exc:
             return f"resize outcome uncertain: {type(exc).__name__}"
+        self._note_geometry(terminal_id, session)
         return None
+
+    def reassert_geometry(self, terminal_id: str | None = None, *, force: bool = False) -> int:
+        """Re-send the last applied size to controlled terminals whose frames report another
+        size (`force` skips that check). One resize per terminal per GEOMETRY_REASSERT_S, no
+        output; a mismatch seen inside the cooldown is corrected by a timer that rechecks
+        authority and viewport when it fires.
+        """
+        sent = 0
+        now = self._retry_clock()
+        for candidate, wanted in list(self._geometry.items()):
+            if terminal_id is not None and candidate != terminal_id:
+                continue
+            session = self._input_session(candidate, self._epochs.get(candidate, ""))
+            if not isinstance(session, ControlSession):
+                continue
+            if not force and session.viewport in (None, wanted):
+                continue
+            remaining = GEOMETRY_REASSERT_S - (now - self._reasserted_at.get(candidate, -1e9))
+            if remaining > 1e-3:
+                self._arm_correction(candidate, remaining)
+                continue
+            try:
+                session.resize(*wanted)
+            except (OSError, RuntimeError):
+                continue
+            self._reasserted_at[candidate] = now
+            self._cancel_correction(candidate)
+            sent += 1
+            LOG.info("pane_geometry_reasserted cols=%s rows=%s", wanted[0], wanted[1])
+        return sent
+
+    def _arm_correction(self, terminal_id: str, delay: float) -> None:
+        if terminal_id in self._correction_timers:
+            return
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return
+        self._correction_timers[terminal_id] = loop.call_later(
+            delay, self._correction_due, terminal_id
+        )
+
+    def _correction_due(self, terminal_id: str) -> None:
+        self._correction_timers.pop(terminal_id, None)
+        self.reassert_geometry(terminal_id)
+
+    def _cancel_correction(self, terminal_id: str) -> None:
+        timer = self._correction_timers.pop(terminal_id, None)
+        if timer is not None:
+            timer.cancel()
+
+    def _pane_matches(self, terminal_id: str, pane_id: str) -> bool:
+        """Whether a pane event concerns this terminal (agent by pane id, shell by its pane's
+        terminal id in the snapshot)."""
+        if self.agent_attach_target(terminal_id) == pane_id:
+            return True
+        panes = self._snapshot.get("panes") if isinstance(self._snapshot, dict) else None
+        for row in panes or []:
+            if isinstance(row, dict) and row.get("pane_id") == pane_id:
+                return row.get("terminal_id") == self.shell_attach_target(terminal_id)
+        return False
 
     def _input_session(self, terminal_id: str, epoch: str) -> AttachSession | None:
         if self._epochs.get(terminal_id) != epoch:
@@ -2077,10 +2216,8 @@ class HerdrSource:
             self._cancel_output_wait()
 
     async def wait_output_ready(self) -> None:
-        """Wake on mapped PTY readability or attachment/table changes.
-
-        Registrations live only for this wait and are removed on cancellation.
-        Unmapped PTYs are deliberately not read or registered.
+        """Wake on mapped PTY readability or attachment/table changes. Registrations live only
+        for this wait and are removed on cancellation.
         """
         if self._output_changed.is_set():
             self._output_changed.clear()
@@ -2141,10 +2278,8 @@ class HerdrSource:
             ready.cancel()
             changed.cancel()
             await asyncio.gather(changed, return_exceptions=True)
-        # FD registrations are gone before a replacement can reuse one.
-        # Check deadlines on every wake: continuous output from a healthy
-        # terminal must not starve a failed observer's retry. Stored mode and
-        # epoch are rechecked, and cancellation never reaches this point.
+        # Recheck deadlines, mode and epoch after removing FD registrations so busy output cannot
+        # starve retries.
         self._retry_due_observers()
 
     def attached_terminals(self) -> tuple[str, ...]:
@@ -2159,11 +2294,26 @@ class HerdrSource:
         self._output_changed.set()
         return staged
 
+    def pane_folder(self, terminal_id: str) -> tuple[str, str, str] | None:
+        """(epoch, pane id, folder) of an agent's pane, foreground folder first; call on the
+        source's loop. The folder is host-local and must never be sent or logged."""
+        if not isinstance(self._snapshot, dict):
+            return None
+        for row in self._snapshot.get("panes") or []:
+            if not isinstance(row, dict) or row.get("terminal_id") != terminal_id:
+                continue
+            pane_id = row.get("pane_id")
+            folder = row.get("foreground_cwd") or row.get("cwd")
+            if isinstance(pane_id, str) and isinstance(folder, str) and 0 < len(folder) <= 4096:
+                return (self.epoch, pane_id, folder)
+            return None
+        return None
+
     def shell_attach_target(self, terminal_id: str) -> str:
-        """`herdr terminal attach <TERMINAL_ID>` needs a real terminal id
-        (`term_...`). The inventory names shells by tab (or pane) id, so map
-        through the snapshot panes; prefer the focused pane of a multi-pane
-        tab. Unknown ids pass through unchanged."""
+        """`herdr terminal attach <TERMINAL_ID>` needs a real terminal id (`term_...`). The
+        inventory names shells by tab (or pane) id, so map through the snapshot panes; prefer
+        the focused pane of a multi-pane tab.
+        """
         if not isinstance(self._snapshot, dict):
             return terminal_id
         matches = [
@@ -2178,14 +2328,22 @@ class HerdrSource:
         focused = [row for row in matches if row.get("focused")]
         return str((focused or matches)[0]["terminal_id"])
 
+    def _tool(self) -> str:
+        """The Herdr executable for a subprocess, or `ToolUnavailable` when the companion has no
+        trusted one: the inventory over the socket still works, attaching does not."""
+        if not self._binary:
+            raise ToolUnavailable
+        return self._binary
+
     def observe_terminal(self, terminal_id: str, kind: str) -> AttachSession:
         """Read-only upstream stream; never reattach/take over to keep warmth."""
+        binary = self._tool()
         target = self.shell_attach_target(terminal_id)
 
         def factory() -> AttachSession:
             session = ObserveSession(
                 [
-                    self._binary,
+                    binary,
                     "terminal",
                     "session",
                     "observe",
@@ -2214,17 +2372,25 @@ class HerdrSource:
         self._output_changed.set()
         return pooled
 
-    def attach_shell(self, terminal_id: str, *, cols: int = 80, rows: int = 24) -> AttachSession:
-        """Acquire (pooled, retained) shell attach WITHOUT takeover.
-        `terminal_id` is the gateway id; the pool stays keyed by it."""
+    def attach_shell(
+        self, terminal_id: str, *, cols: int = 80, rows: int = 24, takeover: bool = False
+    ) -> AttachSession:
+        """Acquire (pooled, retained) shell attach, WITHOUT takeover unless the gateway's
+        route carries the viewer's explicit takeover. `terminal_id` is the gateway id; the
+        pool stays keyed by it."""
+        binary = self._tool()
         herdr_terminal = self.shell_attach_target(terminal_id)
 
         def factory() -> AttachSession:
-            session = AttachSession(
-                plan_shell_attach(self._binary, herdr_terminal, cols=cols, rows=rows),
-                capture_stderr=True,
-                lifecycle=self._attach_io,
+            argv = plan_shell_attach(
+                binary,
+                herdr_terminal,
+                cols=cols,
+                rows=rows,
+                controller=self._controller_viewport,
+                takeover=takeover,
             )
+            session = self._control_session(argv, cols, rows)
             session.spawn()
             return session
 
@@ -2232,14 +2398,23 @@ class HerdrSource:
         pooled = self._pool.acquire(f"shell:{terminal_id}", factory, self._now_ms())
         assert isinstance(pooled, AttachSession)  # noqa: S101
         self._attached[f"shell:{terminal_id}"] = (pooled, terminal_id, "")
+        self._note_geometry(terminal_id, pooled)
         self._output_changed.set()
         return pooled
 
+    def _control_session(self, argv: list[str], cols: int, rows: int) -> AttachSession:
+        kind = ControlSession if self._controller_viewport else AttachSession
+        return kind(argv, cols=cols, rows=rows, capture_stderr=True, lifecycle=self._attach_io)
+
+    def _note_geometry(self, terminal_id: str, session: AttachSession) -> None:
+        """Only a controller viewport is re-asserted; a raw client's size never is."""
+        if isinstance(session, ControlSession):
+            self._geometry[terminal_id] = (session.cols, session.rows)
+
     def agent_attach_target(self, terminal_id: str) -> str:
-        """Herdr resolves `agent attach <TARGET>` by pane id (e.g. `w2:p5`),
-        not by terminal id (verified against herdr 0.9.1: a terminal id
-        answers agent_not_found). Map from the latest agent inventory;
-        fall back to the id itself when the agent is not listed."""
+        """Map the gateway's agent terminal ID to Herdr's required pane ID using current
+        inventory. Pass through the supplied ID when the agent is not listed.
+        """
         for entry in self._agents:
             if isinstance(entry, dict) and entry.get("terminal_id") == terminal_id:
                 pane = entry.get("pane_id")
@@ -2250,14 +2425,19 @@ class HerdrSource:
     def attach_agent(self, target: str, *, cols: int = 80, rows: int = 24) -> AttachSession:
         """Acquire (pooled, retained) agent attach WITH explicit takeover.
         `target` is the gateway terminal id; the pool stays keyed by it."""
+        binary = self._tool()
         herdr_target = self.agent_attach_target(target)
 
         def factory() -> AttachSession:
-            session = AttachSession(
-                plan_agent_attach(self._binary, herdr_target, takeover=True, cols=cols, rows=rows),
-                capture_stderr=True,
-                lifecycle=self._attach_io,
+            argv = plan_agent_attach(
+                binary,
+                herdr_target,
+                takeover=True,
+                cols=cols,
+                rows=rows,
+                controller=self._controller_viewport,
             )
+            session = self._control_session(argv, cols, rows)
             session.spawn()
             return session
 
@@ -2265,18 +2445,15 @@ class HerdrSource:
         pooled = self._pool.acquire(f"agent:{target}", factory, self._now_ms())
         assert isinstance(pooled, AttachSession)  # noqa: S101
         self._attached[f"agent:{target}"] = (pooled, target, "")
+        self._note_geometry(target, pooled)
         self._output_changed.set()
         return pooled
 
     def pump_attached(self, epoch_for: Callable[[str], str], *, timeout: float = 0.0) -> int:
-        """Non-blocking collect from attached PTY sessions into the
-        relay. `epoch_for` maps terminal ids to the live gateway ring
-        epoch (epoch routing is link state; the source never guesses).
-        Unmapped terminals are NOT read: their bytes stay buffered in
-        the PTY until an epoch arrives (no loss). Sessions whose attach
-        client died are reaped (epoch kept): observers use bounded timed
-        retries, shells re-note epochs, and agents require explicit takeover.
-        A dead session never stalls the pump silently. Returns bytes collected."""
+        """Non-blocking collect from attached PTY sessions into the relay. `epoch_for` maps
+        terminal ids to the live gateway ring epoch (epoch routing is link state; the source
+        never guesses).
+        """
         collected = 0
         for key, (session, terminal_id, _) in list(self._attached.items()):
             if getattr(session, "spawn_pending", False):
@@ -2288,9 +2465,7 @@ class HerdrSource:
                 continue
             drained = bytearray()
             try:
-                # PTYs may return 1 KiB even for a 64 KiB request. Drain to
-                # EAGAIN, coalescing one bounded turn per terminal. The byte
-                # budget yields fairly to other PTYs and metadata/control.
+                # Drain short PTY reads to EAGAIN within a fair per-terminal byte budget.
                 drained.extend(session.read(TUNNEL_MAX_OUTPUT, timeout=timeout))
                 while drained and len(drained) < TUNNEL_MAX_OUTPUT:
                     chunk = session.read_available(TUNNEL_MAX_OUTPUT - len(drained))
@@ -2304,11 +2479,22 @@ class HerdrSource:
                 collected += len(drained)
                 if self._epoch_modes.get(terminal_id) == "observe":
                     self._observe_stable(terminal_id)
+                elif isinstance(session, ControlSession):
+                    self.reassert_geometry(terminal_id)
                 continue
             if not session.running:
-                self._terminal_resets[terminal_id] = epoch
-                self._reap_dead(key, terminal_id, session.exit_status)
+                category = self._reap_dead(key, terminal_id, session.exit_status)
+                if category == "terminal_owned" and self._epoch_modes.get(terminal_id) == "control":
+                    # Owned elsewhere: a typed refusal, not a reset that would respawn and loop.
+                    self._attach_refused[terminal_id] = epoch
+                else:
+                    self._terminal_resets[terminal_id] = epoch
         return collected
+
+    def drain_attach_refusals(self) -> dict[str, str]:
+        """Terminals whose control attach Herdr refused since the last drain, by epoch."""
+        refused = {t: e for t, e in self._attach_refused.items() if self._epochs.get(t) == e}
+        return refused
 
     def _drain_dead(self, session: AttachSession, terminal_id: str, epoch: str) -> None:
         """Best-effort final drain of a dead session into the relay
@@ -2322,11 +2508,10 @@ class HerdrSource:
                 return
             self._stage(terminal_id, epoch, chunk)
 
-    def _reap_dead(self, key: str, terminal_id: str, exit_status: int | None) -> None:
-        """Drop a dead attach session loudly; the gateway epoch is kept.
-        Control shells respawn on re-noted epochs; control agents wait for
-        a new epoch from an explicit Take over. Read-only observes retry on
-        a bounded timer with repeated warnings coalesced. Input is never replayed."""
+    def _reap_dead(self, key: str, terminal_id: str, exit_status: int | None) -> str:
+        """Drop a dead attach session loudly; the gateway epoch is kept. Returns the fixed
+        diagnostic category of the death (`terminal_owned` for an upstream refusal).
+        """
         held = self._attached.get(key)
         session = held[0] if held is not None else None
         category = (
@@ -2365,8 +2550,10 @@ class HerdrSource:
             self._attached.pop(key, None)
         if mode == "observe":
             self._wake_capacity_retries()
+        return category
 
     async def close(self) -> None:
+        await self._metadata_reads.close()
         if self._subscription is not None:
             await self._subscription.aclose()
             self._subscription = None
@@ -2382,6 +2569,9 @@ class HerdrSource:
             timer.cancel()
         self._resize_timers.clear()
         self._resize_pending.clear()
+        for timer in self._correction_timers.values():
+            timer.cancel()
+        self._correction_timers.clear()
         self._observe_retries.clear()
         self._observe_started.clear()
         self._observe_issues.clear()

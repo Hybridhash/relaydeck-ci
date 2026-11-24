@@ -1,12 +1,6 @@
-"""Bounded retained-terminal registry with detach-only eviction.
-
-Each host has five slots and a five-minute idle expiry. Visible terminals are
-protected; idle entries are evicted by idle time then last activity. Admission
-fails if every slot is visible. Teardown is awaited before reusing a slot.
-
-Detaching releases the lease while the remote process survives. Releasing a
-view keeps its surface buffering through the existing bounded viewer queue.
-The registry accepts live surfaces because opening can refuse asynchronously."""
+"""Bounded retained-terminal registry with detach-only eviction. Each host has five slots and a
+five-minute idle expiry.
+"""
 
 from __future__ import annotations
 
@@ -48,23 +42,9 @@ class _Retained:
 
 
 class TerminalRegistry:
-    """Retained live terminals, five slots per host.
-
-    - `retain` admits a live surface (touching it on a same-key hit);
-      a full pool detaches the LRU non-visible entry first, and raises
-      `RetentionFullError` when every slot is visible-held.
-    - `release` detaches a VIEW (Back navigation): the surface stays live
-      and keeps buffering, but becomes idle-evictable. Idempotent; it
-      never calls into the surface.
-    - `touch` foregrounds a retained entry (idle cleared). Idempotent.
-    - `evict_idle` detaches and drops idle entries past the TTL.
-      Visible entries are protected even when idle.
-    - `detach` / `detach_all` release slots explicitly with awaited
-      teardown (lease release; the remote pane survives).
-    - `set_visible` marks which keys are on screen; visible keys are
-      never evicted by any path.
-
-    The clock is injected (`now_ms`): no sleeps, no wall-clock reads.
+    """Retain up to five live terminal surfaces per host, detaching the least-recently-used
+    hidden entry when full. Visible holds prevent eviction and cause admission to fail if no
+    slot can be freed.
     """
 
     def __init__(self, *, slots: int = RETENTION_SLOTS, idle_ms: int = RETENTION_IDLE_MS) -> None:
@@ -138,8 +118,9 @@ class TerminalRegistry:
         hit.last_active_ms = now_ms
 
     async def evict_idle(self, host_id: str, now_ms: int) -> tuple[str, ...]:
-        """Detach and drop idle entries past the TTL. Visible entries are
-        protected even when idle. Returns the evicted keys."""
+        """Detach idle entries past the TTL and return their evicted keys. Visible holds protect
+        entries even while idle.
+        """
         entries = self._hosts.get(host_id, {})
         visible = self._visible.get(host_id, frozenset())
         dead = [
@@ -152,6 +133,15 @@ class TerminalRegistry:
         for key in dead:
             await self._drop(host_id, key)
         return tuple(dead)
+
+    def next_expiry_ms(self) -> int | None:
+        deadlines = [
+            entry.idle_since_ms + self._idle_ms
+            for host, entries in self._hosts.items()
+            for key, entry in entries.items()
+            if key not in self._visible.get(host, ()) and entry.idle_since_ms is not None
+        ]
+        return min(deadlines) if deadlines else None
 
     async def detach(self, host_id: str, key: str) -> bool:
         """Release one slot explicitly: teardown is awaited before the

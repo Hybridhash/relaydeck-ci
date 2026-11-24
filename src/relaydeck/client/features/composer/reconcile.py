@@ -1,6 +1,6 @@
-"""Read-only reconciliation of a send whose outcome became unknown.
+"""Reconciliation of a send whose outcome became unknown.
 
-Only the command's status is read, by id; nothing is ever submitted again.
+Status recovery may fence a missing ID; prompt bytes are never submitted again.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import time
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-from relaydeck.client.features.composer.observation import CommandRefused
+from relaydeck.client.ports.commands import CommandRecoveryUnavailable, CommandRefused
 
 RECONCILE_BUDGET_S = 20.0
 RECONCILE_INTERVAL_S = 1.0
@@ -42,6 +42,8 @@ async def reconcile_command(
             return DELIVERED, None
         except CommandRefused as refusal:
             return FAILED, refusal
+        except CommandRecoveryUnavailable:
+            return UNKNOWN, None
         except Exception:  # noqa: BLE001 - nothing proven yet: read again within the budget
             if monotonic() + interval_s >= deadline:
                 return UNKNOWN, None

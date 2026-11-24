@@ -12,16 +12,25 @@ import flet as ft
 import httpx
 import pytest
 
-from relaydeck.client.serve import COOKIE_NAME, WebSessionStore, build_web_app
-from relaydeck.companion.persistence import open_store
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
-from relaydeck.gateway.identity import SessionStore
-from relaydeck.persistence_contracts import StorageUnavailable, Table
+from relaydeck.companion.app.hosted_web.serve import COOKIE_NAME, WebSessionStore, build_web_app
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.features.access.identity import SessionStore
+from relaydeck.host.persistence.contracts import StorageUnavailable, Table
+from relaydeck.host.persistence.sqlite_store import open_store
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.gateway.cookie_socket import CookieSocket, until
 from tests.support.persistence.persistence import Config, MemoryKeys
 
-ORIGIN = "http://test"
+pytestmark = pytest.mark.usefixtures("hosted_web_bundle")
+
+ORIGIN = "https://test"
 
 
 def stores(
@@ -215,8 +224,8 @@ def test_explicit_signer_migration_is_idempotent_and_lock_never_reads_plaintext(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from relaydeck.companion.app.runtime import CompanionRuntime
     from relaydeck.companion.config import CompanionConfig
-    from relaydeck.companion.runtime import CompanionRuntime
 
     cookie, cursor = tmp_path / "cookie.secret", tmp_path / "cursor.secret"
     cookie.write_text("k" * 48 + "\n")
@@ -235,19 +244,19 @@ def test_explicit_signer_migration_is_idempotent_and_lock_never_reads_plaintext(
             setup_persistence=True,
             persistence_provider=keys,
         )
-        signer, _ = runtime._storage_secrets()
-        assert signer == b"k" * 48 and runtime.persistence_status.available
+        signer, _ = runtime.storage._storage_secrets()
+        assert signer == b"k" * 48 and runtime.storage.persistence_status.available
         assert cookie.read_bytes() == b"k" * 48 + b"\n"
-        runtime.persistence.close()
+        runtime.storage.persistence.close()
     assert keys.read_secret("cookie-signing").value == b"k" * 48
     keys.locked = True
     monkeypatch.setattr(
         CompanionConfig, "secrets", lambda self: pytest.fail("no plaintext signer fallback")
     )
     locked = CompanionRuntime(config, durable_signins=True, persistence_provider=keys)
-    signer, _ = locked._storage_secrets()
-    assert signer != b"k" * 48 and locked.persistence is None
-    assert locked.persistence_status.reason == "keys_unavailable"
+    signer, _ = locked.storage._storage_secrets()
+    assert signer != b"k" * 48 and locked.storage.persistence is None
+    assert locked.storage.persistence_status.reason == "keys_unavailable"
     assert cookie.exists()
 
 
@@ -345,8 +354,8 @@ def test_current_grants_and_locked_keychain_are_rechecked(tmp_path: Path) -> Non
 
 
 def test_locked_durable_storage_still_starts_companion_without_listener(tmp_path: Path) -> None:
+    from relaydeck.companion.app.runtime import CompanionRuntime
     from relaydeck.companion.config import CompanionConfig
-    from relaydeck.companion.runtime import CompanionRuntime
 
     cursor = tmp_path / "cursor.secret"
     cursor.write_text("c" * 32)
@@ -387,7 +396,7 @@ def test_locked_durable_storage_still_starts_companion_without_listener(tmp_path
             assert report["api_ready"] and report["web_ready"]
             assert not report["durable_signins"] and report["signin_storage"] == "keys_unavailable"
             assert runtime.gateway.sessions.persistence is None
-            assert runtime.web_store is not None and runtime.web_store.persistence is None
+            assert runtime.web.web_store is not None and runtime.web.web_store.persistence is None
         finally:
             await runtime.close()
 
@@ -429,7 +438,7 @@ def test_native_refresh_wire_contract_and_foreign_origin_guard(tmp_path: Path) -
             )
             assert response.status_code == 403
         # Real guard, foreign Origin; no Flet registration/ownership is admitted.
-        from relaydeck.client.serve import FletGuardMiddleware
+        from relaydeck.companion.app.hosted_web.serve import FletGuardMiddleware
 
         admitted: list[bool] = []
 
@@ -644,8 +653,8 @@ def test_flet_cookie_and_identity_reads_leave_event_loop_responsive(
     import threading
     from types import SimpleNamespace
 
-    from relaydeck.client import app as client_app
-    from relaydeck.client.serve import make_relaydeck_main
+    from relaydeck.client.app import root as client_app
+    from relaydeck.companion.app.hosted_web.serve import make_relaydeck_main
 
     keys, clock, disk, sessions, web, sid = seed(tmp_path / "state")
     started, release = threading.Event(), threading.Event()
@@ -714,7 +723,7 @@ def test_scope_revocation_failure_severs_writers_before_retry(
 
     from starlette.responses import JSONResponse
 
-    from relaydeck.gateway.revocation import revoke_account_and_close, revoke_host_and_close
+    from relaydeck.gateway.app.revocation import revoke_account_and_close, revoke_host_and_close
     from tests.support.gateway.fake_socket import _FakeSocket
 
     keys, clock, disk, sessions, web, sid = seed(tmp_path / "state")
@@ -828,7 +837,7 @@ def test_closed_transport_cannot_publish_after_private_read(
     import msgpack  # type: ignore[import-untyped]
     from flet.fastapi import app_manager
 
-    from relaydeck.client import serve
+    from relaydeck.companion.app.hosted_web import serve
 
     keys, clock, disk, sessions, web, sid = seed(tmp_path / "state")
     handshake = serve._Handshake("192.0.2.10", "synthetic", "")
@@ -939,7 +948,7 @@ def test_revocation_only_lookup_rejects_foreign_origin_scope(tmp_path: Path) -> 
     keys, clock, disk, sessions, web, sid = seed(tmp_path / "state")
     pair = web.take_session(sid)
     assert pair is not None
-    other_origin = "http://foreign"
+    other_origin = "https://foreign"
     other = WebSessionStore(
         other_origin,
         web.cookie_secret,
@@ -986,7 +995,7 @@ def test_late_private_read_cannot_rebind_replacement_flet_owner(
     import threading
     from types import SimpleNamespace
 
-    from relaydeck.client import serve
+    from relaydeck.companion.app.hosted_web import serve
 
     keys, clock, disk, sessions, web, sid = seed(tmp_path / "state")
     pair = sessions.create("replacement", ["sessions.read"], ["host"], clock[0], "new-device")

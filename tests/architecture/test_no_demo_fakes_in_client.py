@@ -15,8 +15,6 @@ SRC = ROOT / "src" / "relaydeck"
 STAGED_LAYERS = ("client", "contracts", "domain")  # what the stager copies
 MOVED = ("fake_gateway", "fake_host", "fake_terminal", "scenarios", "fake")
 DEV_ONLY_PREFIXES = ("relaydeck.devtools",)
-SERVE = SRC / "client" / "serve.py"
-SERVE_DEV_MODULE = "relaydeck.devtools.dev_server"
 
 
 def _imports(path: Path) -> set[str]:
@@ -41,8 +39,6 @@ def test_client_modules_never_import_devtools_or_the_old_demo_paths() -> None:
     offenders: list[str] = []
     for path in (SRC / "client").rglob("*.py"):
         for name in _imports(path):
-            if path == SERVE and name.startswith(SERVE_DEV_MODULE):
-                continue  # the hosted server is never staged and wires the dev login
             old = any(name.endswith(f"adapters.{moved}") for moved in MOVED)
             if old or name.startswith(DEV_ONLY_PREFIXES):
                 offenders.append(f"{path.relative_to(ROOT)}: {name}")

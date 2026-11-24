@@ -1,40 +1,5 @@
-"""Cumulative per-session token usage from local SQLite state databases.
-
-One source root is a tool home directory holding `state.db` plus
-`profiles/*/state.db`, all sharing one schema. Each database carries
-`session_model_usage`: cumulative token counters per
-(session, model, provider, url, mode, task) with first/last-seen REAL
-seconds, and `sessions`: one row per session with cumulative totals, the
-working folder (`cwd`), the parent session, and activity times.
-
-Events are `Basis.CUMULATIVE_DELTA`: the reader keeps the previous totals
-per row in its cursor and emits the difference. A re-read emits nothing new
-(the store replaces a retried key); a reset (totals decrease) emits
-nothing, records a gap, and rebases. First sight of a row emits its full
-current totals attributed to its last-seen day, which is exact for new rows
-and approximate for rows that accumulated over several days before the
-first read. `*_cost_usd` columns are ignored (the engine prices itself);
-message tables are never opened.
-
-Reads are live read-only snapshots (`mode=ro`, one transaction per pass
-phase): no sidecar files are created and writers are never blocked. Copying
-is infeasible (databases reach gigabytes); `immutable=1` would silently
-ignore the write-ahead log.
-
-Every SQL read is bounded: rows stream in fixed chunks, a progress handler
-aborts statements at the budget deadline, retrieved text is capped (an
-over-long field skips and counts its row, never truncates identity), and
-row scans resume through keyset cursors. A cut scan reports `more` with
-PARTIAL coverage, never partial-as-complete.
-
-Session identity is the bare session id so Herdr linking works. An id seen
-in more than one database keeps its bare key in exactly one database (the
-side that already emitted for it, else the first in sorted order; sticky in
-the cursor) and uses a database-namespaced key everywhere else, so both
-sides count without ever merging. Event keys always carry the database tag,
-so identical rows in two databases can never replace each other. The sticky
-collision count is recorded in the cursor state (`col-n`); namespaced rows
-cannot exact-link, but their working-folder digest may still infer.
+"""Read bounded cumulative-token deltas from live, read-only SQLite snapshots. Preserve stable
+database-qualified event identities without opening message tables.
 """
 
 from __future__ import annotations
@@ -157,10 +122,9 @@ def _fingerprint(path: Path) -> list[Any] | None:
 
 
 def _text(column: str) -> str:
-    """Bounded retrieval of a text column. Text longer than the cap arrives
-    truncated one past it (the caller skips and counts it); every other type
-    passes through untouched, so the existing validation sees exactly what it
-    saw before. Column names are module constants, never input."""
+    """Build SQL that caps text at the validation limit plus one so the caller can reject
+    oversized fields. Preserve nontext values and use only fixed column names.
+    """
     return (
         f"CASE WHEN typeof({column}) = 'text'"
         f" THEN substr({column}, 1, {_MAX_TEXT_CHARS + 1})"
@@ -331,10 +295,9 @@ class _Reader:
         digest: str | None,
         dbtag: str,
     ) -> bool:
-        """Delta current minus previous under a fresh sequence key. False when the
-        event budget is exhausted (the caller stops without committing this row).
-        The key carries the database tag: identical rows in two databases must
-        never share a key (the store would replace one with the other)."""
+        """Delta current minus previous under a fresh sequence key. False when the event budget
+        is exhausted (the caller stops without committing this row).
+        """
         previous = totals.get(pk)
         seq = -1 if previous is None else previous[0]
         if previous is not None and current == previous[1:6]:
@@ -901,7 +864,9 @@ def _resume_rel(cursor: Cursor, dbs: list[tuple[str, Path]]) -> str | None:
 
 
 class SqliteSessionUsageReader:
-    """Cumulative session usage; see the module docstring for the full contract."""
+    """Read cumulative session deltas; detailed accounting and cursor limits are in
+    docs/architecture/usage-collection.md.
+    """
 
     format_id = FORMAT_ID
     tokens_reported = True

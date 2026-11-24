@@ -8,7 +8,8 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport, TransportError
+from relaydeck.client.features.management.source import HostsSource
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.contracts.pubkeys import fingerprint_of_raw, openssh_to_raw, raw_to_openssh
 from relaydeck.contracts.schemas import SchemaError, validate
 
@@ -16,7 +17,7 @@ from relaydeck.contracts.schemas import SchemaError, validate
 class ManagementController:
     def __init__(
         self,
-        transport: HttpxGatewayTransport,
+        transport: HostsSource,
         account: str,
         notify: Callable[[], Any],
         on_hosts: Callable[[list[dict[str, Any]]], Any],

@@ -6,9 +6,9 @@ import json
 
 import pytest
 
-from relaydeck.connector.fixture import FixtureAdapter
 from relaydeck.connector.link import ConnectorLink, LinkConfig, _ProtocolDrop
-from relaydeck.tunnel_queue import BoundedInbox
+from relaydeck.devtools.fakes.connector import FixtureAdapter
+from relaydeck.host.transport.queues import BoundedInbox
 from tests.support.creation.command_journal import _dispatch_msg
 from tests.support.sync.scripted_transport import _ScriptedTransport
 

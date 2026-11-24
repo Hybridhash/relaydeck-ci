@@ -7,8 +7,8 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.features.a11y.focus import iter_controls
 from relaydeck.domain.models import AgentStatus, AppState, Host, Tab, Workspace, scope_key
+from tests.support.ui.focus import iter_controls
 from tests.support.ui.navigation import _state
 
 

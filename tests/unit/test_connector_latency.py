@@ -21,6 +21,7 @@ from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.connector.link import (
     OUTPUT_COALESCE_MAX_S,
     OUTPUT_COALESCE_S,
+    OUTPUT_FIRST_BYTE_S,
     ConnectorLink,
     LinkConfig,
 )
@@ -62,27 +63,35 @@ def _write_repaint(fd: int, data: bytes) -> None:
 
 
 def _batches_close_only_at_quiet_or_cap(
-    reads: list[tuple[float, int]], flushed: list[float], sizes: list[int]
+    reads: list[tuple[float, int]], flushed: list[float], sizes: list[int], waits: list[float]
 ) -> None:
     """A repaint ships as one batch unless its pieces fell silent for the quiet gap or kept
-    arriving past the cap. Reads are stamped before they wake the forwarder and batches at its
-    close decision; a piece read after that decision joins the batch late and is not part of
-    the gap. The slack covers the loop's timer resolution only."""
+    arriving past the cap; a batch that starts after the output was idle for the cap may close
+    at the first-byte delay, counted from when the forwarder began that wait (`waits`): a pass
+    of the reader that found nothing yet can wake it before the first byte. Reads are stamped
+    before they wake the forwarder and batches at its close decision; a piece read after that
+    decision joins the batch late and is not part of the gap. The slack covers the loop's timer
+    resolution only."""
     ends = list(itertools.accumulate(size for _, size in reads))
     end = 0
+    previous: float | None = None
     for flush, size in zip(flushed[:-1], sizes[:-1], strict=True):
         start, end = end, end + size
         pieces = [at for (at, _), total in zip(reads, ends, strict=True) if start < total <= end]
         assert pieces, (reads, sizes)
         window = [at for at in pieces if at <= flush]
+        idle = previous is None or (bool(window) and window[0] - previous >= OUTPUT_COALESCE_MAX_S)
+        previous = flush
         if not window:
             continue
         quiet = flush - window[-1]
         held = flush - window[0]
-        assert quiet >= OUTPUT_COALESCE_S - 0.001 or held >= OUTPUT_COALESCE_MAX_S - 0.001, (
-            quiet,
-            held,
-        )
+        waited = flush - max((at for at in waits if at <= flush), default=window[0])
+        assert (
+            quiet >= OUTPUT_COALESCE_S - 0.001
+            or held >= OUTPUT_COALESCE_MAX_S - 0.001
+            or (idle and waited >= OUTPUT_FIRST_BYTE_S - 0.001)
+        ), (quiet, held, waited, idle)
 
 
 @pytest.mark.parametrize("slow_metadata", [False, True])
@@ -91,6 +100,7 @@ def test_real_pty_repaint_forwarded_without_idle_staircase(
     tmp_path: Path, slow_metadata: bool, repeat: int, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     collector_sleeps: list[float] = []
+    forwarder_waits: list[float] = []  # when the forwarder began each wait before a send
     real_sleep = asyncio.sleep
 
     async def sleep(delay: float, result: Any = None) -> Any:
@@ -98,6 +108,8 @@ def test_real_pty_repaint_forwarded_without_idle_staircase(
         owner = getattr(task.get_coro(), "__qualname__", "") if task is not None else ""
         if owner.endswith("_collect_pty"):
             collector_sleeps.append(delay)
+        elif owner.endswith("_forward_pty"):
+            forwarder_waits.append(time.monotonic())
         return await real_sleep(delay, result)
 
     monkeypatch.setattr(asyncio, "sleep", sleep)
@@ -169,10 +181,16 @@ def test_real_pty_repaint_forwarded_without_idle_staircase(
             decided.append(time.monotonic())
             await push_updates(port)
 
-        link._push_terminal_updates = push_decided
+        monkeypatch.setattr(link, "_push_terminal_updates", push_decided)
         metadata_started = asyncio.Event()
         metadata_release = asyncio.Event()
         if slow_metadata:
+            metadata_ready = asyncio.Event()
+            metadata_ready.set()
+
+            async def wait_metadata() -> None:
+                await metadata_ready.wait()
+                metadata_ready.clear()
 
             async def collect(_timeout: float) -> list[dict[str, Any]]:
                 return [{"event_id": "metadata-probe"}]
@@ -184,9 +202,10 @@ def test_real_pty_repaint_forwarded_without_idle_staircase(
             async def snapshot(port: Any) -> None:
                 await port.send_text(json.dumps({"kind": "snapshot"}))
 
-            source.collect_live = collect  # type: ignore[method-assign]
+            monkeypatch.setattr(source, "collect_live", collect)
+            source.wait_metadata_ready = wait_metadata  # type: ignore[method-assign]
             source.refresh = refresh  # type: ignore[method-assign]
-            link._push_snapshot = snapshot  # type: ignore[method-assign]
+            monkeypatch.setattr(link, "_push_snapshot", snapshot)
         task = asyncio.create_task(link._serve(transport, stop))
         if slow_metadata:
             await asyncio.wait_for(metadata_started.wait(), 1)
@@ -223,7 +242,9 @@ def test_real_pty_repaint_forwarded_without_idle_staircase(
             # timer, and a batch boundary needs a quiet gap or the cap.
             assert timings[-1] < 1000
             assert set(collector_sleeps) == {0}
-            _batches_close_only_at_quiet_or_cap(reads, flushed, list(map(len, frames)))
+            _batches_close_only_at_quiet_or_cap(
+                reads, flushed, list(map(len, frames)), forwarder_waits
+            )
             if slow_metadata:
                 kinds = [json.loads(text)["kind"] for text in transport.sent]
                 assert (
@@ -263,7 +284,7 @@ def test_upstream_eof_cancels_readiness_and_output_tasks(tmp_path: Path) -> None
             )
             assert link._source_stale
             assert not any(
-                t.get_coro().__qualname__.endswith(
+                getattr(t.get_coro(), "__qualname__", "").endswith(
                     ("_collect_pty", "_forward_pty", "_serve_messages", "wait_changed")
                 )
                 for t in asyncio.all_tasks()
@@ -361,7 +382,10 @@ def test_real_pty_readiness_cleans_up_and_never_reads_an_unmapped_terminal(
             waiter.cancel()
             await asyncio.gather(waiter, return_exceptions=True)
             assert added == removed == [master, master]
-            assert not any("wait_changed" in t.get_coro().__qualname__ for t in asyncio.all_tasks())
+            assert not any(
+                "wait_changed" in getattr(t.get_coro(), "__qualname__", "")
+                for t in asyncio.all_tasks()
+            )
         finally:
             waiter.cancel()
             await asyncio.gather(waiter, return_exceptions=True)

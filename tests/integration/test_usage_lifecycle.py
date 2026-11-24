@@ -4,22 +4,31 @@ from dataclasses import replace
 
 import pytest
 
-from relaydeck.companion.config import UsageConfig, UsageSourceConfig, load_config
-from relaydeck.companion.runtime import CompanionRuntime
+from relaydeck.companion.app.runtime import CompanionRuntime
+from relaydeck.companion.config import load_config
 from relaydeck.usage.collector import UsageCollector
+from relaydeck.usage.config import UsageConfig, UsageSourceConfig
 from relaydeck.usage.contracts import UsageQuery, UsageSource
 from relaydeck.usage.store import SqliteUsageStore
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.companion.asgi_companion import AsgiServer, config_file
 from tests.support.usage.collector import FakeReader
 from tests.support.usage.store import NOW
 
+pytestmark = pytest.mark.usefixtures("hosted_web_bundle")
+
 
 @pytest.fixture(autouse=True)
 def private_picture_state(tmp_path, monkeypatch):
-    from relaydeck.companion.pictures import PictureStore
+    from relaydeck.gateway.features.pictures.adapters.storage import PictureStore
 
     monkeypatch.setattr(
-        "relaydeck.companion.pictures.PictureStore",
+        "relaydeck.gateway.features.pictures.api.PictureStore",
         lambda **kwargs: PictureStore(tmp_path.resolve() / "pictures", **kwargs),
     )
 
@@ -41,7 +50,7 @@ def test_one_collector_private_ledger_join_before_close(tmp_path, configured):
         try:
             await runtime.start(asyncio.Event())
             if configured:
-                collector = runtime.usage_collector
+                collector = runtime.usage.usage_collector
                 thread = collector._thread
                 assert thread and thread.is_alive()
                 collector.start()
@@ -50,15 +59,15 @@ def test_one_collector_private_ledger_join_before_close(tmp_path, configured):
                 assert config.state_dir.stat().st_mode & 0o777 == 0o700
                 assert (config.state_dir / "usage.db").stat().st_mode & 0o777 == 0o600
             else:
-                assert runtime.usage_collector is None and runtime.usage_store is None
+                assert runtime.usage.usage_collector is None and runtime.usage.usage_store is None
                 assert runtime.gateway.usage is None
                 assert not (config.state_dir / "usage.db").exists()
         finally:
             await runtime.close()
         if configured:
             assert not thread.is_alive()
-            assert runtime.usage_store._closed
-        assert runtime.server.closed
+            assert runtime.usage.usage_store._closed
+        assert runtime.web.server.closed
 
     asyncio.run(run())
 
@@ -81,8 +90,8 @@ def test_invalid_price_table_is_tokens_only_without_sensitive_logs(tmp_path, cap
         runtime = CompanionRuntime(config, server_factory=AsgiServer)
         try:
             await runtime.start(asyncio.Event())
-            assert runtime.usage_store.prices.rates == ()
-            assert runtime.usage_collector._thread.is_alive()
+            assert runtime.usage.usage_store.prices.rates == ()
+            assert runtime.usage.usage_collector._thread.is_alive()
         finally:
             await runtime.close()
         assert "usage_prices_unavailable reason=invalid_price_table" in caplog.text
@@ -95,7 +104,7 @@ def test_unavailable_usage_storage_does_not_prevent_companion_start(tmp_path, mo
     def denied(*a, **k):
         raise ValueError("secret-session/path")
 
-    monkeypatch.setattr("relaydeck.companion.runtime.SqliteUsageStore", denied)
+    monkeypatch.setattr("relaydeck.companion.app.bindings.SqliteUsageStore", denied)
 
     async def run():
         config = load_config(config_file(tmp_path, web_ui=False))
@@ -113,8 +122,8 @@ def test_unavailable_usage_storage_does_not_prevent_companion_start(tmp_path, mo
         runtime = CompanionRuntime(config, server_factory=AsgiServer)
         try:
             await runtime.start(asyncio.Event())
-            assert runtime.server.started
-            assert runtime.gateway.usage.store is None and runtime.usage_collector is None
+            assert runtime.web.server.started
+            assert runtime.gateway.usage.store is None and runtime.usage.usage_collector is None
         finally:
             await runtime.close()
         assert "usage_unavailable reason=storage_unavailable" in caplog.text

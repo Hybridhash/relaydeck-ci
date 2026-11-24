@@ -1,0 +1,168 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "key": "usage-providers-meta",
+       "props": {
+        "color": "#55507A",
+        "font_family": "Bricolage Grotesque SemiBold",
+        "max_lines": 2,
+        "overflow": {
+         "enum": "TextOverflow",
+         "value": "ellipsis"
+        },
+        "size": 13,
+        "text_align": null,
+        "value": "0 connected",
+        "weight": {
+         "enum": "FontWeight",
+         "value": "w500"
+        }
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "key": "usage-providers-search",
+       "props": {
+        "border_radius": 12,
+        "dense": true,
+        "hint_text": "Search CLIs",
+        "prefix_icon": 72141
+       },
+       "slot": "controls",
+       "type": "TextField"
+      },
+      {
+       "key": "usage-providers-connected",
+       "props": {
+        "color": "#55507A",
+        "font_family": "Bricolage Grotesque Bold",
+        "size": 12,
+        "text_align": null,
+        "value": "CONNECTED · 0",
+        "weight": {
+         "enum": "FontWeight",
+         "value": "w700"
+        }
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "props": {
+              "color": "#17122B",
+              "font_family": "Bricolage Grotesque ExtraBold",
+              "max_lines": 1,
+              "overflow": {
+               "enum": "TextOverflow",
+               "value": "ellipsis"
+              },
+              "size": 15,
+              "text_align": null,
+              "value": "All CLIs",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w700"
+              }
+             },
+             "slot": "controls",
+             "type": "Text"
+            },
+            {
+             "props": {
+              "expand": true
+             },
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "props": {
+              "color": "#55507A",
+              "font_family": "Bricolage Grotesque SemiBold",
+              "max_lines": 1,
+              "overflow": {
+               "enum": "TextOverflow",
+               "value": "ellipsis"
+              },
+              "size": 12,
+              "text_align": null,
+              "value": "Filter Usage",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w500"
+              }
+             },
+             "slot": "controls",
+             "type": "Text"
+            }
+           ],
+           "slot": "content",
+           "type": "Row"
+          }
+         ],
+         "key": "usage-providers-all",
+         "props": {
+          "bgcolor": "#E9E3FB",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#5A36D8"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#5A36D8"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#5A36D8"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#5A36D8"
+           }
+          },
+          "border_radius": 14,
+          "height": 56,
+          "padding": {
+           "@": "Padding",
+           "left": 12,
+           "right": 12
+          }
+         },
+         "slot": "controls",
+         "type": "Container"
+        }
+       ],
+       "props": {
+        "spacing": 6,
+        "tight": true
+       },
+       "slot": "controls",
+       "type": "Column"
+      }
+     ],
+     "key": "usage-providers",
+     "props": {
+      "spacing": 12,
+      "tight": true
+     },
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:ProvidersView"
+  }
+ ]
+}

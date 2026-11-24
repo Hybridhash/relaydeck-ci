@@ -19,7 +19,7 @@ from relaydeck.client.features.create.validation import (
     validate_shell,
 )
 from relaydeck.contracts.schemas import validate
-from relaydeck.gateway.policy import authorize_command
+from relaydeck.gateway.features.commands.policy import authorize_command
 
 HOSTS = frozenset({"home-mac", "work-mac"})
 WORKSPACES = {

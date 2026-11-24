@@ -1,0 +1,201 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "props": {
+                "color": "#F2EFFA",
+                "size": 16,
+                "value": "Rename",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "w600"
+                }
+               },
+               "slot": "controls",
+               "type": "Text"
+              },
+              {
+               "props": {
+                "color": "#CFC9E6",
+                "icon": 67881,
+                "size": 20
+               },
+               "slot": "controls",
+               "type": "Icon"
+              }
+             ],
+             "props": {
+              "alignment": {
+               "enum": "MainAxisAlignment",
+               "value": "spaceBetween"
+              }
+             },
+             "slot": "content",
+             "type": "Row"
+            }
+           ],
+           "key": "agent-rename-example",
+           "props": {
+            "bgcolor": "#2E2750",
+            "height": 50,
+            "ink": true,
+            "padding": {
+             "@": "Padding",
+             "left": 16,
+             "right": 16
+            }
+           },
+           "slot": "controls",
+           "type": "Container"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "props": {
+                "color": "#F2EFFA",
+                "size": 16,
+                "value": "Pin to top",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "w600"
+                }
+               },
+               "slot": "controls",
+               "type": "Text"
+              },
+              {
+               "props": {
+                "color": "#CFC9E6",
+                "icon": 71560,
+                "size": 20
+               },
+               "slot": "controls",
+               "type": "Icon"
+              }
+             ],
+             "props": {
+              "alignment": {
+               "enum": "MainAxisAlignment",
+               "value": "spaceBetween"
+              }
+             },
+             "slot": "content",
+             "type": "Row"
+            }
+           ],
+           "key": "agent-pin-example",
+           "props": {
+            "height": 50,
+            "ink": true,
+            "padding": {
+             "@": "Padding",
+             "left": 16,
+             "right": 16
+            }
+           },
+           "slot": "controls",
+           "type": "Container"
+          },
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "props": {
+                "color": "#F2EFFA",
+                "size": 16,
+                "value": "Open terminal",
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "w600"
+                }
+               },
+               "slot": "controls",
+               "type": "Text"
+              },
+              {
+               "props": {
+                "color": "#CFC9E6",
+                "icon": 73289,
+                "size": 20
+               },
+               "slot": "controls",
+               "type": "Icon"
+              }
+             ],
+             "props": {
+              "alignment": {
+               "enum": "MainAxisAlignment",
+               "value": "spaceBetween"
+              }
+             },
+             "slot": "content",
+             "type": "Row"
+            }
+           ],
+           "key": "agent-open-example",
+           "props": {
+            "height": 50,
+            "ink": true,
+            "padding": {
+             "@": "Padding",
+             "left": 16,
+             "right": 16
+            }
+           },
+           "slot": "controls",
+           "type": "Container"
+          }
+         ],
+         "props": {
+          "spacing": 0,
+          "tight": true
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "props": {
+        "border_radius": 16,
+        "clip_behavior": {
+         "enum": "ClipBehavior",
+         "value": "antiAlias"
+        },
+        "width": 250
+       },
+       "slot": "content",
+       "type": "Container"
+      }
+     ],
+     "key": "agent-menu-example",
+     "props": {
+      "bgcolor": "#241E3D",
+      "content_padding": 0,
+      "open": true,
+      "shape": {
+       "@": "RoundedRectangleBorder",
+       "radius": 16
+      }
+     },
+     "slot": "body",
+     "type": "AlertDialog"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:AgentMenu"
+  }
+ ]
+}

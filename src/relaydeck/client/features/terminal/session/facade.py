@@ -5,15 +5,13 @@ renderer, renewal, key, paste and selection collaborators without lifecycle logi
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Awaitable, Callable
 from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
-from relaydeck.client import open_timing
-from relaydeck.client.features.shell.ops import AttachmentInfo, LeaseInfo, ShellGatewayOps
 from relaydeck.client.features.terminal.controller import TerminalController
 from relaydeck.client.features.terminal.models import TerminalViewState
-from relaydeck.client.features.terminal.paste_policy import PasteReview
 from relaydeck.client.features.terminal.renewal import (
     DEFAULT_RENEWAL_INTERVAL_S,
     LeaseRenewalDriver,
@@ -26,10 +24,13 @@ from relaydeck.client.features.terminal.session.rendering import (
     RendererBinding,
 )
 from relaydeck.client.features.terminal.session.selection import SelectionController
+from relaydeck.client.models.input.paste_policy import PasteReview
+from relaydeck.client.platform.diagnostics import open_timing
+from relaydeck.client.ports.terminal import AttachmentInfo, LeaseInfo, ShellGatewayOps
 from relaydeck.lease_diagnostics import LeaseTrace
 
 if TYPE_CHECKING:
-    from relaydeck.client.features.terminal.surfaces import DetailSessions
+    from relaydeck.client.features.terminal.sessions import DetailSessions
 
 
 class SessionFacade:
@@ -50,6 +51,8 @@ class SessionFacade:
     _foreground: bool
     _interaction_generation: int
     _listeners: list[Callable[[Any], None]]
+    _term_notify_handle: asyncio.TimerHandle | None
+    _last_term_notify: float
     _renderer: RendererBinding
     _lease_owner: LeaseRenewalOwner
     _selection_ctl: SelectionController
@@ -134,13 +137,35 @@ class SessionFacade:
             self.update_term_state(replace(self._term_state, notice=None))
 
     def update_term_state(self, state: TerminalViewState) -> None:
-        previous = self._term_state.status
+        previous_state = self._term_state
+        previous = previous_state.status
         self._term_state = state
         # Reset only on entry to avoid a feedback loop from repeated state emissions.
         # A disposed session cannot reset a renderer it no longer owns.
         if state.status == "reset" and previous != "reset" and not self._disposed:
             self._reset_bound_renderers("stream_reset")
-        self._notify()
+        # Continuity counters stay current for ACK/resume without invalidating
+        # the declarative shell on each output packet.
+        if (previous_state.applied_offset > 0) != (state.applied_offset > 0) or replace(
+            previous_state, applied_offset=0, scroll=replace(previous_state.scroll, unseen_bytes=0)
+        ) != replace(state, applied_offset=0, scroll=replace(state.scroll, unseen_bytes=0)):
+            self._notify_term_state(
+                urgent=state.status == "reset" or state.epoch != previous_state.epoch
+            )
+
+    def _notify_term_state(self, *, urgent: bool) -> None:
+        if self._disposed:
+            return  # teardown must not schedule a fresh notify timer
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self._notify()
+            return
+        delay = 0.1 - (loop.time() - self._last_term_notify)
+        if urgent or delay <= 0:
+            self._notify()
+        elif self._term_notify_handle is None and self._listeners:
+            self._term_notify_handle = loop.call_later(delay, self._notify)
 
     @property
     def pending_review(self) -> PasteReview | None:
@@ -177,10 +202,20 @@ class SessionFacade:
                 self._listeners.remove(listener)
             except ValueError:
                 pass
+            if not self._listeners and self._term_notify_handle is not None:
+                self._term_notify_handle.cancel()
+                self._term_notify_handle = None
 
         return unsubscribe
 
     def _notify(self) -> None:
+        if self._term_notify_handle is not None:
+            self._term_notify_handle.cancel()
+            self._term_notify_handle = None
+        try:
+            self._last_term_notify = asyncio.get_running_loop().time()
+        except RuntimeError:
+            pass
         for listener in list(self._listeners):
             listener(self)
 
@@ -231,7 +266,7 @@ class SessionFacade:
     def is_sink_live(self, token: int) -> bool:
         return self._renderer.is_sink_live(token)
 
-    def bind_view(self, term: Any, *, write: Callable[[Any, bytes], bool] | None = None) -> int:
+    def bind_view(self, term: Any, *, write: Callable[[Any, bytes], bool]) -> int:
         """Mount a renderer view (see `RendererBinding.bind_view`)."""
         timing = open_timing.of(self)
         if timing is not None:
@@ -297,11 +332,11 @@ class SessionFacade:
 
     # -- keys / paste / selection (delegates) -------------------------------------------
     def _cancel_term_scroll(self) -> None:
-        """Retire widget scroll motion before a server-side write, so wheel
-        rows already in flight drop instead of landing after the key.
-        Best-effort: nothing bound means nothing in flight, and a bound
-        view without the scroll channel (older fakes) has nothing to
-        retire. Never raises: input must not depend on the cancel."""
+        """Retire widget scroll motion before a server-side write, so wheel rows already in
+        flight drop instead of landing after the key. Best-effort: nothing bound means
+        nothing in flight, and a bound view without the scroll channel (older fakes) has
+        nothing to retire.
+        """
         term = self.current_term
         cancel = getattr(term, "cancel_scroll", None)
         if cancel is not None:

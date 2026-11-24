@@ -122,7 +122,7 @@ SKIP_NAMES = {"uv.lock"}
 
 
 # Fallback walk only (outside a git checkout): scratch/build output is never
-# scanned. `temp` is the AI scratch folder at the repo root; `build` anywhere.
+# scanned. `temp` is the scratch folder at the repo root; `build` anywhere.
 FALLBACK_SKIP_DIRS = SKIP_DIRS | {"build"}
 FALLBACK_SKIP_ROOT_DIRS = {"temp"}
 

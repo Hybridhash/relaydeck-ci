@@ -1,0 +1,426 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA",
+           "font_family": "JetBrains Mono",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.3846153846153846,
+           "size": 13,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "Ok · Just now"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "no_wrap": true,
+            "style": {
+             "@": "TextStyle",
+             "color": "#C8F03C",
+             "font_family": "JetBrains Mono",
+             "font_family_fallback": [
+              "Noto Sans Symbols 2"
+             ],
+             "height": 1.3333333333333333,
+             "size": 12,
+             "weight": {
+              "enum": "FontWeight",
+              "value": "normal"
+             }
+            },
+            "value": "Example status"
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "bgcolor": "#2B2356",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#C8F03C"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#C8F03C"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#C8F03C"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#C8F03C"
+           }
+          },
+          "border_radius": {
+           "@": "BorderRadius",
+           "bottom_left": 999,
+           "bottom_right": 999,
+           "top_left": 999,
+           "top_right": 999
+          },
+          "padding": {
+           "@": "Padding",
+           "bottom": 2,
+           "left": 8,
+           "right": 8,
+           "top": 2
+          }
+         },
+         "slot": "controls",
+         "type": "Container"
+        }
+       ],
+       "key": "health-refresh-row-ok",
+       "props": {
+        "alignment": {
+         "enum": "MainAxisAlignment",
+         "value": "spaceBetween"
+        }
+       },
+       "slot": "body",
+       "type": "Row"
+      }
+     ],
+     "slot": "controls",
+     "type": "Component:RefreshPill"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA",
+           "font_family": "JetBrains Mono",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.3846153846153846,
+           "size": 13,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "Warn · Just now"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "no_wrap": true,
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF8A3D",
+             "font_family": "JetBrains Mono",
+             "font_family_fallback": [
+              "Noto Sans Symbols 2"
+             ],
+             "height": 1.3333333333333333,
+             "size": 12,
+             "weight": {
+              "enum": "FontWeight",
+              "value": "normal"
+             }
+            },
+            "value": "Example status"
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "bgcolor": "#2B2356",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#FF8A3D"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#FF8A3D"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#FF8A3D"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#FF8A3D"
+           }
+          },
+          "border_radius": {
+           "@": "BorderRadius",
+           "bottom_left": 999,
+           "bottom_right": 999,
+           "top_left": 999,
+           "top_right": 999
+          },
+          "padding": {
+           "@": "Padding",
+           "bottom": 2,
+           "left": 8,
+           "right": 8,
+           "top": 2
+          }
+         },
+         "slot": "controls",
+         "type": "Container"
+        }
+       ],
+       "key": "health-refresh-row-warn",
+       "props": {
+        "alignment": {
+         "enum": "MainAxisAlignment",
+         "value": "spaceBetween"
+        }
+       },
+       "slot": "body",
+       "type": "Row"
+      }
+     ],
+     "slot": "controls",
+     "type": "Component:RefreshPill"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA",
+           "font_family": "JetBrains Mono",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.3846153846153846,
+           "size": 13,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "Danger · Just now"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "no_wrap": true,
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7A85",
+             "font_family": "JetBrains Mono",
+             "font_family_fallback": [
+              "Noto Sans Symbols 2"
+             ],
+             "height": 1.3333333333333333,
+             "size": 12,
+             "weight": {
+              "enum": "FontWeight",
+              "value": "normal"
+             }
+            },
+            "value": "Example status"
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "bgcolor": "#2B2356",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#FF7A85"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#FF7A85"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#FF7A85"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#FF7A85"
+           }
+          },
+          "border_radius": {
+           "@": "BorderRadius",
+           "bottom_left": 999,
+           "bottom_right": 999,
+           "top_left": 999,
+           "top_right": 999
+          },
+          "padding": {
+           "@": "Padding",
+           "bottom": 2,
+           "left": 8,
+           "right": 8,
+           "top": 2
+          }
+         },
+         "slot": "controls",
+         "type": "Container"
+        }
+       ],
+       "key": "health-refresh-row-danger",
+       "props": {
+        "alignment": {
+         "enum": "MainAxisAlignment",
+         "value": "spaceBetween"
+        }
+       },
+       "slot": "body",
+       "type": "Row"
+      }
+     ],
+     "slot": "controls",
+     "type": "Component:RefreshPill"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "props": {
+          "style": {
+           "@": "TextStyle",
+           "color": "#B7AFDA",
+           "font_family": "JetBrains Mono",
+           "font_family_fallback": [
+            "Noto Sans Symbols 2"
+           ],
+           "height": 1.3846153846153846,
+           "size": 13,
+           "weight": {
+            "enum": "FontWeight",
+            "value": "normal"
+           }
+          },
+          "value": "Neutral · Just now"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "no_wrap": true,
+            "style": {
+             "@": "TextStyle",
+             "color": "#B7AFDA",
+             "font_family": "JetBrains Mono",
+             "font_family_fallback": [
+              "Noto Sans Symbols 2"
+             ],
+             "height": 1.3333333333333333,
+             "size": 12,
+             "weight": {
+              "enum": "FontWeight",
+              "value": "normal"
+             }
+            },
+            "value": "Example status"
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "bgcolor": "#2B2356",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#B7AFDA"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#B7AFDA"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#B7AFDA"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#B7AFDA"
+           }
+          },
+          "border_radius": {
+           "@": "BorderRadius",
+           "bottom_left": 999,
+           "bottom_right": 999,
+           "top_left": 999,
+           "top_right": 999
+          },
+          "padding": {
+           "@": "Padding",
+           "bottom": 2,
+           "left": 8,
+           "right": 8,
+           "top": 2
+          }
+         },
+         "slot": "controls",
+         "type": "Container"
+        }
+       ],
+       "key": "health-refresh-row-neutral",
+       "props": {
+        "alignment": {
+         "enum": "MainAxisAlignment",
+         "value": "spaceBetween"
+        }
+       },
+       "slot": "body",
+       "type": "Row"
+      }
+     ],
+     "slot": "controls",
+     "type": "Component:RefreshPill"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

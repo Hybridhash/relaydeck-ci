@@ -7,8 +7,9 @@ from typing import Any
 
 from fastapi.testclient import TestClient
 
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
 from tests.support.paths import TESTS_DIR
 
 FIXTURES = TESTS_DIR / "fixtures" / "gateway"

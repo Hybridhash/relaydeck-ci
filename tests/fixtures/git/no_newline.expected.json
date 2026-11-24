@@ -1,0 +1,3 @@
+[
+{"file_id": "file-1", "hunks": [{"fragment": 0, "header": "@@ -1,2 +1,2 @@", "lines": [{"kind": "context", "marks": [], "masked": false, "new": 1, "old": 1, "text": "first line"}, {"kind": "delete", "marks": [], "masked": false, "old": 2, "text": "last line"}, {"kind": "no_newline", "marks": [], "masked": false, "text": "\\ No newline at end of file"}, {"kind": "add", "marks": [[9, 10]], "masked": false, "new": 2, "text": "last line!"}, {"kind": "no_newline", "marks": [], "masked": false, "text": "\\ No newline at end of file"}], "new_lines": 2, "new_start": 1, "old_lines": 2, "old_start": 1}], "render": "ok", "snapshot": "snapshot-1", "truncated": false}
+]

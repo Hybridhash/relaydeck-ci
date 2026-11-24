@@ -1,0 +1,34 @@
+{
+ "roots": [
+  {
+   "key": "filter",
+   "props": {
+    "border_color": "#3B3270",
+    "border_radius": 24,
+    "color": "#F5F2FF",
+    "content_padding": {
+     "@": "Padding",
+     "bottom": 12,
+     "left": 16,
+     "right": 16,
+     "top": 12
+    },
+    "cursor_color": "#C4B0FF",
+    "fill_color": "#1F1840",
+    "filled": true,
+    "focused_border_color": "#A98BFF",
+    "height": 48,
+    "hint_style": {
+     "@": "TextStyle",
+     "color": "#B7AFDA"
+    },
+    "hint_text": "Search examples",
+    "prefix_icon": 72141,
+    "text_size": 15,
+    "value": "Example"
+   },
+   "slot": "root",
+   "type": "TextField"
+  }
+ ]
+}

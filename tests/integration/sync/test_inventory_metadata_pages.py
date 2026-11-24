@@ -9,9 +9,10 @@ from typing import Any
 import httpx
 import pytest
 
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport, TransportError
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.client.ports.transport import TransportError
 from relaydeck.contracts.schemas import validate
-from relaydeck.gateway.app import create_app
+from relaydeck.gateway.app.bootstrap import create_app
 from tests.security.helpers import NOW, SECRET, make_state, mint_token
 from tests.support.sync.inventory_metadata import _metadata
 

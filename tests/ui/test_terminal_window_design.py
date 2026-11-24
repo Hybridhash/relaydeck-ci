@@ -21,32 +21,36 @@ from typing import Any
 import flet as ft
 import pytest
 
-from relaydeck.client.app import RETAINED_PARK_OFFSET
-from relaydeck.client.components.design_system.shells import ShellListRow
-from relaydeck.client.features.a11y.focus import iter_controls
-from relaydeck.client.features.inventory.components import AppShell, terminal_rows
-from relaydeck.client.features.settings import prefs as prefs_store
-from relaydeck.client.features.settings.components import SettingsPage
-from relaydeck.client.features.settings.prefs import (
+from relaydeck.client.app.root import RETAINED_PARK_OFFSET
+from relaydeck.client.app.shell.models import terminal_rows
+from relaydeck.client.app.shell.shell import AppShell
+from relaydeck.client.features.terminal.agent_session import AGENT_CONNECTING, AGENT_LIVE
+from relaydeck.client.models import preferences as prefs_store
+from relaydeck.client.models.input.modes import WORKFLOW_AGENT_COMPOSER, WORKFLOW_AGENT_DIRECT
+from relaydeck.client.models.preferences import (
     FONT_DEFAULT_PHONE,
     FONT_DEFAULT_WEB,
     FONT_MAX,
     PREFS_KEY,
     TerminalPrefs,
 )
-from relaydeck.client.features.terminal.agent_session import AGENT_CONNECTING, AGENT_LIVE
-from relaydeck.client.features.terminal.input_modes import (
-    WORKFLOW_AGENT_COMPOSER,
-    WORKFLOW_AGENT_DIRECT,
-)
-from relaydeck.client.features.terminal.surfaces import (
+from relaydeck.client.screens.settings.screen import SettingsPage
+from relaydeck.client.screens.terminal.screen import mount_agent_screen
+from relaydeck.client.widgets.sessions.shell_cards import ShellListRow
+from relaydeck.client.widgets.terminal.common import (
     AGENT_TAKEOVER_CANCEL_KEY,
     AGENT_TAKEOVER_CONFIRM_KEY,
-    mount_agent_screen,
 )
 from relaydeck.domain.models import Selection
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.host_harness import button_label, render_component, run
 from tests.support.terminal.sessions import _agent_session
+from tests.support.ui.focus import iter_controls
 from tests.support.ui.navigation import _state
 from tests.support.ui.retained_root import _open, _render
 from tests.support.ui.window_design import _missing, _wrap_violations
@@ -384,7 +388,7 @@ def test_terminal_window_never_nests_wraps_unbounded() -> None:
 
 
 def test_host_switch_does_not_flash_connecting_banner() -> None:
-    from relaydeck.client.features.inventory.selectors import connection_banner
+    from relaydeck.client.models.inventory_selectors import connection_banner
     from relaydeck.domain.models import ConnectionState
 
     state = _state()

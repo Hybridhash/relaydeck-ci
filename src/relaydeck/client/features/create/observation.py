@@ -8,7 +8,8 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
-from relaydeck.client.features.composer.observation import CommandObserver, CommandOutcomeUnknown
+from relaydeck.client.features.commands.api import CommandObserver
+from relaydeck.client.ports.commands import CommandOutcomeUnknown
 from relaydeck.contracts.schemas import validate
 from relaydeck.domain.models import scope_key
 

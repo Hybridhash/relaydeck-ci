@@ -10,6 +10,12 @@ import pytest
 from relaydeck import cli
 from relaydeck.companion import cli as companion_cli
 from relaydeck.version import __version__
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 

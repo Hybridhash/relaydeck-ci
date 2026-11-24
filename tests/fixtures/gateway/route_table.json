@@ -186,6 +186,96 @@
  },
  {
   "kind": "http",
+  "method": "POST",
+  "path": "/v1/hosts/{host_id}/commands/{command_id}/resolve",
+  "name": "resolve_prompt",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
+  "method": "POST",
+  "path": "/v1/hosts/{host_id}/git/summaries",
+  "name": "git_summaries",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
+  "method": "PUT",
+  "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/base",
+  "name": "git_set_base",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
+  "method": "GET",
+  "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/bases",
+  "name": "git_bases",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
+  "method": "GET",
+  "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/changes",
+  "name": "git_changes",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
+  "method": "GET",
+  "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits",
+  "name": "git_commits",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
+  "method": "GET",
+  "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits/{commit_id}/changes",
+  "name": "git_commit_changes",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
+  "method": "GET",
+  "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/files/{file_id}/diff",
+  "name": "git_file_diff",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
+  "method": "GET",
+  "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/graph",
+  "name": "git_graph",
+  "anonymous": [
+   401,
+   "unauthenticated"
+  ]
+ },
+ {
+  "kind": "http",
   "method": "GET",
   "path": "/v1/hosts/{host_id}/snapshot",
   "name": "get_snapshot",

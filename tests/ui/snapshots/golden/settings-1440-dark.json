@@ -1,0 +1,3365 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "color": "#B7AFDA",
+                            "icon": 73950,
+                            "size": 20
+                           },
+                           "slot": "content",
+                           "type": "Icon"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "border_radius": {
+                           "@": "BorderRadius",
+                           "bottom_left": 16.0,
+                           "bottom_right": 16.0,
+                           "top_left": 16.0,
+                           "top_right": 16.0
+                          },
+                          "height": 32,
+                          "width": 56
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "props": {
+                          "no_wrap": true,
+                          "overflow": {
+                           "enum": "TextOverflow",
+                           "value": "ellipsis"
+                          },
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#B7AFDA",
+                           "font_family": "Bricolage Grotesque Medium",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 12,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "w500"
+                           }
+                          },
+                          "value": "Console"
+                         },
+                         "slot": "controls",
+                         "type": "Text"
+                        }
+                       ],
+                       "props": {
+                        "horizontal_alignment": {
+                         "enum": "CrossAxisAlignment",
+                         "value": "center"
+                        },
+                        "spacing": 4
+                       },
+                       "slot": "content",
+                       "type": "Column"
+                      }
+                     ],
+                     "props": {
+                      "padding": {
+                       "@": "Padding",
+                       "top": 10
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "console-rail-console",
+                   "props": {
+                    "expand": false,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 12
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Console",
+                    "width": 76
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "color": "#B7AFDA",
+                            "icon": 73289,
+                            "size": 20
+                           },
+                           "slot": "content",
+                           "type": "Icon"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "border_radius": {
+                           "@": "BorderRadius",
+                           "bottom_left": 16.0,
+                           "bottom_right": 16.0,
+                           "top_left": 16.0,
+                           "top_right": 16.0
+                          },
+                          "height": 32,
+                          "width": 56
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "props": {
+                          "no_wrap": true,
+                          "overflow": {
+                           "enum": "TextOverflow",
+                           "value": "ellipsis"
+                          },
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#B7AFDA",
+                           "font_family": "Bricolage Grotesque Medium",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 12,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "w500"
+                           }
+                          },
+                          "value": "Terminals"
+                         },
+                         "slot": "controls",
+                         "type": "Text"
+                        }
+                       ],
+                       "props": {
+                        "horizontal_alignment": {
+                         "enum": "CrossAxisAlignment",
+                         "value": "center"
+                        },
+                        "spacing": 4
+                       },
+                       "slot": "content",
+                       "type": "Column"
+                      }
+                     ],
+                     "props": {
+                      "padding": {
+                       "@": "Padding",
+                       "top": 10
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "console-rail-terminals",
+                   "props": {
+                    "expand": false,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 12
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Terminals",
+                    "width": 76
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "color": "#B7AFDA",
+                            "icon": 69420,
+                            "size": 20
+                           },
+                           "slot": "content",
+                           "type": "Icon"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "border_radius": {
+                           "@": "BorderRadius",
+                           "bottom_left": 16.0,
+                           "bottom_right": 16.0,
+                           "top_left": 16.0,
+                           "top_right": 16.0
+                          },
+                          "height": 32,
+                          "width": 56
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "props": {
+                          "no_wrap": true,
+                          "overflow": {
+                           "enum": "TextOverflow",
+                           "value": "ellipsis"
+                          },
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#B7AFDA",
+                           "font_family": "Bricolage Grotesque Medium",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 12,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "w500"
+                           }
+                          },
+                          "value": "Usage"
+                         },
+                         "slot": "controls",
+                         "type": "Text"
+                        }
+                       ],
+                       "props": {
+                        "horizontal_alignment": {
+                         "enum": "CrossAxisAlignment",
+                         "value": "center"
+                        },
+                        "spacing": 4
+                       },
+                       "slot": "content",
+                       "type": "Column"
+                      }
+                     ],
+                     "props": {
+                      "padding": {
+                       "@": "Padding",
+                       "top": 10
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "console-rail-usage",
+                   "props": {
+                    "expand": false,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 12
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Usage",
+                    "width": 76
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "props": {
+                            "color": "#FFFFFF",
+                            "icon": 73618,
+                            "size": 20
+                           },
+                           "slot": "content",
+                           "type": "Icon"
+                          }
+                         ],
+                         "props": {
+                          "alignment": {
+                           "@": "Alignment",
+                           "x": 0.0,
+                           "y": 0.0
+                          },
+                          "bgcolor": "#7443F5",
+                          "border_radius": {
+                           "@": "BorderRadius",
+                           "bottom_left": 16.0,
+                           "bottom_right": 16.0,
+                           "top_left": 16.0,
+                           "top_right": 16.0
+                          },
+                          "height": 32,
+                          "width": 56
+                         },
+                         "slot": "controls",
+                         "type": "Container"
+                        },
+                        {
+                         "props": {
+                          "no_wrap": true,
+                          "overflow": {
+                           "enum": "TextOverflow",
+                           "value": "ellipsis"
+                          },
+                          "style": {
+                           "@": "TextStyle",
+                           "color": "#F5F2FF",
+                           "font_family": "Bricolage Grotesque Bold",
+                           "font_family_fallback": [
+                            "Noto Sans Symbols 2"
+                           ],
+                           "height": 1.2,
+                           "size": 12,
+                           "weight": {
+                            "enum": "FontWeight",
+                            "value": "bold"
+                           }
+                          },
+                          "value": "Settings"
+                         },
+                         "slot": "controls",
+                         "type": "Text"
+                        }
+                       ],
+                       "props": {
+                        "horizontal_alignment": {
+                         "enum": "CrossAxisAlignment",
+                         "value": "center"
+                        },
+                        "spacing": 4
+                       },
+                       "slot": "content",
+                       "type": "Column"
+                      }
+                     ],
+                     "props": {
+                      "padding": {
+                       "@": "Padding",
+                       "top": 10
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "console-rail-settings",
+                   "props": {
+                    "expand": false,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 12
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Settings",
+                    "width": 76
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  }
+                 ],
+                 "props": {
+                  "horizontal_alignment": {
+                   "enum": "CrossAxisAlignment",
+                   "value": "center"
+                  },
+                  "scroll": {
+                   "enum": "ScrollMode",
+                   "value": "auto"
+                  },
+                  "spacing": 6
+                 },
+                 "slot": "content",
+                 "type": "Column"
+                }
+               ],
+               "key": "destinations",
+               "props": {
+                "bgcolor": "#1A1436",
+                "padding": {
+                 "@": "Padding",
+                 "bottom": 24,
+                 "left": 8,
+                 "right": 8,
+                 "top": 24
+                },
+                "width": 96
+               },
+               "slot": "content",
+               "type": "Container"
+              }
+             ],
+             "key": "rail-slot",
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "key": "retained-surfaces",
+                     "props": {
+                      "expand": true,
+                      "fit": {
+                       "enum": "StackFit",
+                       "value": "expand"
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Stack"
+                    }
+                   ],
+                   "key": "retained-layer",
+                   "props": {
+                    "bottom": 0,
+                    "left": 0,
+                    "right": 0,
+                    "top": 0
+                   },
+                   "slot": "controls",
+                   "type": "Container"
+                  },
+                  {
+                   "children": [
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "children": [
+                          {
+                           "children": [
+                            {
+                             "props": {
+                              "style": {
+                               "@": "TextStyle",
+                               "color": "#B7AFDA",
+                               "font_family": "JetBrains Mono",
+                               "font_family_fallback": [
+                                "Noto Sans Symbols 2"
+                               ],
+                               "height": 1.2173913043478262,
+                               "letter_spacing": 0.69,
+                               "size": 11.5,
+                               "weight": {
+                                "enum": "FontWeight",
+                                "value": "normal"
+                               }
+                              },
+                              "value": "SAVED ON THIS DEVICE"
+                             },
+                             "slot": "controls",
+                             "type": "Text"
+                            },
+                            {
+                             "children": [
+                              {
+                               "key": "destination-title",
+                               "props": {
+                                "style": {
+                                 "@": "TextStyle",
+                                 "color": "#F5F2FF",
+                                 "font_family": "Bricolage Grotesque ExtraBold",
+                                 "font_family_fallback": [
+                                  "Noto Sans Symbols 2"
+                                 ],
+                                 "height": 1.1176470588235294,
+                                 "letter_spacing": -0.68,
+                                 "size": 34,
+                                 "weight": {
+                                  "enum": "FontWeight",
+                                  "value": "w800"
+                                 }
+                                },
+                                "value": "Settings"
+                               },
+                               "slot": "content",
+                               "type": "Text"
+                              }
+                             ],
+                             "key": "[\"heading\", \"str\", \"destination-title\"]",
+                             "props": {
+                              "header": true
+                             },
+                             "slot": "controls",
+                             "type": "Semantics"
+                            }
+                           ],
+                           "key": "settings-header",
+                           "props": {
+                            "spacing": 0
+                           },
+                           "slot": "controls",
+                           "type": "Column"
+                          },
+                          {
+                           "children": [
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "props": {
+                                          "style": {
+                                           "@": "TextStyle",
+                                           "color": "#F5F2FF",
+                                           "font_family": "Bricolage Grotesque ExtraBold",
+                                           "font_family_fallback": [
+                                            "Noto Sans Symbols 2"
+                                           ],
+                                           "height": 1.3,
+                                           "size": 20,
+                                           "weight": {
+                                            "enum": "FontWeight",
+                                            "value": "w800"
+                                           }
+                                          },
+                                          "value": "Appearance"
+                                         },
+                                         "slot": "content",
+                                         "type": "Text"
+                                        }
+                                       ],
+                                       "props": {
+                                        "header": true
+                                       },
+                                       "slot": "content",
+                                       "type": "Semantics"
+                                      }
+                                     ],
+                                     "props": {
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "Terminal text size"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "Bricolage Grotesque",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3846153846153846,
+                                             "size": 13,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "Applies to terminals you open next"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "props": {
+                                                "color": "#F5F2FF",
+                                                "icon": 71741,
+                                                "size": 18
+                                               },
+                                               "slot": "content",
+                                               "type": "Icon"
+                                              }
+                                             ],
+                                             "props": {
+                                              "alignment": {
+                                               "@": "Alignment",
+                                               "x": 0.0,
+                                               "y": 0.0
+                                              },
+                                              "bgcolor": "#1F1840",
+                                              "border": {
+                                               "@": "Border",
+                                               "bottom": {
+                                                "@": "BorderSide",
+                                                "color": "#3B3270"
+                                               },
+                                               "left": {
+                                                "@": "BorderSide",
+                                                "color": "#3B3270"
+                                               },
+                                               "right": {
+                                                "@": "BorderSide",
+                                                "color": "#3B3270"
+                                               },
+                                               "top": {
+                                                "@": "BorderSide",
+                                                "color": "#3B3270"
+                                               }
+                                              },
+                                              "border_radius": {
+                                               "@": "BorderRadius",
+                                               "bottom_left": 24,
+                                               "bottom_right": 24,
+                                               "top_left": 24,
+                                               "top_right": 24
+                                              }
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "key": "settings-font-size-minus",
+                                           "props": {
+                                            "expand": false,
+                                            "height": 48,
+                                            "style": {
+                                             "@": "ButtonStyle",
+                                             "bgcolor": "transparent",
+                                             "overlay_color": {
+                                              "ControlState.DEFAULT": "transparent",
+                                              "ControlState.FOCUSED": "#33FFFFFF"
+                                             },
+                                             "padding": 0,
+                                             "shape": {
+                                              "@": "RoundedRectangleBorder",
+                                              "radius": 24
+                                             },
+                                             "side": {
+                                              "ControlState.DEFAULT": {
+                                               "@": "BorderSide",
+                                               "color": "transparent",
+                                               "width": 3
+                                              },
+                                              "ControlState.FOCUSED": {
+                                               "@": "BorderSide",
+                                               "color": "#F5F2FF",
+                                               "width": 3
+                                              }
+                                             }
+                                            },
+                                            "tooltip": "Smaller text",
+                                            "width": 48
+                                           },
+                                           "slot": "controls",
+                                           "type": "TextButton"
+                                          },
+                                          {
+                                           "children": [
+                                            {
+                                             "key": "settings-font-size-value",
+                                             "props": {
+                                              "style": {
+                                               "@": "TextStyle",
+                                               "color": "#F5F2FF",
+                                               "font_family": "JetBrains Mono Bold",
+                                               "font_family_fallback": [
+                                                "Noto Sans Symbols 2"
+                                               ],
+                                               "height": 1.2,
+                                               "size": 14,
+                                               "weight": {
+                                                "enum": "FontWeight",
+                                                "value": "bold"
+                                               }
+                                              },
+                                              "value": "13 px"
+                                             },
+                                             "slot": "content",
+                                             "type": "Text"
+                                            }
+                                           ],
+                                           "props": {
+                                            "alignment": {
+                                             "@": "Alignment",
+                                             "x": 0.0,
+                                             "y": 0.0
+                                            },
+                                            "width": 56
+                                           },
+                                           "slot": "controls",
+                                           "type": "Container"
+                                          },
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "props": {
+                                                "color": "#F5F2FF",
+                                                "icon": 65604,
+                                                "size": 18
+                                               },
+                                               "slot": "content",
+                                               "type": "Icon"
+                                              }
+                                             ],
+                                             "props": {
+                                              "alignment": {
+                                               "@": "Alignment",
+                                               "x": 0.0,
+                                               "y": 0.0
+                                              },
+                                              "bgcolor": "#1F1840",
+                                              "border": {
+                                               "@": "Border",
+                                               "bottom": {
+                                                "@": "BorderSide",
+                                                "color": "#3B3270"
+                                               },
+                                               "left": {
+                                                "@": "BorderSide",
+                                                "color": "#3B3270"
+                                               },
+                                               "right": {
+                                                "@": "BorderSide",
+                                                "color": "#3B3270"
+                                               },
+                                               "top": {
+                                                "@": "BorderSide",
+                                                "color": "#3B3270"
+                                               }
+                                              },
+                                              "border_radius": {
+                                               "@": "BorderRadius",
+                                               "bottom_left": 24,
+                                               "bottom_right": 24,
+                                               "top_left": 24,
+                                               "top_right": 24
+                                              }
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "key": "settings-font-size-plus",
+                                           "props": {
+                                            "expand": false,
+                                            "height": 48,
+                                            "style": {
+                                             "@": "ButtonStyle",
+                                             "bgcolor": "transparent",
+                                             "overlay_color": {
+                                              "ControlState.DEFAULT": "transparent",
+                                              "ControlState.FOCUSED": "#33FFFFFF"
+                                             },
+                                             "padding": 0,
+                                             "shape": {
+                                              "@": "RoundedRectangleBorder",
+                                              "radius": 24
+                                             },
+                                             "side": {
+                                              "ControlState.DEFAULT": {
+                                               "@": "BorderSide",
+                                               "color": "transparent",
+                                               "width": 3
+                                              },
+                                              "ControlState.FOCUSED": {
+                                               "@": "BorderSide",
+                                               "color": "#F5F2FF",
+                                               "width": 3
+                                              }
+                                             }
+                                            },
+                                            "tooltip": "Larger text",
+                                            "width": 48
+                                           },
+                                           "slot": "controls",
+                                           "type": "TextButton"
+                                          }
+                                         ],
+                                         "key": "settings-font-size",
+                                         "props": {
+                                          "spacing": 8,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Row"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "props": {
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    }
+                                   ],
+                                   "props": {
+                                    "spacing": 0
+                                   },
+                                   "slot": "content",
+                                   "type": "Column"
+                                  }
+                                 ],
+                                 "key": "settings-appearance",
+                                 "props": {
+                                  "bgcolor": "#191335",
+                                  "border": {
+                                   "@": "Border",
+                                   "bottom": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "left": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "right": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "top": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   }
+                                  },
+                                  "border_radius": {
+                                   "@": "BorderRadius",
+                                   "bottom_left": 24,
+                                   "bottom_right": 24,
+                                   "top_left": 24,
+                                   "top_right": 24
+                                  },
+                                  "padding": {
+                                   "@": "Padding",
+                                   "bottom": 12,
+                                   "left": 22,
+                                   "right": 22,
+                                   "top": 20
+                                  }
+                                 },
+                                 "slot": "controls",
+                                 "type": "Container"
+                                },
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "props": {
+                                          "style": {
+                                           "@": "TextStyle",
+                                           "color": "#F5F2FF",
+                                           "font_family": "Bricolage Grotesque ExtraBold",
+                                           "font_family_fallback": [
+                                            "Noto Sans Symbols 2"
+                                           ],
+                                           "height": 1.3,
+                                           "size": 20,
+                                           "weight": {
+                                            "enum": "FontWeight",
+                                            "value": "w800"
+                                           }
+                                          },
+                                          "value": "Terminal input"
+                                         },
+                                         "slot": "content",
+                                         "type": "Text"
+                                        }
+                                       ],
+                                       "props": {
+                                        "header": true
+                                       },
+                                       "slot": "content",
+                                       "type": "Semantics"
+                                      }
+                                     ],
+                                     "props": {
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "Agents open in"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "Bricolage Grotesque",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3846153846153846,
+                                             "size": 13,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "Shells always open in Direct"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "children": [
+                                                {
+                                                 "props": {
+                                                  "no_wrap": true,
+                                                  "style": {
+                                                   "@": "TextStyle",
+                                                   "color": "#FFFFFF",
+                                                   "font_family": "Bricolage Grotesque Bold",
+                                                   "font_family_fallback": [
+                                                    "Noto Sans Symbols 2"
+                                                   ],
+                                                   "height": 1.2,
+                                                   "size": 14,
+                                                   "weight": {
+                                                    "enum": "FontWeight",
+                                                    "value": "bold"
+                                                   }
+                                                  },
+                                                  "value": "Compose"
+                                                 },
+                                                 "slot": "content",
+                                                 "type": "Text"
+                                                }
+                                               ],
+                                               "props": {
+                                                "alignment": {
+                                                 "@": "Alignment",
+                                                 "x": 0.0,
+                                                 "y": 0.0
+                                                },
+                                                "bgcolor": "#7443F5",
+                                                "border_radius": {
+                                                 "@": "BorderRadius",
+                                                 "bottom_left": 12,
+                                                 "bottom_right": 12,
+                                                 "top_left": 12,
+                                                 "top_right": 12
+                                                },
+                                                "padding": {
+                                                 "@": "Padding",
+                                                 "left": 18,
+                                                 "right": 18
+                                                }
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "key": "settings-open-compose",
+                                             "props": {
+                                              "disabled": true,
+                                              "expand": false,
+                                              "height": 48,
+                                              "style": {
+                                               "@": "ButtonStyle",
+                                               "bgcolor": "transparent",
+                                               "overlay_color": {
+                                                "ControlState.DEFAULT": "transparent",
+                                                "ControlState.FOCUSED": "#33FFFFFF"
+                                               },
+                                               "padding": 0,
+                                               "shape": {
+                                                "@": "RoundedRectangleBorder",
+                                                "radius": 12
+                                               },
+                                               "side": {
+                                                "ControlState.DEFAULT": {
+                                                 "@": "BorderSide",
+                                                 "color": "transparent",
+                                                 "width": 3
+                                                },
+                                                "ControlState.FOCUSED": {
+                                                 "@": "BorderSide",
+                                                 "color": "#F5F2FF",
+                                                 "width": 3
+                                                }
+                                               }
+                                              },
+                                              "tooltip": "Compose selected"
+                                             },
+                                             "slot": "controls",
+                                             "type": "TextButton"
+                                            },
+                                            {
+                                             "children": [
+                                              {
+                                               "children": [
+                                                {
+                                                 "props": {
+                                                  "no_wrap": true,
+                                                  "style": {
+                                                   "@": "TextStyle",
+                                                   "color": "#D9D3F2",
+                                                   "font_family": "Bricolage Grotesque SemiBold",
+                                                   "font_family_fallback": [
+                                                    "Noto Sans Symbols 2"
+                                                   ],
+                                                   "height": 1.2,
+                                                   "size": 14,
+                                                   "weight": {
+                                                    "enum": "FontWeight",
+                                                    "value": "w600"
+                                                   }
+                                                  },
+                                                  "value": "Direct"
+                                                 },
+                                                 "slot": "content",
+                                                 "type": "Text"
+                                                }
+                                               ],
+                                               "props": {
+                                                "alignment": {
+                                                 "@": "Alignment",
+                                                 "x": 0.0,
+                                                 "y": 0.0
+                                                },
+                                                "border_radius": {
+                                                 "@": "BorderRadius",
+                                                 "bottom_left": 12,
+                                                 "bottom_right": 12,
+                                                 "top_left": 12,
+                                                 "top_right": 12
+                                                },
+                                                "padding": {
+                                                 "@": "Padding",
+                                                 "left": 18,
+                                                 "right": 18
+                                                }
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "key": "settings-open-direct",
+                                             "props": {
+                                              "expand": false,
+                                              "height": 48,
+                                              "style": {
+                                               "@": "ButtonStyle",
+                                               "bgcolor": "transparent",
+                                               "overlay_color": {
+                                                "ControlState.DEFAULT": "transparent",
+                                                "ControlState.FOCUSED": "#33FFFFFF"
+                                               },
+                                               "padding": 0,
+                                               "shape": {
+                                                "@": "RoundedRectangleBorder",
+                                                "radius": 12
+                                               },
+                                               "side": {
+                                                "ControlState.DEFAULT": {
+                                                 "@": "BorderSide",
+                                                 "color": "transparent",
+                                                 "width": 3
+                                                },
+                                                "ControlState.FOCUSED": {
+                                                 "@": "BorderSide",
+                                                 "color": "#F5F2FF",
+                                                 "width": 3
+                                                }
+                                               }
+                                              },
+                                              "tooltip": "Direct"
+                                             },
+                                             "slot": "controls",
+                                             "type": "TextButton"
+                                            }
+                                           ],
+                                           "props": {
+                                            "spacing": 4,
+                                            "tight": true
+                                           },
+                                           "slot": "content",
+                                           "type": "Row"
+                                          }
+                                         ],
+                                         "key": "settings-agents-open-in",
+                                         "props": {
+                                          "bgcolor": "#0B0818",
+                                          "border": {
+                                           "@": "Border",
+                                           "bottom": {
+                                            "@": "BorderSide",
+                                            "color": "#3B3270"
+                                           },
+                                           "left": {
+                                            "@": "BorderSide",
+                                            "color": "#3B3270"
+                                           },
+                                           "right": {
+                                            "@": "BorderSide",
+                                            "color": "#3B3270"
+                                           },
+                                           "top": {
+                                            "@": "BorderSide",
+                                            "color": "#3B3270"
+                                           }
+                                          },
+                                          "border_radius": {
+                                           "@": "BorderRadius",
+                                           "bottom_left": 16,
+                                           "bottom_right": 16,
+                                           "top_left": 16,
+                                           "top_right": 16
+                                          },
+                                          "padding": 4
+                                         },
+                                         "slot": "controls",
+                                         "type": "Container"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "props": {
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "Take control when opening an agent"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "Bricolage Grotesque",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3846153846153846,
+                                             "size": 13,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "Opening an agent connects in control; you are asked first if another device has it"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "props": {
+                                                "bgcolor": "#1A2400",
+                                                "border_radius": {
+                                                 "@": "BorderRadius",
+                                                 "bottom_left": 12,
+                                                 "bottom_right": 12,
+                                                 "top_left": 12,
+                                                 "top_right": 12
+                                                },
+                                                "height": 24,
+                                                "width": 24
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "props": {
+                                              "alignment": {
+                                               "@": "Alignment",
+                                               "x": 1.0,
+                                               "y": 0.0
+                                              },
+                                              "bgcolor": "#C8F03C",
+                                              "border_radius": {
+                                               "@": "BorderRadius",
+                                               "bottom_left": 16,
+                                               "bottom_right": 16,
+                                               "top_left": 16,
+                                               "top_right": 16
+                                              },
+                                              "height": 32,
+                                              "padding": 4,
+                                              "width": 52
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "props": {
+                                            "alignment": {
+                                             "@": "Alignment",
+                                             "x": 0.0,
+                                             "y": 0.0
+                                            }
+                                           },
+                                           "slot": "content",
+                                           "type": "Container"
+                                          }
+                                         ],
+                                         "key": "settings-auto-takeover",
+                                         "props": {
+                                          "expand": false,
+                                          "height": 48,
+                                          "style": {
+                                           "@": "ButtonStyle",
+                                           "bgcolor": "transparent",
+                                           "overlay_color": {
+                                            "ControlState.DEFAULT": "transparent",
+                                            "ControlState.FOCUSED": "#33FFFFFF"
+                                           },
+                                           "padding": 0,
+                                           "shape": {
+                                            "@": "RoundedRectangleBorder",
+                                            "radius": 16
+                                           },
+                                           "side": {
+                                            "ControlState.DEFAULT": {
+                                             "@": "BorderSide",
+                                             "color": "transparent",
+                                             "width": 3
+                                            },
+                                            "ControlState.FOCUSED": {
+                                             "@": "BorderSide",
+                                             "color": "#F5F2FF",
+                                             "width": 3
+                                            }
+                                           }
+                                          },
+                                          "tooltip": "Take control automatically when opening an agent: on",
+                                          "width": 56
+                                         },
+                                         "slot": "controls",
+                                         "type": "TextButton"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "props": {
+                                      "border": {
+                                       "@": "Border",
+                                       "top": {
+                                        "@": "BorderSide",
+                                        "color": "#2B2356"
+                                       }
+                                      },
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "Confirm before taking over"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "Bricolage Grotesque",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3846153846153846,
+                                             "size": 13,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "Taking over disconnects another attached client"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "props": {
+                                                "bgcolor": "#1A2400",
+                                                "border_radius": {
+                                                 "@": "BorderRadius",
+                                                 "bottom_left": 12,
+                                                 "bottom_right": 12,
+                                                 "top_left": 12,
+                                                 "top_right": 12
+                                                },
+                                                "height": 24,
+                                                "width": 24
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "props": {
+                                              "alignment": {
+                                               "@": "Alignment",
+                                               "x": 1.0,
+                                               "y": 0.0
+                                              },
+                                              "bgcolor": "#C8F03C",
+                                              "border_radius": {
+                                               "@": "BorderRadius",
+                                               "bottom_left": 16,
+                                               "bottom_right": 16,
+                                               "top_left": 16,
+                                               "top_right": 16
+                                              },
+                                              "height": 32,
+                                              "padding": 4,
+                                              "width": 52
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "props": {
+                                            "alignment": {
+                                             "@": "Alignment",
+                                             "x": 0.0,
+                                             "y": 0.0
+                                            }
+                                           },
+                                           "slot": "content",
+                                           "type": "Container"
+                                          }
+                                         ],
+                                         "key": "settings-confirm-takeover",
+                                         "props": {
+                                          "expand": false,
+                                          "height": 48,
+                                          "style": {
+                                           "@": "ButtonStyle",
+                                           "bgcolor": "transparent",
+                                           "overlay_color": {
+                                            "ControlState.DEFAULT": "transparent",
+                                            "ControlState.FOCUSED": "#33FFFFFF"
+                                           },
+                                           "padding": 0,
+                                           "shape": {
+                                            "@": "RoundedRectangleBorder",
+                                            "radius": 16
+                                           },
+                                           "side": {
+                                            "ControlState.DEFAULT": {
+                                             "@": "BorderSide",
+                                             "color": "transparent",
+                                             "width": 3
+                                            },
+                                            "ControlState.FOCUSED": {
+                                             "@": "BorderSide",
+                                             "color": "#F5F2FF",
+                                             "width": 3
+                                            }
+                                           }
+                                          },
+                                          "tooltip": "Confirm before taking over a terminal: on",
+                                          "width": 56
+                                         },
+                                         "slot": "controls",
+                                         "type": "TextButton"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "props": {
+                                      "border": {
+                                       "@": "Border",
+                                       "top": {
+                                        "@": "BorderSide",
+                                        "color": "#2B2356"
+                                       }
+                                      },
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "Show the key row"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "Bricolage Grotesque",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3846153846153846,
+                                             "size": 13,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "Esc, Tab, arrows and Enter under the terminal"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "props": {
+                                                "bgcolor": "#1A2400",
+                                                "border_radius": {
+                                                 "@": "BorderRadius",
+                                                 "bottom_left": 12,
+                                                 "bottom_right": 12,
+                                                 "top_left": 12,
+                                                 "top_right": 12
+                                                },
+                                                "height": 24,
+                                                "width": 24
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "props": {
+                                              "alignment": {
+                                               "@": "Alignment",
+                                               "x": 1.0,
+                                               "y": 0.0
+                                              },
+                                              "bgcolor": "#C8F03C",
+                                              "border_radius": {
+                                               "@": "BorderRadius",
+                                               "bottom_left": 16,
+                                               "bottom_right": 16,
+                                               "top_left": 16,
+                                               "top_right": 16
+                                              },
+                                              "height": 32,
+                                              "padding": 4,
+                                              "width": 52
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "props": {
+                                            "alignment": {
+                                             "@": "Alignment",
+                                             "x": 0.0,
+                                             "y": 0.0
+                                            }
+                                           },
+                                           "slot": "content",
+                                           "type": "Container"
+                                          }
+                                         ],
+                                         "key": "settings-show-key-row",
+                                         "props": {
+                                          "expand": false,
+                                          "height": 48,
+                                          "style": {
+                                           "@": "ButtonStyle",
+                                           "bgcolor": "transparent",
+                                           "overlay_color": {
+                                            "ControlState.DEFAULT": "transparent",
+                                            "ControlState.FOCUSED": "#33FFFFFF"
+                                           },
+                                           "padding": 0,
+                                           "shape": {
+                                            "@": "RoundedRectangleBorder",
+                                            "radius": 16
+                                           },
+                                           "side": {
+                                            "ControlState.DEFAULT": {
+                                             "@": "BorderSide",
+                                             "color": "transparent",
+                                             "width": 3
+                                            },
+                                            "ControlState.FOCUSED": {
+                                             "@": "BorderSide",
+                                             "color": "#F5F2FF",
+                                             "width": 3
+                                            }
+                                           }
+                                          },
+                                          "tooltip": "Show the key row: on",
+                                          "width": 56
+                                         },
+                                         "slot": "controls",
+                                         "type": "TextButton"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "props": {
+                                      "border": {
+                                       "@": "Border",
+                                       "top": {
+                                        "@": "BorderSide",
+                                        "color": "#2B2356"
+                                       }
+                                      },
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "Haptic feedback"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "Bricolage Grotesque",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3846153846153846,
+                                             "size": 13,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "Vibrate briefly on Send and Copy. Not available in iPhone/iPad browsers."
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "props": {
+                                                "bgcolor": "#1A2400",
+                                                "border_radius": {
+                                                 "@": "BorderRadius",
+                                                 "bottom_left": 12,
+                                                 "bottom_right": 12,
+                                                 "top_left": 12,
+                                                 "top_right": 12
+                                                },
+                                                "height": 24,
+                                                "width": 24
+                                               },
+                                               "slot": "content",
+                                               "type": "Container"
+                                              }
+                                             ],
+                                             "props": {
+                                              "alignment": {
+                                               "@": "Alignment",
+                                               "x": 1.0,
+                                               "y": 0.0
+                                              },
+                                              "bgcolor": "#C8F03C",
+                                              "border_radius": {
+                                               "@": "BorderRadius",
+                                               "bottom_left": 16,
+                                               "bottom_right": 16,
+                                               "top_left": 16,
+                                               "top_right": 16
+                                              },
+                                              "height": 32,
+                                              "padding": 4,
+                                              "width": 52
+                                             },
+                                             "slot": "content",
+                                             "type": "Container"
+                                            }
+                                           ],
+                                           "props": {
+                                            "alignment": {
+                                             "@": "Alignment",
+                                             "x": 0.0,
+                                             "y": 0.0
+                                            }
+                                           },
+                                           "slot": "content",
+                                           "type": "Container"
+                                          }
+                                         ],
+                                         "key": "settings-haptics",
+                                         "props": {
+                                          "expand": false,
+                                          "height": 48,
+                                          "style": {
+                                           "@": "ButtonStyle",
+                                           "bgcolor": "transparent",
+                                           "overlay_color": {
+                                            "ControlState.DEFAULT": "transparent",
+                                            "ControlState.FOCUSED": "#33FFFFFF"
+                                           },
+                                           "padding": 0,
+                                           "shape": {
+                                            "@": "RoundedRectangleBorder",
+                                            "radius": 16
+                                           },
+                                           "side": {
+                                            "ControlState.DEFAULT": {
+                                             "@": "BorderSide",
+                                             "color": "transparent",
+                                             "width": 3
+                                            },
+                                            "ControlState.FOCUSED": {
+                                             "@": "BorderSide",
+                                             "color": "#F5F2FF",
+                                             "width": 3
+                                            }
+                                           }
+                                          },
+                                          "tooltip": "Haptic feedback: on",
+                                          "width": 56
+                                         },
+                                         "slot": "controls",
+                                         "type": "TextButton"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "props": {
+                                      "border": {
+                                       "@": "Border",
+                                       "top": {
+                                        "@": "BorderSide",
+                                        "color": "#2B2356"
+                                       }
+                                      },
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    }
+                                   ],
+                                   "props": {
+                                    "spacing": 0
+                                   },
+                                   "slot": "content",
+                                   "type": "Column"
+                                  }
+                                 ],
+                                 "key": "settings-terminal-input",
+                                 "props": {
+                                  "bgcolor": "#191335",
+                                  "border": {
+                                   "@": "Border",
+                                   "bottom": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "left": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "right": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "top": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   }
+                                  },
+                                  "border_radius": {
+                                   "@": "BorderRadius",
+                                   "bottom_left": 24,
+                                   "bottom_right": 24,
+                                   "top_left": 24,
+                                   "top_right": 24
+                                  },
+                                  "padding": {
+                                   "@": "Padding",
+                                   "bottom": 12,
+                                   "left": 22,
+                                   "right": 22,
+                                   "top": 20
+                                  }
+                                 },
+                                 "slot": "controls",
+                                 "type": "Container"
+                                }
+                               ],
+                               "props": {
+                                "expand": 1,
+                                "spacing": 20
+                               },
+                               "slot": "controls",
+                               "type": "Column"
+                              },
+                              {
+                               "children": [
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "props": {
+                                          "style": {
+                                           "@": "TextStyle",
+                                           "color": "#F5F2FF",
+                                           "font_family": "Bricolage Grotesque ExtraBold",
+                                           "font_family_fallback": [
+                                            "Noto Sans Symbols 2"
+                                           ],
+                                           "height": 1.3,
+                                           "size": 20,
+                                           "weight": {
+                                            "enum": "FontWeight",
+                                            "value": "w800"
+                                           }
+                                          },
+                                          "value": "Device and about"
+                                         },
+                                         "slot": "content",
+                                         "type": "Text"
+                                        }
+                                       ],
+                                       "props": {
+                                        "header": true
+                                       },
+                                       "slot": "content",
+                                       "type": "Semantics"
+                                      }
+                                     ],
+                                     "props": {
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "RelayDeck"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "JetBrains Mono",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.391304347826087,
+                                             "size": 11.5,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "Version 0.3.0"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "slot": "controls",
+                                         "type": "Container"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "key": "settings-version-row",
+                                     "props": {
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "Signed in"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "JetBrains Mono",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.391304347826087,
+                                             "size": 11.5,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "This device"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "props": {
+                                                "no_wrap": true,
+                                                "style": {
+                                                 "@": "TextStyle",
+                                                 "color": "#C4B0FF",
+                                                 "font_family": "Bricolage Grotesque Bold",
+                                                 "font_family_fallback": [
+                                                  "Noto Sans Symbols 2"
+                                                 ],
+                                                 "height": 1.2,
+                                                 "size": 14,
+                                                 "weight": {
+                                                  "enum": "FontWeight",
+                                                  "value": "bold"
+                                                 }
+                                                },
+                                                "value": "Log out"
+                                               },
+                                               "slot": "controls",
+                                               "type": "Text"
+                                              }
+                                             ],
+                                             "props": {
+                                              "spacing": 8,
+                                              "tight": true
+                                             },
+                                             "slot": "content",
+                                             "type": "Row"
+                                            }
+                                           ],
+                                           "props": {
+                                            "alignment": {
+                                             "@": "Alignment",
+                                             "x": 0.0,
+                                             "y": 0.0
+                                            },
+                                            "border": {
+                                             "@": "Border",
+                                             "bottom": {
+                                              "@": "BorderSide",
+                                              "color": "#A98BFF"
+                                             },
+                                             "left": {
+                                              "@": "BorderSide",
+                                              "color": "#A98BFF"
+                                             },
+                                             "right": {
+                                              "@": "BorderSide",
+                                              "color": "#A98BFF"
+                                             },
+                                             "top": {
+                                              "@": "BorderSide",
+                                              "color": "#A98BFF"
+                                             }
+                                            },
+                                            "border_radius": {
+                                             "@": "BorderRadius",
+                                             "bottom_left": 24,
+                                             "bottom_right": 24,
+                                             "top_left": 24,
+                                             "top_right": 24
+                                            },
+                                            "padding": {
+                                             "@": "Padding",
+                                             "left": 16,
+                                             "right": 16
+                                            }
+                                           },
+                                           "slot": "content",
+                                           "type": "Container"
+                                          }
+                                         ],
+                                         "key": "settings-logout",
+                                         "props": {
+                                          "expand": false,
+                                          "height": 48,
+                                          "style": {
+                                           "@": "ButtonStyle",
+                                           "bgcolor": "transparent",
+                                           "overlay_color": {
+                                            "ControlState.DEFAULT": "transparent",
+                                            "ControlState.FOCUSED": "#33FFFFFF"
+                                           },
+                                           "padding": 0,
+                                           "shape": {
+                                            "@": "RoundedRectangleBorder",
+                                            "radius": 24
+                                           },
+                                           "side": {
+                                            "ControlState.DEFAULT": {
+                                             "@": "BorderSide",
+                                             "color": "transparent",
+                                             "width": 3
+                                            },
+                                            "ControlState.FOCUSED": {
+                                             "@": "BorderSide",
+                                             "color": "#F5F2FF",
+                                             "width": 3
+                                            }
+                                           }
+                                          },
+                                          "tooltip": "Log out"
+                                         },
+                                         "slot": "controls",
+                                         "type": "TextButton"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "key": "settings-account",
+                                     "props": {
+                                      "border": {
+                                       "@": "Border",
+                                       "top": {
+                                        "@": "BorderSide",
+                                        "color": "#2B2356"
+                                       }
+                                      },
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    },
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque SemiBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3333333333333333,
+                                             "size": 15,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w600"
+                                             }
+                                            },
+                                            "value": "Acknowledgements"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          },
+                                          {
+                                           "props": {
+                                            "max_lines": 2,
+                                            "overflow": {
+                                             "enum": "TextOverflow",
+                                             "value": "ellipsis"
+                                            },
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#B7AFDA",
+                                             "font_family": "Bricolage Grotesque",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.3846153846153846,
+                                             "size": 13,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "normal"
+                                             }
+                                            },
+                                            "value": "Open-source software and fonts"
+                                           },
+                                           "slot": "controls",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "expand": true,
+                                          "spacing": 2,
+                                          "tight": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Column"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "props": {
+                                                "no_wrap": true,
+                                                "style": {
+                                                 "@": "TextStyle",
+                                                 "color": "#C4B0FF",
+                                                 "font_family": "Bricolage Grotesque Bold",
+                                                 "font_family_fallback": [
+                                                  "Noto Sans Symbols 2"
+                                                 ],
+                                                 "height": 1.2,
+                                                 "size": 14,
+                                                 "weight": {
+                                                  "enum": "FontWeight",
+                                                  "value": "bold"
+                                                 }
+                                                },
+                                                "value": "View"
+                                               },
+                                               "slot": "controls",
+                                               "type": "Text"
+                                              }
+                                             ],
+                                             "props": {
+                                              "spacing": 8,
+                                              "tight": true
+                                             },
+                                             "slot": "content",
+                                             "type": "Row"
+                                            }
+                                           ],
+                                           "props": {
+                                            "alignment": {
+                                             "@": "Alignment",
+                                             "x": 0.0,
+                                             "y": 0.0
+                                            },
+                                            "border": {
+                                             "@": "Border",
+                                             "bottom": {
+                                              "@": "BorderSide",
+                                              "color": "#A98BFF"
+                                             },
+                                             "left": {
+                                              "@": "BorderSide",
+                                              "color": "#A98BFF"
+                                             },
+                                             "right": {
+                                              "@": "BorderSide",
+                                              "color": "#A98BFF"
+                                             },
+                                             "top": {
+                                              "@": "BorderSide",
+                                              "color": "#A98BFF"
+                                             }
+                                            },
+                                            "border_radius": {
+                                             "@": "BorderRadius",
+                                             "bottom_left": 24,
+                                             "bottom_right": 24,
+                                             "top_left": 24,
+                                             "top_right": 24
+                                            },
+                                            "padding": {
+                                             "@": "Padding",
+                                             "left": 16,
+                                             "right": 16
+                                            }
+                                           },
+                                           "slot": "content",
+                                           "type": "Container"
+                                          }
+                                         ],
+                                         "key": "settings-acknowledgements-toggle",
+                                         "props": {
+                                          "expand": false,
+                                          "height": 48,
+                                          "style": {
+                                           "@": "ButtonStyle",
+                                           "bgcolor": "transparent",
+                                           "overlay_color": {
+                                            "ControlState.DEFAULT": "transparent",
+                                            "ControlState.FOCUSED": "#33FFFFFF"
+                                           },
+                                           "padding": 0,
+                                           "shape": {
+                                            "@": "RoundedRectangleBorder",
+                                            "radius": 24
+                                           },
+                                           "side": {
+                                            "ControlState.DEFAULT": {
+                                             "@": "BorderSide",
+                                             "color": "transparent",
+                                             "width": 3
+                                            },
+                                            "ControlState.FOCUSED": {
+                                             "@": "BorderSide",
+                                             "color": "#F5F2FF",
+                                             "width": 3
+                                            }
+                                           }
+                                          },
+                                          "tooltip": "View"
+                                         },
+                                         "slot": "controls",
+                                         "type": "TextButton"
+                                        }
+                                       ],
+                                       "props": {
+                                        "spacing": 16
+                                       },
+                                       "slot": "content",
+                                       "type": "Row"
+                                      }
+                                     ],
+                                     "key": "settings-acknowledgements",
+                                     "props": {
+                                      "border": {
+                                       "@": "Border",
+                                       "top": {
+                                        "@": "BorderSide",
+                                        "color": "#2B2356"
+                                       }
+                                      },
+                                      "padding": {
+                                       "@": "Padding",
+                                       "bottom": 8,
+                                       "top": 8
+                                      }
+                                     },
+                                     "slot": "controls",
+                                     "type": "Container"
+                                    }
+                                   ],
+                                   "props": {
+                                    "spacing": 0
+                                   },
+                                   "slot": "content",
+                                   "type": "Column"
+                                  }
+                                 ],
+                                 "key": "settings-about",
+                                 "props": {
+                                  "bgcolor": "#191335",
+                                  "border": {
+                                   "@": "Border",
+                                   "bottom": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "left": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "right": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   },
+                                   "top": {
+                                    "@": "BorderSide",
+                                    "color": "#3B3270"
+                                   }
+                                  },
+                                  "border_radius": {
+                                   "@": "BorderRadius",
+                                   "bottom_left": 24,
+                                   "bottom_right": 24,
+                                   "top_left": 24,
+                                   "top_right": 24
+                                  },
+                                  "padding": {
+                                   "@": "Padding",
+                                   "bottom": 12,
+                                   "left": 22,
+                                   "right": 22,
+                                   "top": 20
+                                  }
+                                 },
+                                 "slot": "controls",
+                                 "type": "Container"
+                                }
+                               ],
+                               "props": {
+                                "expand": 1,
+                                "spacing": 20
+                               },
+                               "slot": "controls",
+                               "type": "Column"
+                              }
+                             ],
+                             "props": {
+                              "spacing": 20,
+                              "vertical_alignment": {
+                               "enum": "CrossAxisAlignment",
+                               "value": "start"
+                              }
+                             },
+                             "slot": "controls",
+                             "type": "Row"
+                            },
+                            {
+                             "children": [
+                              {
+                               "key": "settings-update-notice-hidden",
+                               "props": {
+                                "visible": false
+                               },
+                               "slot": "body",
+                               "type": "Container"
+                              }
+                             ],
+                             "slot": "controls",
+                             "type": "Component:UpdateNoticePanel"
+                            },
+                            {
+                             "children": [
+                              {
+                               "children": [
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "props": {
+                                      "style": {
+                                       "@": "TextStyle",
+                                       "color": "#F5F2FF",
+                                       "font_family": "Bricolage Grotesque ExtraBold",
+                                       "font_family_fallback": [
+                                        "Noto Sans Symbols 2"
+                                       ],
+                                       "height": 1.3,
+                                       "size": 20,
+                                       "weight": {
+                                        "enum": "FontWeight",
+                                        "value": "w800"
+                                       }
+                                      },
+                                      "value": "Hosts"
+                                     },
+                                     "slot": "content",
+                                     "type": "Text"
+                                    }
+                                   ],
+                                   "props": {
+                                    "header": true
+                                   },
+                                   "slot": "content",
+                                   "type": "Semantics"
+                                  }
+                                 ],
+                                 "props": {
+                                  "padding": {
+                                   "@": "Padding",
+                                   "bottom": 8
+                                  }
+                                 },
+                                 "slot": "controls",
+                                 "type": "Container"
+                                },
+                                {
+                                 "children": [
+                                  {
+                                   "children": [
+                                    {
+                                     "children": [
+                                      {
+                                       "children": [
+                                        {
+                                         "props": {
+                                          "no_wrap": true,
+                                          "style": {
+                                           "@": "TextStyle",
+                                           "color": "#B7AFDA",
+                                           "font_family": "JetBrains Mono",
+                                           "font_family_fallback": [
+                                            "Noto Sans Symbols 2"
+                                           ],
+                                           "height": 1.2173913043478262,
+                                           "letter_spacing": 0.69,
+                                           "size": 11.5,
+                                           "weight": {
+                                            "enum": "FontWeight",
+                                            "value": "normal"
+                                           }
+                                          },
+                                          "value": "RELAYDECK"
+                                         },
+                                         "slot": "controls",
+                                         "type": "Text"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "props": {
+                                            "style": {
+                                             "@": "TextStyle",
+                                             "color": "#F5F2FF",
+                                             "font_family": "Bricolage Grotesque ExtraBold",
+                                             "font_family_fallback": [
+                                              "Noto Sans Symbols 2"
+                                             ],
+                                             "height": 1.1176470588235294,
+                                             "letter_spacing": -0.68,
+                                             "size": 34,
+                                             "weight": {
+                                              "enum": "FontWeight",
+                                              "value": "w800"
+                                             }
+                                            },
+                                            "value": "Hosts"
+                                           },
+                                           "slot": "content",
+                                           "type": "Text"
+                                          }
+                                         ],
+                                         "props": {
+                                          "header": true
+                                         },
+                                         "slot": "controls",
+                                         "type": "Semantics"
+                                        }
+                                       ],
+                                       "key": "hosts-header",
+                                       "props": {
+                                        "spacing": 0
+                                       },
+                                       "slot": "controls",
+                                       "type": "Column"
+                                      },
+                                      {
+                                       "children": [
+                                        {
+                                         "key": "hosts-group-connected",
+                                         "props": {
+                                          "no_wrap": true,
+                                          "style": {
+                                           "@": "TextStyle",
+                                           "color": "#B7AFDA",
+                                           "font_family": "JetBrains Mono",
+                                           "font_family_fallback": [
+                                            "Noto Sans Symbols 2"
+                                           ],
+                                           "height": 1.391304347826087,
+                                           "letter_spacing": 0.92,
+                                           "size": 11.5,
+                                           "weight": {
+                                            "enum": "FontWeight",
+                                            "value": "normal"
+                                           }
+                                          },
+                                          "value": "CONNECTED · 1"
+                                         },
+                                         "slot": "controls",
+                                         "type": "Text"
+                                        },
+                                        {
+                                         "children": [
+                                          {
+                                           "children": [
+                                            {
+                                             "children": [
+                                              {
+                                               "children": [
+                                                {
+                                                 "children": [
+                                                  {
+                                                   "props": {
+                                                    "color": "#1A2400",
+                                                    "icon": 72943,
+                                                    "size": 22
+                                                   },
+                                                   "slot": "content",
+                                                   "type": "Icon"
+                                                  }
+                                                 ],
+                                                 "props": {
+                                                  "alignment": {
+                                                   "@": "Alignment",
+                                                   "x": 0.0,
+                                                   "y": 0.0
+                                                  },
+                                                  "bgcolor": "#C8F03C",
+                                                  "border_radius": {
+                                                   "@": "BorderRadius",
+                                                   "bottom_left": 14,
+                                                   "bottom_right": 14,
+                                                   "top_left": 14,
+                                                   "top_right": 14
+                                                  },
+                                                  "height": 48,
+                                                  "width": 48
+                                                 },
+                                                 "slot": "controls",
+                                                 "type": "Container"
+                                                },
+                                                {
+                                                 "children": [
+                                                  {
+                                                   "props": {
+                                                    "no_wrap": true,
+                                                    "overflow": {
+                                                     "enum": "TextOverflow",
+                                                     "value": "ellipsis"
+                                                    },
+                                                    "style": {
+                                                     "@": "TextStyle",
+                                                     "color": "#F5F2FF",
+                                                     "font_family": "Bricolage Grotesque Bold",
+                                                     "font_family_fallback": [
+                                                      "Noto Sans Symbols 2"
+                                                     ],
+                                                     "height": 1.2222222222222223,
+                                                     "size": 18,
+                                                     "weight": {
+                                                      "enum": "FontWeight",
+                                                      "value": "bold"
+                                                     }
+                                                    },
+                                                    "value": "Home Mac"
+                                                   },
+                                                   "slot": "controls",
+                                                   "type": "Text"
+                                                  },
+                                                  {
+                                                   "props": {
+                                                    "no_wrap": true,
+                                                    "overflow": {
+                                                     "enum": "TextOverflow",
+                                                     "value": "ellipsis"
+                                                    },
+                                                    "style": {
+                                                     "@": "TextStyle",
+                                                     "color": "#B7AFDA",
+                                                     "font_family": "JetBrains Mono",
+                                                     "font_family_fallback": [
+                                                      "Noto Sans Symbols 2"
+                                                     ],
+                                                     "height": 1.391304347826087,
+                                                     "size": 11.5,
+                                                     "weight": {
+                                                      "enum": "FontWeight",
+                                                      "value": "normal"
+                                                     }
+                                                    },
+                                                    "value": "1 agent · 2 tabs"
+                                                   },
+                                                   "slot": "controls",
+                                                   "type": "Text"
+                                                  }
+                                                 ],
+                                                 "props": {
+                                                  "expand": true,
+                                                  "spacing": 1
+                                                 },
+                                                 "slot": "controls",
+                                                 "type": "Column"
+                                                }
+                                               ],
+                                               "props": {
+                                                "spacing": 12
+                                               },
+                                               "slot": "controls",
+                                               "type": "Row"
+                                              }
+                                             ],
+                                             "props": {
+                                              "spacing": 12
+                                             },
+                                             "slot": "content",
+                                             "type": "Column"
+                                            }
+                                           ],
+                                           "props": {
+                                            "bgcolor": "#1F1840",
+                                            "border": {
+                                             "@": "Border",
+                                             "bottom": {
+                                              "@": "BorderSide",
+                                              "color": "#3B3270"
+                                             },
+                                             "left": {
+                                              "@": "BorderSide",
+                                              "color": "#3B3270"
+                                             },
+                                             "right": {
+                                              "@": "BorderSide",
+                                              "color": "#3B3270"
+                                             },
+                                             "top": {
+                                              "@": "BorderSide",
+                                              "color": "#3B3270"
+                                             }
+                                            },
+                                            "border_radius": {
+                                             "@": "BorderRadius",
+                                             "bottom_left": 20,
+                                             "bottom_right": 20,
+                                             "top_left": 20,
+                                             "top_right": 20
+                                            },
+                                            "padding": {
+                                             "@": "Padding",
+                                             "bottom": 14,
+                                             "left": 14,
+                                             "right": 14,
+                                             "top": 14
+                                            }
+                                           },
+                                           "slot": "content",
+                                           "type": "Container"
+                                          }
+                                         ],
+                                         "key": "host-home-mac",
+                                         "props": {
+                                          "expand": false,
+                                          "style": {
+                                           "@": "ButtonStyle",
+                                           "bgcolor": "transparent",
+                                           "overlay_color": {
+                                            "ControlState.DEFAULT": "transparent",
+                                            "ControlState.FOCUSED": "#33FFFFFF"
+                                           },
+                                           "padding": 0,
+                                           "shape": {
+                                            "@": "RoundedRectangleBorder",
+                                            "radius": 20
+                                           },
+                                           "side": {
+                                            "ControlState.DEFAULT": {
+                                             "@": "BorderSide",
+                                             "color": "transparent",
+                                             "width": 3
+                                            },
+                                            "ControlState.FOCUSED": {
+                                             "@": "BorderSide",
+                                             "color": "#F5F2FF",
+                                             "width": 3
+                                            }
+                                           }
+                                          },
+                                          "tooltip": "Home Mac"
+                                         },
+                                         "slot": "controls",
+                                         "type": "TextButton"
+                                        }
+                                       ],
+                                       "key": "hosts-tiles",
+                                       "props": {
+                                        "spacing": 14
+                                       },
+                                       "slot": "controls",
+                                       "type": "Column"
+                                      }
+                                     ],
+                                     "key": "hosts-list-bounds",
+                                     "props": {
+                                      "spacing": 18
+                                     },
+                                     "slot": "body",
+                                     "type": "Column"
+                                    }
+                                   ],
+                                   "key": "hosts-list",
+                                   "slot": "content",
+                                   "type": "Component:HostsList"
+                                  }
+                                 ],
+                                 "props": {
+                                  "padding": {
+                                   "@": "Padding",
+                                   "bottom": 8,
+                                   "top": 4
+                                  }
+                                 },
+                                 "slot": "controls",
+                                 "type": "Container"
+                                }
+                               ],
+                               "props": {
+                                "spacing": 0
+                               },
+                               "slot": "content",
+                               "type": "Column"
+                              }
+                             ],
+                             "key": "settings-hosts",
+                             "props": {
+                              "bgcolor": "#191335",
+                              "border": {
+                               "@": "Border",
+                               "bottom": {
+                                "@": "BorderSide",
+                                "color": "#3B3270"
+                               },
+                               "left": {
+                                "@": "BorderSide",
+                                "color": "#3B3270"
+                               },
+                               "right": {
+                                "@": "BorderSide",
+                                "color": "#3B3270"
+                               },
+                               "top": {
+                                "@": "BorderSide",
+                                "color": "#3B3270"
+                               }
+                              },
+                              "border_radius": {
+                               "@": "BorderRadius",
+                               "bottom_left": 24,
+                               "bottom_right": 24,
+                               "top_left": 24,
+                               "top_right": 24
+                              },
+                              "padding": {
+                               "@": "Padding",
+                               "bottom": 12,
+                               "left": 22,
+                               "right": 22,
+                               "top": 20
+                              }
+                             },
+                             "slot": "controls",
+                             "type": "Container"
+                            }
+                           ],
+                           "props": {
+                            "horizontal_alignment": {
+                             "enum": "CrossAxisAlignment",
+                             "value": "stretch"
+                            },
+                            "spacing": 20
+                           },
+                           "slot": "controls",
+                           "type": "Column"
+                          }
+                         ],
+                         "key": "settings-pane",
+                         "props": {
+                          "expand": true,
+                          "scroll": {
+                           "enum": "ScrollMode",
+                           "value": "auto"
+                          },
+                          "spacing": 20
+                         },
+                         "slot": "body",
+                         "type": "Column"
+                        }
+                       ],
+                       "key": "settings-page",
+                       "slot": "content",
+                       "type": "Component:SettingsPage"
+                      }
+                     ],
+                     "key": "inventory-sidebar",
+                     "props": {
+                      "bgcolor": "transparent",
+                      "expand": true,
+                      "padding": 0
+                     },
+                     "slot": "controls",
+                     "type": "Container"
+                    },
+                    {
+                     "children": [
+                      {
+                       "children": [
+                        {
+                         "props": {
+                          "bgcolor": "#3B3270",
+                          "expand": true,
+                          "width": 2
+                         },
+                         "slot": "content",
+                         "type": "Container"
+                        }
+                       ],
+                       "props": {
+                        "alignment": {
+                         "@": "Alignment",
+                         "x": 0.0,
+                         "y": 0.0
+                        }
+                       },
+                       "slot": "content",
+                       "type": "Container"
+                      }
+                     ],
+                     "key": "sidebar-resize",
+                     "props": {
+                      "drag_interval": 16,
+                      "mouse_cursor": {
+                       "enum": "MouseCursor",
+                       "value": "resizeLeftRight"
+                      },
+                      "visible": false,
+                      "width": 20
+                     },
+                     "slot": "controls",
+                     "type": "GestureDetector"
+                    },
+                    {
+                     "key": "detail-pane",
+                     "props": {
+                      "expand": true,
+                      "padding": 0,
+                      "visible": false
+                     },
+                     "slot": "controls",
+                     "type": "Container"
+                    }
+                   ],
+                   "key": "inventory-split",
+                   "props": {
+                    "expand": true,
+                    "spacing": 0,
+                    "vertical_alignment": {
+                     "enum": "CrossAxisAlignment",
+                     "value": "stretch"
+                    }
+                   },
+                   "slot": "controls",
+                   "type": "Row"
+                  }
+                 ],
+                 "key": "inventory-retained-workbench",
+                 "props": {
+                  "expand": true,
+                  "fit": {
+                   "enum": "StackFit",
+                   "value": "expand"
+                  }
+                 },
+                 "slot": "content",
+                 "type": "Stack"
+                }
+               ],
+               "key": "inventory-content",
+               "props": {
+                "expand": true,
+                "padding": 28
+               },
+               "slot": "controls",
+               "type": "Container"
+              }
+             ],
+             "key": "inventory-body",
+             "props": {
+              "expand": true,
+              "spacing": 0
+             },
+             "slot": "controls",
+             "type": "Column"
+            }
+           ],
+           "key": "inventory-workbench",
+           "props": {
+            "expand": true,
+            "spacing": 0,
+            "vertical_alignment": {
+             "enum": "CrossAxisAlignment",
+             "value": "stretch"
+            }
+           },
+           "slot": "controls",
+           "type": "Row"
+          },
+          {
+           "key": "phone-nav-slot",
+           "props": {
+            "visible": false
+           },
+           "slot": "controls",
+           "type": "Container"
+          }
+         ],
+         "key": "inventory-frame",
+         "props": {
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "props": {
+        "expand": true
+       },
+       "slot": "content",
+       "type": "SafeArea"
+      }
+     ],
+     "key": "console-ground",
+     "props": {
+      "bgcolor": "#130F26",
+      "expand": true,
+      "image": {
+       "@": "DecorationImage",
+       "repeat": {
+        "enum": "ImageRepeat",
+        "value": "repeat"
+       },
+       "src": "design_system/dots/dot_tile.png"
+      }
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:AppShell"
+  }
+ ]
+}

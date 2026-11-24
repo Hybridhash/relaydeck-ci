@@ -1,10 +1,6 @@
-"""The size a terminal should attach at: what this page's terminal area last measured.
-
-A host terminal attached at a guessed 80x24 is resized moments later to the real size, and a
-full-screen program redraws twice (and can lose its place at the end). Every terminal on a page
-shares one terminal area, so the size a mounted terminal last reported is the right size for the
-next attach on that page. Only applied reports count (`_last_view_size` is set after verification),
-so a size seen while a viewer was unverified never reaches a host.
+"""The size a terminal should attach at: what this page's terminal area last measured. A host
+terminal attached at a guessed 80x24 is resized moments later to the real size, and a
+full-screen program redraws twice (and can lose its place at the end).
 """
 
 from __future__ import annotations

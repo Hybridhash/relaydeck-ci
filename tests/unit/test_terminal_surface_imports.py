@@ -18,7 +18,7 @@ def test_fresh_surface_import_without_application_first() -> None:
             """
 import sys
 assert 'relaydeck.client.app' not in sys.modules
-from relaydeck.client.features.terminal.surfaces import DRIVE_REFUSED_EXITED, drive_recovery
+from relaydeck.client.features.terminal.sessions import DRIVE_REFUSED_EXITED, drive_recovery
 assert DRIVE_REFUSED_EXITED == 'refused-exited'
 assert callable(drive_recovery)
 assert 'relaydeck.client.app' not in sys.modules

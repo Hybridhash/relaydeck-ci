@@ -6,9 +6,10 @@ from typing import Any
 
 from fastapi.routing import APIRoute, APIWebSocketRoute
 
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
-from relaydeck.gateway.identity import TicketGrant
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.features.access.identity import TicketGrant
 
 CAPS = frozenset(
     {

@@ -1,10 +1,6 @@
-"""Synthetic VT fixture viewer.
-
-Plays the repo VT fixtures through the real extension control with local
-echo (INPUT packets loop back as WRITE) so renderer behavior can be
-eyeballed on web/Android once the Flutter SDK is provisioned. Not part of
-the shipped app. Run from this directory: `flet run --web` (Flutter SDK
-required for extensions).
+"""Play shared VT fixtures through the native terminal with local echo for visual inspection.
+This development viewer runs with `flet run --web` from its directory and requires the
+Flutter SDK.
 """
 
 from __future__ import annotations

@@ -10,15 +10,18 @@ from typing import Any
 import httpx
 import pytest
 
-from relaydeck.client.features.composer.domain import SUBMISSION_SENDING
-from relaydeck.client.features.shell.ops import ShellOpError
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport
+from relaydeck.client.app.resources import AppResources
+from relaydeck.client.app.state.sync import SyncController
+from relaydeck.client.features.composer.model import SUBMISSION_SENDING
+from relaydeck.client.features.terminal import gap_recovery as budget_module
 from relaydeck.client.features.terminal.controller import TerminalController
-from relaydeck.client.features.terminal.session import recovery_state as budget_module
 from relaydeck.client.features.terminal.session.recovery_state import GAP_EXHAUSTED_NOTICE
-from relaydeck.client.features.terminal.surfaces.sessions import drive_recovery
-from relaydeck.client.resources import AppResources
+from relaydeck.client.features.terminal.sessions import drive_recovery
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
+)
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.client.ports.terminal import ShellOpError
 from relaydeck.domain.models import AppState, Host, Inventory
 from tests.support.foreground_recovery import Harness, run_recovery
 from tests.support.scripted_sessions import ScriptedTerminalSocket
@@ -357,7 +360,14 @@ def test_reader_handoff_never_mints_after_long_delay(
 
     async def scenario() -> None:
         socket = ScriptedTerminalSocket()
-        controller = TerminalController(lambda _: socket, "lease-1", 1, "control", lambda _: None)
+        controller = TerminalController(
+            lambda _: socket,
+            "lease-1",
+            1,
+            "control",
+            lambda _: None,
+            stream_factory=_terminal_stream_factory,
+        )
         await controller.start("first")
         controller._handle_gap("rate_limited")
         controller.gap_recovery.attempt = step
@@ -378,7 +388,7 @@ def test_reader_handoff_never_mints_after_long_delay(
 def test_expired_resume_ticket_reacquires_under_existing_budget(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from relaydeck.client.features.shell.ops import ShellOpError
+    from relaydeck.client.ports.terminal import ShellOpError
 
     expire_waits(monkeypatch)
 
@@ -407,7 +417,7 @@ def test_expired_resume_ticket_reacquires_under_existing_budget(
 def test_reopen_and_composer_diagnostics_are_correlated_and_content_free(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
+    from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
 
     log = diagnostics_logger()
     log.addHandler(caplog.handler)
@@ -672,8 +682,8 @@ def test_explicit_reconnect_clears_automatic_cause(kind: str) -> None:
 
 @pytest.mark.parametrize("site", ["detach", "takeover", "fence_hidden", "reconnect_flow"])
 def test_composer_reset_logs_the_actual_caller(caplog: pytest.LogCaptureFixture, site: str) -> None:
-    from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
     from relaydeck.client.features.terminal.warm_watch import fence_hidden_writer
+    from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
     from relaydeck.lease_diagnostics import opaque
 
     log = diagnostics_logger()
@@ -707,7 +717,7 @@ def test_composer_reset_logs_the_actual_caller(caplog: pytest.LogCaptureFixture,
 def test_gap_retry_logs_outcome_without_content(
     monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, outcome: str
 ) -> None:
-    from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
+    from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
 
     log = diagnostics_logger()
     log.addHandler(caplog.handler)

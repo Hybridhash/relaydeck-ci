@@ -13,6 +13,7 @@ from typing import Any
 
 import flet as ft
 
+from relaydeck.client.design_system.theme import DARK, LIGHT, MIN_TOUCH
 from relaydeck.client.features.composer.components import (
     COMPOSER_KEY,
     DRAFT_KEY,
@@ -25,9 +26,8 @@ from relaydeck.client.features.composer.components import (
     VALIDATION_KEY,
     ComposerBox,
 )
-from relaydeck.client.features.composer.domain import (
+from relaydeck.client.features.composer.model import (
     BLOCKER_EMPTY,
-    INPUT_MODE_COMPOSER,
     SUBMISSION_SENDING,
     StagedMarker,
 )
@@ -37,7 +37,35 @@ from relaydeck.client.features.create.components import (
     NewTerminalSheet,
     StartAgentSheet,
 )
-from relaydeck.client.features.shell.screen import (
+from relaydeck.client.features.terminal.models import TerminalViewState
+from relaydeck.client.features.terminal.paste_sheet import CANCEL_KEY as PASTE_CANCEL_KEY
+from relaydeck.client.features.terminal.paste_sheet import CONFIRM_KEY as PASTE_CONFIRM_KEY
+from relaydeck.client.features.terminal.paste_sheet import COUNTS_KEY as PASTE_COUNTS_KEY
+from relaydeck.client.features.terminal.paste_sheet import PREVIEW_KEY as PASTE_PREVIEW_KEY
+from relaydeck.client.features.terminal.paste_sheet import SHEET_KEY as PASTE_SHEET_KEY
+from relaydeck.client.features.terminal.paste_sheet import TITLE_KEY as PASTE_TITLE_KEY
+from relaydeck.client.features.terminal.paste_sheet import PasteReviewSheet
+from relaydeck.client.features.terminal.selection_sheet import (
+    SELECT_CLOSE_KEY,
+    SELECT_COPY_KEY,
+    SELECT_ERROR_KEY,
+    SELECT_FIELD_KEY,
+    SELECT_RANGE_KEY,
+    SELECT_SHEET_KEY,
+    SELECT_TITLE_KEY,
+    SelectTextSheet,
+)
+from relaydeck.client.features.terminal.shell_session import (
+    SHELL_CONFLICT,
+    SHELL_CONNECTING,
+    SHELL_DISCONNECTED,
+    SHELL_EXITED,
+    SHELL_LIVE,
+    ShellViewState,
+)
+from relaydeck.client.models.input.modes import INPUT_MODE_COMPOSER, KEYBOARD_KEYS, KEYBOARD_TEXT
+from relaydeck.client.models.input.paste_policy import PasteReview
+from relaydeck.client.screens.shell.screen import (
     SHELL_BACK_KEY,
     SHELL_CLOSE_KEY,
     SHELL_CONFLICT_KEY,
@@ -57,47 +85,6 @@ from relaydeck.client.features.shell.screen import (
     SHELL_TITLE_KEY,
     ShellScreen,
 )
-from relaydeck.client.features.shell.session import (
-    SHELL_CONFLICT,
-    SHELL_CONNECTING,
-    SHELL_DISCONNECTED,
-    SHELL_EXITED,
-    SHELL_LIVE,
-    ShellViewState,
-)
-from relaydeck.client.features.terminal.input_modes import KEYBOARD_KEYS, KEYBOARD_TEXT
-from relaydeck.client.features.terminal.models import TerminalViewState
-from relaydeck.client.features.terminal.paste_policy import PasteReview
-from relaydeck.client.features.terminal.paste_review import (
-    CANCEL_KEY as PASTE_CANCEL_KEY,
-)
-from relaydeck.client.features.terminal.paste_review import (
-    CONFIRM_KEY as PASTE_CONFIRM_KEY,
-)
-from relaydeck.client.features.terminal.paste_review import (
-    COUNTS_KEY as PASTE_COUNTS_KEY,
-)
-from relaydeck.client.features.terminal.paste_review import (
-    PREVIEW_KEY as PASTE_PREVIEW_KEY,
-)
-from relaydeck.client.features.terminal.paste_review import (
-    SHEET_KEY as PASTE_SHEET_KEY,
-)
-from relaydeck.client.features.terminal.paste_review import (
-    TITLE_KEY as PASTE_TITLE_KEY,
-)
-from relaydeck.client.features.terminal.paste_review import PasteReviewSheet
-from relaydeck.client.features.terminal.selection_sheet import (
-    SELECT_CLOSE_KEY,
-    SELECT_COPY_KEY,
-    SELECT_ERROR_KEY,
-    SELECT_FIELD_KEY,
-    SELECT_RANGE_KEY,
-    SELECT_SHEET_KEY,
-    SELECT_TITLE_KEY,
-    SelectTextSheet,
-)
-from relaydeck.client.theme import DARK, LIGHT, MIN_TOUCH
 from tests.support.host_harness import render_component, run
 
 _REVIEW = PasteReview(line_count=2, character_count=7, preview="ab\ncdef")
@@ -255,11 +242,11 @@ def test_shell_screen_light_theme_renders() -> None:
         # terminal area itself still follows the selected palette.
         app = await render_component(ShellScreen, **_shell_props(dark=False))
         assert app.find(SHELL_SCREEN_KEY) is not None
-        assert app.find("shell-window").bgcolor == DARK["surface"]
-        assert app.find("terminal-area").bgcolor == LIGHT["terminal_bg"]
+        assert app.find("shell-window").bgcolor == DARK.surface
+        assert app.find("terminal-area").bgcolor == LIGHT.terminal_bg
         dark = await render_component(ShellScreen, **_shell_props(dark=True))
-        assert dark.find("shell-window").bgcolor == DARK["surface"]
-        assert dark.find("terminal-area").bgcolor == DARK["terminal_bg"]
+        assert dark.find("shell-window").bgcolor == DARK.surface
+        assert dark.find("terminal-area").bgcolor == DARK.terminal_bg
 
     run(scenario())
 

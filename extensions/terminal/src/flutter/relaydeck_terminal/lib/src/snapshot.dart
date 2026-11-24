@@ -1,22 +1,8 @@
 import 'package:xterm2/xterm.dart';
 
-/// Emulator-truth text snapshot for the Select Text sheet.
-///
-/// Grid-truth lines: `BufferLine.getText` DROPS empty cells (it skips
-/// codePoint 0), so cursor-addressed content would lose its leading
-/// position ('         X' reads back as 'X'). Each line's leading grid
-/// offset is restored from per-cell reads while keeping getText's
-/// content (combining marks, wide glyphs). Wrapped lines join exactly
-/// like `Buffer.getText` (no newline between a line and its
-/// continuation); trailing whitespace is stripped per line and trailing
-/// empty lines are dropped, so the snapshot is a clean copy source.
-/// Reads the ACTIVE buffer (alt screen shows alt content only, no
-/// scrollback) — mirroring the Python `document_from_projection` rule.
-///
-/// Budget: Python rejects any snapshot whose declared total exceeds
-/// MAX_SNAPSHOT_TOTAL (4 MiB, see protocol.py) with a visible error
-/// instead of allocating, so engines must keep maxLines x cols within
-/// that budget; truths are never silently truncated.
+/// Capture active-buffer grid text with leading positions, combining marks, wide glyphs and
+/// wrapped lines preserved. Trim trailing whitespace and empty lines without truncating
+/// oversized truths; allocation budgets are enforced by the receiver.
 List<String> snapshotLines(Terminal terminal) {
   final raws = <String>[];
   final current = StringBuffer();

@@ -14,6 +14,7 @@ from relaydeck.contracts.schemas import SCHEMAS, SchemaError, validate
 FIXTURES = Path(__file__).resolve().parent.parent / "fixtures" / "gateway"
 
 EXAMPLES = {
+    "relaydeck/gateway/v1/prompt-resolution": "prompt-resolution.json",
     "relaydeck/gateway/v1/terminal-attach-request": "terminal-attach-request.json",
     "relaydeck/gateway/v1/terminal-control-holder": "terminal-control-holder.json",
     "relaydeck/gateway/v1/terminal-lease-request": "terminal-lease-request.json",
@@ -24,6 +25,7 @@ EXAMPLES = {
     "relaydeck/gateway/v1/picture-grant": "picture-grant.json",
     "relaydeck/gateway/v1/picture-result": "picture-result.json",
     "relaydeck/gateway/v1/server-metrics": "server-metrics.json",
+    "relaydeck/gateway/v1/updates": "updates.json",
     "relaydeck/gateway/v1/authorization-request": "authorization-request.json",
     "relaydeck/gateway/v1/snapshot": "snapshot.json",
     "relaydeck/gateway/v1/metadata-event": "metadata-event.json",

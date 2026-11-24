@@ -14,10 +14,11 @@ from typing import Any
 
 import pytest
 
-from relaydeck.companion import service as agent
 from relaydeck.companion import setup as setup_mod
-from relaydeck.companion import tailscale
+from relaydeck.companion.adapters import launchd as agent
+from relaydeck.companion.adapters import tailscale
 from tests.support.companion.asgi_companion import config_file
+from tests.support.setup.legacy import run_legacy
 
 
 class _Runner:
@@ -45,11 +46,16 @@ def test_plist_runs_start_with_connect_herdr_and_has_no_secrets(tmp_path: Path) 
         Path("/opt/relaydeck/bin/relaydeck"), home=tmp_path, path_env="/usr/bin"
     )
     assert doc["Label"] == "dev.relaydeck.companion"
-    assert doc["ProgramArguments"] == ["/opt/relaydeck/bin/relaydeck", "start", "--connect-herdr"]
+    assert doc["ProgramArguments"] == [
+        "/opt/relaydeck/bin/relaydeck",
+        "service-run",
+        "--log-directory",
+        str(tmp_path / "Library/Logs/RelayDeck"),
+    ]
     assert doc["RunAtLoad"] is True and doc["KeepAlive"] is True
     assert doc["ThrottleInterval"] == 30
     assert doc["EnvironmentVariables"] == {"PATH": "/usr/bin"}
-    assert str(tmp_path / "Library" / "Logs" / "RelayDeck") in doc["StandardOutPath"]
+    assert doc["StandardOutPath"] == doc["StandardErrorPath"] == "/dev/null"
     text = agent.plist_bytes(
         Path("/opt/relaydeck/bin/relaydeck"), home=tmp_path, path_env="/usr/bin"
     ).decode()
@@ -127,6 +133,7 @@ def test_status_reports_the_program_without_launchctl(tmp_path: Path) -> None:
     )
     status = agent.status(tmp_path)
     assert status["installed"] is True and status["program"] == "/x/relaydeck"
+    assert status["arguments"] == agent.service_arguments(Path("/x/relaydeck"), tmp_path)[1:]
     assert runner.calls == []
 
 
@@ -177,7 +184,7 @@ def ready_probes(serve_runner: Any) -> Any:
     """Every prerequisite ok: status is synthetic; serve calls go to the runner."""
     import subprocess
 
-    from relaydeck.companion import prereqs
+    from relaydeck.companion.inspection import prereqs
 
     def tailscale_run(args: Any) -> Any:
         argv = list(args)
@@ -216,7 +223,7 @@ def test_setup_prints_the_exact_serve_command_and_applies_only_with_confirmation
 ) -> None:
     config = config_file(tmp_path, advertised_origin="https://mac.example.ts.net")
     runner = _Runner(_serve_status(used=[8446]))
-    report = setup_mod.run_setup(
+    report = run_legacy(
         config_path=config,
         assume_yes=False,
         confirm=lambda _prompt: False,
@@ -229,7 +236,7 @@ def test_setup_prints_the_exact_serve_command_and_applies_only_with_confirmation
     assert not [c for c in runner.calls if "--bg" in c]
 
     runner_yes = _Runner(_serve_status(used=[8446]))
-    setup_mod.run_setup(
+    run_legacy(
         config_path=config,
         assume_yes=True,
         confirm=lambda _p: False,
@@ -242,7 +249,7 @@ def test_setup_prints_the_exact_serve_command_and_applies_only_with_confirmation
 def test_setup_refuses_nothing_free_and_changes_nothing(tmp_path: Path) -> None:
     config = config_file(tmp_path, advertised_origin="https://mac.example.ts.net")
     runner = _Runner(_serve_status(used=[8445, 8446, 8447, 8448, 8449]))
-    report = setup_mod.run_setup(
+    report = run_legacy(
         config_path=config,
         assume_yes=True,
         confirm=lambda _p: True,
@@ -261,7 +268,7 @@ def test_setup_never_applies_a_mapping_that_already_exists(tmp_path: Path) -> No
         "AllowFunnel": {},
     }
     runner = _Runner(proxy_status)
-    report = setup_mod.run_setup(
+    report = run_legacy(
         config_path=config,
         assume_yes=True,
         confirm=lambda _p: True,
@@ -276,7 +283,7 @@ def test_setup_reports_a_missing_herdr_socket(tmp_path: Path) -> None:
     config = config_file(tmp_path, advertised_origin="https://mac.example.ts.net")
     probes = ready_probes(_Runner({}))
     probes = dataclasses.replace(probes, socket_exists=lambda path: False)
-    report = setup_mod.run_setup(
+    report = run_legacy(
         config_path=config,
         assume_yes=False,
         confirm=lambda _p: False,

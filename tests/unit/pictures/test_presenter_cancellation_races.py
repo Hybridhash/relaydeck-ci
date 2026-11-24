@@ -11,10 +11,17 @@ from typing import Any
 import httpx
 import pytest
 
-from relaydeck.companion.pictures import DAY_MS, PictureStore
+from relaydeck.client.features.terminal.pictures import PictureApi as PictureApiFactory
 from relaydeck.contracts.pairing import DEVICE_CAPABILITIES
-from relaydeck.gateway.app import create_app
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.features.pictures.adapters.storage import DAY_MS, PictureStore
 from tests.security.helpers import auth, make_state
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.pictures.uploads import picture
 
 
@@ -59,7 +66,7 @@ def test_copied_grant_requires_exact_presenter_session(tmp_path: Path) -> None:
 
 
 def test_web_cookie_adapter_authenticates_actual_presenter(tmp_path: Path) -> None:
-    from relaydeck.client.serve import WebSessionStore, build_web_app
+    from relaydeck.companion.app.hosted_web.serve import WebSessionStore, build_web_app
 
     async def scenario() -> None:
         state, _ = make_state()
@@ -79,7 +86,7 @@ def test_web_cookie_adapter_authenticates_actual_presenter(tmp_path: Path) -> No
             )
             sid = web.create_session(account, device, access, refresh, state.now_ms() + 900_000)
             tokens.append(access)
-            cookies.append("rd_session=" + web.sign_sid(sid))
+            cookies.append("__Host-rd_session=" + web.sign_sid(sid))
         app, _ = build_web_app(
             gateway_state=state,
             gateway_app=create_app(state),
@@ -99,7 +106,7 @@ def test_web_cookie_adapter_authenticates_actual_presenter(tmp_path: Path) -> No
             invalid = [
                 {},
                 {"origin": origin},
-                {"origin": origin, "cookie": "rd_session=invalid"},
+                {"origin": origin, "cookie": "__Host-rd_session=invalid"},
                 {"origin": "https://foreign.test", "cookie": cookies[0]},
                 {"cookie": cookies[0]},
                 *({"origin": origin, "cookie": cookie} for cookie in cookies[1:]),
@@ -139,8 +146,8 @@ def test_web_cookie_adapter_authenticates_actual_presenter(tmp_path: Path) -> No
 def test_native_adapter_sends_proof_and_never_reads_files_in_web_runtime(tmp_path: Path) -> None:
     import flet as ft
 
-    from relaydeck.client.features.shell.ops import HttpxShellGatewayOps
     from relaydeck.client.features.terminal.pictures import PictureClientError
+    from relaydeck.client.platform.transport.shell_ops import HttpxShellGatewayOps
 
     async def scenario() -> None:
         state, _ = make_state()
@@ -156,9 +163,15 @@ def test_native_adapter_sends_proof_and_never_reads_files_in_web_runtime(tmp_pat
             transport=httpx.ASGITransport(app=create_app(state)), base_url="https://mac.test"
         ) as client:
             native = HttpxShellGatewayOps(
-                "https://mac.test", get_token, client, native_picture_upload=True
+                "https://mac.test",
+                get_token,
+                client,
+                native_picture_upload=True,
+                picture_api_factory=PictureApiFactory,
             ).picture_api
-            web = HttpxShellGatewayOps("https://mac.test", get_token, client).picture_api
+            web = HttpxShellGatewayOps(
+                "https://mac.test", get_token, client, picture_api_factory=PictureApiFactory
+            ).picture_api
             selected = tmp_path / "selected.png"
             selected.write_bytes(picture())
             file = ft.FilePickerFile(7, "spoof.exe", selected.stat().st_size, str(selected))
@@ -270,7 +283,7 @@ def test_directory_scan_tolerates_concurrent_removal(
 def test_lifespan_keeps_scheduled_cleanup_alive_after_failure(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
 ) -> None:
-    from relaydeck.companion import pictures
+    from relaydeck.gateway.features.pictures import api as pictures
 
     async def scenario() -> None:
         state, _ = make_state(now=1000)

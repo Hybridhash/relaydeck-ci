@@ -1,9 +1,5 @@
-"""Pure state transitions.
-
-Every function takes an AppState and returns a new one; inputs are never
-mutated. Late/out-of-order data cannot overwrite newer state: snapshots
-replace coherently per host, events apply in sequence with idempotent
-duplicates, and gaps force an explicit resync instead of guessing.
+"""Compute state transitions without mutating inputs. Sequence gaps and epoch mismatches request
+resynchronization.
 """
 
 from __future__ import annotations
@@ -63,11 +59,9 @@ def _truncate_inventory(inv: Inventory) -> Inventory:
 
 
 def apply_snapshot(state: AppState, snapshot: Snapshot) -> AppState:
-    """Coherent per-host replacement. Clears stale/resync for that host and
-    drops the selection only when its resource no longer exists. Snapshots
-    for hosts outside the verified grant set are rejected whole (the
-    identical state is returned): a stale or unauthorized snapshot must
-    never resurrect revoked inventory."""
+    """Replace one granted host's inventory coherently and clear its stale state. Drop selection
+    only when its resource disappears.
+    """
     if state.revoked:
         return state
     granted = state.granted_hosts
@@ -126,30 +120,11 @@ def apply_snapshot(state: AppState, snapshot: Snapshot) -> AppState:
 
 
 def merge_hosts(state: AppState, entries: list[dict[str, Any]]) -> AppState:
-    """Merge a /v1/hosts listing into inventory (host switching).
-
-    Adds unknown hosts as unsurfaced entries (reachability as listed,
-    no capabilities assumed); refreshes label/epoch/reachability/
-    protocol/version on known hosts while PRESERVING synced
-    capabilities and last-seen (the list carries neither). Malformed
-    entries are skipped.
-
-    The listing is the COMPLETE authorized set: hosts absent from it
-    lost their grant and are reconciled out with every inventory slice
-    (workspaces/tabs/panes/agents) plus the selection when it points
-    at a revoked host. The cleared selection bumps its generation, so
-    in-flight fetches and input callbacks for the revoked target
-    cannot land anywhere (the select_session invalidation contract).
-    Connection state stays controller-owned: this reducer never marks
-    global revocation for a per-host grant loss. The verified grant ids
-    are recorded on the state so later snapshots/events for ungranted
-    hosts are rejected instead of resurrecting revoked inventory.
+    """Merge the complete authorized host listing while preserving synced capabilities and
+    last-seen values. Remove revoked hosts and invalidate their selection and pending work.
     """
     if state.revoked:
-        # A revoked identity is terminal for this state lineage: late
-        # pre-revocation listings must not undo clearing. Fresh
-        # authentication establishes a new context explicitly (a new
-        # controller), never by resurrecting into this one.
+        # Revocation is terminal; fresh authentication needs a new controller.
         return state
     hosts = dict(state.inventory.hosts)
     granted: set[str] = set()
@@ -240,8 +215,9 @@ class EventAction(str):
 
 
 def apply_event(state: AppState, event: MetadataEvent) -> tuple[AppState, str]:
-    """Ordered update. Returns (new_state, action). Gaps and stale epochs
-    never mutate inventory; duplicates are idempotent."""
+    """Classify replayed events without advancing the cursor; resource handlers determine their
+    updates. Gaps and stale epochs require resynchronization without changing inventory.
+    """
     if state.revoked:
         return state, EventAction.IGNORED_TYPE
     conn = state.connection
@@ -319,7 +295,7 @@ def _apply_upsert(
             return replace(state, connection=conn, inventory=inv), action
         return replace(state, connection=conn), action
     if kind == EventType.AGENT_UPSERTED:
-        return _apply_agent(state, conn, event), action
+        return _apply_agent(state, conn, event, duplicate=duplicate), action
     if kind == EventType.WORKSPACE_UPSERTED:
         return _apply_workspace(state, conn, event), action
     if kind == EventType.TAB_UPSERTED:
@@ -329,11 +305,19 @@ def _apply_upsert(
     return replace(state, connection=conn), EventAction.IGNORED_TYPE
 
 
-def _apply_agent(state: AppState, conn: Connection, event: MetadataEvent) -> AppState:
+def _apply_agent(
+    state: AppState, conn: Connection, event: MetadataEvent, *, duplicate: bool
+) -> AppState:
     agents = dict(state.inventory.agents)
     key = scope_key(event.host_id, event.resource_id)
     current = agents.get(key)
-    if current is not None and event.resource_revision <= current.revision:
+    if current is not None and (
+        event.resource_revision < current.revision
+        or (
+            event.resource_revision == current.revision
+            and (duplicate or event.payload.get("status_changed") is not True)
+        )
+    ):
         return replace(state, connection=conn)
     payload = event.payload
     agents[key] = Agent(
@@ -360,7 +344,11 @@ def _apply_agent(state: AppState, conn: Connection, event: MetadataEvent) -> App
         ),
         revision=event.resource_revision,
     )
-    inv = _truncate_inventory(replace(state.inventory, agents=agents))
+    panes = state.inventory.panes
+    pane_key = scope_key(event.host_id, agents[key].pane_id)
+    if event.payload.get("status_changed") is True and pane_key in panes:
+        panes = {**panes, pane_key: replace(panes[pane_key], agent_status=agents[key].status)}
+    inv = _truncate_inventory(replace(state.inventory, agents=agents, panes=panes))
     return replace(state, connection=conn, inventory=inv)
 
 
@@ -530,9 +518,9 @@ def _apply_command(state: AppState, conn: Connection, event: MetadataEvent) -> A
 
 
 def submit_command(state: AppState, record: CommandRecord) -> tuple[AppState, str]:
-    """Client-side dedupe: same id + same digest returns existing (no
-    redispatch); same id + different digest is a conflict. Revoked or
-    missing-host states reject."""
+    """Deduplicate matching command IDs and digests; reject conflicts, revoked identities and
+    missing hosts.
+    """
     if state.revoked:
         return state, "rejected_revoked"
     if record.host_id != state.connection.host_id:
@@ -548,13 +536,8 @@ def submit_command(state: AppState, record: CommandRecord) -> tuple[AppState, st
 
 
 def select_session(state: AppState, host_id: str, session_key: str, terminal_kind: str) -> AppState:
-    """Selection change bumps the generation so in-flight fetches and input
-    callbacks for the previous target cannot land on the new one. A
-    revoked identity cannot select (clearing is terminal for
-    the lineage). A non-empty session_key must be a well-formed scoped
-    key for this host; malformed or host-mismatched keys (including
-    bare upstream ids) are rejected fail-closed with the state
-    unchanged, so a bogus key can never steer input at a live target.
+    """Change selection and invalidate work for the previous target by increasing its
+    generation. Reject revoked identities and malformed or host-mismatched scoped keys.
     """
     if state.revoked:
         return state
@@ -591,12 +574,9 @@ def set_connection(
 
 
 def revoke(state: AppState) -> AppState:
-    """Verified identity revocation: terminate, invalidate,
-    and CLEAR cached sensitive content (inventory, selection, commands,
-    grants). Retention is for offline/reconnect only — a
-    revoked identity keeps nothing behind the sign-in banner, so a
-    later identity can never inherit this one's caches. The cleared
-    selection bumps its generation to invalidate in-flight work."""
+    """Terminate a revoked identity and clear inventory, selection, commands and grants.
+    Increase selection generation so pending work cannot repopulate sensitive state.
+    """
     conn = replace(state.connection, state=ConnectionState.ACCESS_REVOKED)
     return replace(
         state,

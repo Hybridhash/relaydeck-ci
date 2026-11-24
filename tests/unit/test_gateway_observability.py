@@ -11,10 +11,11 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
-from relaydeck.gateway.request_id import current_request_id
-from relaydeck.persistence_contracts import StorageUnavailable
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.host.observability.request_context import current_request_id
+from relaydeck.host.persistence.contracts import StorageUnavailable
 
 NOW = 1_000_000
 SECRET_BODY = "PRIVATE_BODY_MARKER"
@@ -111,8 +112,9 @@ def test_an_unexpected_exception_returns_internal_and_logs_one_line(
     assert reply.headers["x-request-id"] == "req-cccc3333" and SECRET_BODY not in reply.text
     (record,) = _lines(caplog)
     assert record.levelno == logging.ERROR
+    assert SECRET_BODY not in caplog.text
     assert record.getMessage() == (
-        "unhandled_error method=GET route=/__boom request_id=req-cccc3333"
+        "unhandled_error method=GET route=/__boom request_id=req-cccc3333 category=unexpected"
     )
 
 
@@ -128,6 +130,7 @@ def test_storage_unavailable_keeps_its_envelope_and_logs_one_line(
     assert body["details"] == {"reason": "storage_unavailable", "storage_reason": "unavailable"}
     (record,) = _lines(caplog)
     assert record.levelno == logging.ERROR
+    assert SECRET_BODY not in caplog.text
     assert record.getMessage() == (
         "gateway_error code=unauthenticated status=503 method=GET route=/__storage "
         "request_id=req-dddd4444"
@@ -162,7 +165,7 @@ def test_logging_config_is_a_valid_dict_config() -> None:
     # Applied in a child process: dictConfig changes global logger state.
     code = (
         "import logging, logging.config\n"
-        "from relaydeck.logging_setup import logging_config\n"
+        "from relaydeck.host.observability.logging import logging_config\n"
         "logging.config.dictConfig(logging_config('INFO'))\n"
         "logging.getLogger('relaydeck.gateway.x').info('probe')\n"
     )

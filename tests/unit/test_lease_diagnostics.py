@@ -7,10 +7,16 @@ import time
 
 import pytest
 
-from relaydeck.client.features.sync.transport import TransportError
 from relaydeck.client.features.terminal.renewal import LeaseRenewalDriver
-from relaydeck.companion.runtime import _uvicorn_logging_config
+from relaydeck.client.ports.transport import TransportError
+from relaydeck.companion.app.hosted_web.binding import _uvicorn_logging_config
 from relaydeck.lease_diagnostics import LeaseTrace
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 
 
 @pytest.mark.parametrize(
@@ -29,7 +35,7 @@ def test_received_gap_close_logs_only_allowlisted_detail(
 ) -> None:
     import json
 
-    from relaydeck.client.features.sync.controller import TerminalStreamClient
+    from relaydeck.client.platform.transport.terminal_stream import TerminalStreamClient
     from tests.support.scripted_sessions import ScriptedTerminalSocket
 
     async def scenario() -> None:

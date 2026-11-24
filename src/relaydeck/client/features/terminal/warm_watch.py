@@ -4,9 +4,9 @@ from collections.abc import Callable
 from dataclasses import replace
 from typing import Any
 
-from relaydeck.client.features.shell.ops import AttachmentInfo, ShellOpError
 from relaydeck.client.features.terminal.models import TerminalViewState
 from relaydeck.client.features.terminal.stream import EMULATOR_PRESERVED
+from relaydeck.client.ports.terminal import AttachmentInfo, ShellOpError
 
 
 def fence_hidden_writer(session: Any) -> None:
@@ -26,10 +26,8 @@ async def watch_only(
     *,
     preserved_state: TerminalViewState | None = None,
 ) -> bool:
-    """Release control before minting a view lease for a known attachment.
-
-    Preserve the native emulator and applied cursor across the lease change.
-    Any stale/failed response releases its lease; uncertain input is never sent.
+    """Release control before minting a view lease for a known attachment. Preserve the native
+    emulator and applied cursor across the lease change.
     """
     attachment = attachment or session.attachment
     if attachment is None or session.disposed or session.paused or session.phase == "exited":
@@ -47,6 +45,9 @@ async def watch_only(
         )
 
     if not current():
+        return False
+    known = getattr(session, "terminal_id", "")
+    if known and attachment.terminal_id != known:
         return False
     if session.lease is not None and session.lease.mode == "view" and session.phase == "live":
         return True

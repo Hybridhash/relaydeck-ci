@@ -55,7 +55,7 @@ if [ "${RD_BUILD_DRY_RUN:-0}" = 1 ]; then
   exit 0
 fi
 
-rsync -a --delete --exclude build --exclude .dart_tool --exclude __pycache__ \
+rsync -a --delete --exclude build --exclude .dart_tool --exclude __pycache__ --exclude .venv \
   "$ROOT/extensions/terminal/" "$WORK/terminal/"
 (cd "$WORK/terminal/examples/viewer" && ${FLET_ENV[@]+"${FLET_ENV[@]}"} "$ROOT/.venv/bin/flet" build web -o "$OUT" --yes \
   --no-cdn \
@@ -118,12 +118,19 @@ for name, density in (("1x", 1), ("2x", 2), ("3x", 3), ("4x", 4)):
             print(f"splash fallback rendered: {target.relative_to(out)}")
 
 # -- manifest + index -----------------------------------------------------
+# Page language, zoomable viewport, description and PWA identity. The
+# service-worker step's --verify asserts every value set here, so a Flet
+# template change that drops one fails the build.
+DESCRIPTION = "Your Herdr agents and terminals, from your phone."
 manifest = out / "manifest.json"
 doc = json.loads(manifest.read_text())
 doc.update(
     name="RelayDeck",
     short_name="RelayDeck",
-    description="Your Herdr agents and terminals, from your phone.",
+    description=DESCRIPTION,
+    id="/",
+    scope="/",
+    lang="en",
     display="standalone",
     background_color="#130F26",
     theme_color="#130F26",
@@ -132,6 +139,22 @@ doc.update(
 manifest.write_text(json.dumps(doc, indent=4) + "\n")
 index = out / "index.html"
 html = index.read_text()
+html, count = re.subn(r"<html(?:\s[^>]*)?>", '<html lang="en">', html, count=1)
+assert count == 1, "html tag not found"
+html, count = re.subn(
+    r'(name="viewport" content=")[^"]*',
+    r"\1width=device-width, initial-scale=1.0, viewport-fit=cover",
+    html,
+    count=1,
+)
+assert count == 1, "viewport meta not found"
+html, count = re.subn(r'(name="description" content=")[^"]*', r"\1" + DESCRIPTION, html, count=1)
+assert count == 1, "description meta not found"
+for meta_name, meta_value in (("theme-color", "#130F26"), ("color-scheme", "light dark")):
+    if f'name="{meta_name}"' not in html:
+        html = html.replace(
+            "</head>", f'  <meta name="{meta_name}" content="{meta_value}">\n</head>', 1
+        )
 html = re.sub(r'(name="apple-mobile-web-app-title" content=")[^"]*', r"\1RelayDeck", html)
 html = re.sub(r'(name="apple-mobile-web-app-status-bar-style" content=")[^"]*', r"\1black", html)
 if 'name="apple-mobile-web-app-capable"' not in html:
@@ -168,16 +191,34 @@ EOF
 RD_FONT_CACHE="${RD_FONT_CACHE:-$HOME/Library/Caches/RelayDeck/web-fonts}"
 "$ROOT/.venv/bin/python" "$ROOT/scripts/web_fonts.py" "$OUT" "$RD_FONT_CACHE" "${RD_WEB_CJK_FONTS:-1}"
 
+# Unused payload: the hosted page is served with pyodide disabled (Python
+# runs on the Mac, the browser is the thin client), so the in-browser Python
+# runtime, its worker and the example app archive are never fetched. Nothing
+# in the served tree, the worker shell list or the host references them.
+rm -rf "$OUT/pyodide" "$OUT/assets/app"
+rm -f "$OUT/python-worker.js"
+
 # the pinned-shell service worker. Runs after every other post-process
 # step so its BUILD digest covers the final shell files. It replaces Flet's stub at the same URL,
 # removes Flutter's own worker registration, and writes the kill switch (see
 # scripts/web_service_worker.py).
+"$ROOT/.venv/bin/python" "$ROOT/scripts/build_manifest.py" --prepare-hosted-index "$OUT"
 "$ROOT/.venv/bin/python" "$ROOT/scripts/web_service_worker.py" "$OUT" >/dev/null
 "$ROOT/.venv/bin/python" "$ROOT/scripts/web_service_worker.py" "$OUT" --verify >/dev/null
+"$ROOT/.venv/bin/python" "$ROOT/scripts/build_manifest.py" --write-web-csp "$OUT"
 
 # Reproducibility record (outside the repo): commit, patch hashes, SDK, locks,
-# fonts, output hashes.
+# fonts, output hashes (including per-file shell sizes for the budget below).
 "$ROOT/.venv/bin/python" "$ROOT/scripts/build_manifest.py" --web-out "$OUT" \
   ${SDK_DIR:+--flutter-sdk "$SDK_DIR"} --out "${OUT%/}.build-manifest.json"
+
+# Size budget against a previous build, when one is named: the shell set
+# (SHELL_FIXED plus CanvasKit) may not grow past the limit in
+# scripts/build_manifest.py (SHELL_BUDGET_MAX_GROWTH_PCT). Without a previous
+# manifest this build's record is the baseline the next one compares with.
+if [ -n "${RD_PREVIOUS_BUILD_MANIFEST:-}" ]; then
+  "$ROOT/.venv/bin/python" "$ROOT/scripts/build_manifest.py" \
+    --check-shell-budget "$RD_PREVIOUS_BUILD_MANIFEST" --web-out "$OUT"
+fi
 
 echo "web client ready: $OUT (manifest: ${OUT%/}.build-manifest.json)"

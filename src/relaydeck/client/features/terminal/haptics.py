@@ -1,8 +1,5 @@
-"""Optional haptics that never interrupt Send or Copy.
-
-One service per page uses native feedback or the browser Vibration API where
-available. Send taps on accepted intent; Copy taps after the write. Missing
-platform support and service failures leave the action result unchanged.
+"""Optional haptics that never interrupt Send or Copy. One service per page uses native feedback
+or the browser Vibration API where available.
 """
 
 from __future__ import annotations
@@ -14,6 +11,8 @@ from typing import Any, Protocol
 
 import flet as ft
 from flet.controls.context import context
+
+from relaydeck.client.platform.diagnostics.client import failure_category
 
 LOG = logging.getLogger("relaydeck.client.haptics")
 _SERVICE_ATTR = "_relaydeck_haptic_feedback"
@@ -35,8 +34,8 @@ def page_haptic_service() -> ft.HapticFeedback | None:
     if service is None:
         try:
             service = ft.HapticFeedback()
-        except Exception:  # noqa: BLE001 - no service support: no haptics
-            LOG.debug("haptic service unavailable", exc_info=True)
+        except Exception as exc:  # noqa: BLE001 - no service support: no haptics
+            LOG.debug("haptic service unavailable: category=%s", failure_category(exc))
             return None
         setattr(page, _SERVICE_ATTR, service)
     return service
@@ -58,19 +57,15 @@ def tap(service: LightImpact | None, enabled: bool) -> None:
 async def _light(service: LightImpact) -> None:
     try:
         await service.light_impact()
-    except Exception:  # noqa: BLE001 - unsupported platform or refused: silent
-        LOG.debug("haptic tap failed", exc_info=True)
+    except Exception as exc:  # noqa: BLE001 - unsupported platform or refused: silent
+        LOG.debug("haptic tap failed: category=%s", failure_category(exc))
 
 
 def on_send(
     send: Callable[[], Awaitable[Any]], enabled: bool, ready: Callable[[], bool]
 ) -> Callable[[], Awaitable[Any]]:
-    """Tap at the tap, before the send starts, when `ready()` says the send will go.
-
-    Delivery can take tens of seconds over a relay, so the tap cannot wait for the result.
-    `ready` is read at call time (the composer's live `can_send`, not sending, no review);
-    an ignored, disabled or empty send is not ready and stays silent. Call during render:
-    the page's service is resolved here, once per wrapper.
+    """Tap at the tap, before the send starts, when `ready()` says the send will go. Delivery
+    can take tens of seconds over a relay, so the tap cannot wait for the result.
     """
     service = page_haptic_service()
 

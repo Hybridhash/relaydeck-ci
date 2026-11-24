@@ -13,16 +13,16 @@ import flet as ft
 import httpx
 import pytest
 
+from relaydeck.client.app.native.runtime import PackagedRuntime
+from relaydeck.client.app.state.sync import SyncController
 from relaydeck.client.features.auth.service import ACCESS_KEY, REFRESH_KEY
-from relaydeck.client.features.sync.controller import SyncController
-from relaydeck.client.features.sync.sse import SseFrame, SseParser
-from relaydeck.client.features.sync.transport import TransportError
-from relaydeck.client.packaged_runtime import PackagedRuntime
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.backend import BackendError
-from relaydeck.gateway.metadata_follower import MAX_PENDING_METADATA
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal
+from relaydeck.client.platform.transport.sse import SseParser
+from relaydeck.client.ports.transport import SseFrame, TransportError
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.features.metadata.metadata_follower import MAX_PENDING_METADATA
+from relaydeck.gateway.ports import BackendError
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.security.helpers import ALL_CAPS, NOW, make_state
 from tests.support.fakes import FakeClipboard, FakeCredentialStore
 from tests.support.host_harness import render_component, run
@@ -74,9 +74,9 @@ def test_repeated_auth_denial_refreshes_once_and_cannot_loop() -> None:
 def test_quiet_access_expiry_interrupts_stream_and_cleans_up() -> None:
     async def scenario() -> None:
         state, _ = make_state()
-        loop = asyncio.get_running_loop()
-        started = loop.time()
-        state.now_ms = lambda: NOW + int((loop.time() - started) * 1000)
+        # The clock stays at the token's start, so the stream always opens on a live token however
+        # slowly the request arrives; the stream's own timer then runs out the 40 ms quietly.
+        state.now_ms = lambda: NOW
         token, _ = state.sessions.create("acct-1", ALL_CAPS, {"home-mac"}, NOW, "native")
         state.sessions._by_access[token] = replace(
             state.sessions._by_access[token], access_expires_ms=NOW + 40

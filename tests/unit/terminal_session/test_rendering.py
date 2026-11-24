@@ -1,4 +1,4 @@
-"""Q5b: RendererBinding alone, driven through recording hooks (no session)."""
+"""RendererBinding alone, driven through recording hooks (no session)."""
 
 from __future__ import annotations
 

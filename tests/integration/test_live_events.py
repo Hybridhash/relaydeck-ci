@@ -10,16 +10,16 @@ import logging
 from pathlib import Path
 from typing import Any, cast
 
-from relaydeck.client.features.inventory.components.models import terminal_rows
-from relaydeck.client.features.inventory.selectors import space_rows
-from relaydeck.client.features.sync.controller import event_from_wire
+from relaydeck.client.app.shell.models import terminal_rows
+from relaydeck.client.app.state.sync import event_from_wire
+from relaydeck.client.models.inventory_selectors import space_rows
 from relaydeck.connector import source as source_module
 from relaydeck.connector.herdr import HerdrAdapter, parse_event
 from relaydeck.connector.source import _EVENT_MAP, HerdrSource
 from relaydeck.contracts.schemas import validate_metadata_event
 from relaydeck.domain import reducers
 from relaydeck.domain.models import AppState, Snapshot, Workspace, scope_key
-from relaydeck.gateway.backend import prepare_event
+from relaydeck.gateway.features.metadata.events import prepare_event
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "upstream"
 SECRET = b"s" * 32

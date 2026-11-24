@@ -1,12 +1,7 @@
 import 'dart:async';
 
-/// Bounded paced queue for alternate-buffer wheel reports.
-///
-/// A flick in an agent TUI crosses dozens of lines; sending one INPUT packet
-/// per line would serialize dozens of round trips and redraws. This queue
-/// holds at most [maxPending] rows and releases [rowsPerFlush] per tick, so a
-/// fling degrades to a bounded trailing motion instead of a catch-up burst.
-/// Pure `dart:async` (no Flutter imports).
+/// Pace alternate-buffer wheel reports through a bounded row queue. Limit each flush so a fling
+/// cannot build an unbounded burst behind fresh input.
 class WheelQueue {
   WheelQueue({required void Function(String report) send}) : _send = send;
 
@@ -48,10 +43,8 @@ class WheelQueue {
       }
     }
     if (_tick == null) {
-      // Idle: answer at once, then pace the rest so motion starts instantly.
-      // The tick arms even at zero: a fling's reports arrive as separate
-      // enqueues, and the armed tick is what keeps them pacing instead of
-      // each seeing an idle queue. It cancels itself on the first flush.
+      // Respond immediately while idle, then arm pacing even when the pending count reaches
+      // zero. The first empty flush cancels the tick.
       flush();
       _tick = Timer.periodic(flushInterval, (_) => flush());
     }

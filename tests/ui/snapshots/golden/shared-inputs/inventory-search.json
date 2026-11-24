@@ -1,0 +1,52 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "key": "inventory-query",
+     "props": {
+      "border": {
+       "ControlState.DEFAULT": {
+        "@": "OutlineInputBorder",
+        "border_radius": 8,
+        "side": {
+         "@": "BorderSide",
+         "color": "#8E86B8"
+        }
+       },
+       "ControlState.FOCUSED": {
+        "@": "OutlineInputBorder",
+        "border_radius": 8,
+        "side": {
+         "@": "BorderSide",
+         "color": "#A98BFF",
+         "width": 2
+        }
+       }
+      },
+      "color": "#F5F2FF",
+      "content_padding": 12,
+      "cursor_color": "#A98BFF",
+      "fill_color": "#2B2356",
+      "filled": true,
+      "hint_style": {
+       "@": "TextStyle",
+       "color": "#B7AFDA"
+      },
+      "label": "Search sessions",
+      "label_style": {
+       "@": "TextStyle",
+       "color": "#B7AFDA"
+      },
+      "text_size": 16,
+      "value": "Example"
+     },
+     "slot": "body",
+     "type": "TextField"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:SearchField"
+  }
+ ]
+}

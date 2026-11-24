@@ -1,1 +1,1 @@
-"""Reviewed offline hook resources bundled with the companion wheel."""
+"""Offline numeric-allowance hook resources bundled with the companion wheel."""

@@ -1,11 +1,5 @@
-"""Generic JSON-RPC stdio rate-limits provider.
-
-Spawns the configured argv, runs the `initialize` handshake plus the
-`initialized` notification, then calls `account/rateLimits/read` exactly once
-and turns `rateLimitsByLimitId` (falling back to `rateLimits`) into one
-snapshot per limit id. The child is always killed and reaped. `account_ref`
-is a keyed digest of `accountId`, never the raw value; without a key there is
-no digest and therefore no last-good reuse.
+"""Fetch numeric allowance windows through one bounded JSON-RPC stdio session, then kill and
+reap the child. Expose only keyed account identity and validated limit data.
 """
 
 from __future__ import annotations

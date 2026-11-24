@@ -10,14 +10,17 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, cast
 
-from relaydeck.client.features.sync.controller import event_from_wire
-from relaydeck.client.hooks.views import agent_space_tabs
+from relaydeck.client.app.hooks.views import agent_space_tabs
+from relaydeck.client.app.state.sync import event_from_wire
 from relaydeck.connector.herdr import HerdrAdapter, parse_event
 from relaydeck.connector.source import HerdrSource
 from relaydeck.contracts.schemas import validate_metadata_event
 from relaydeck.domain import reducers
 from relaydeck.domain.models import Agent, AgentStatus, AppState, Snapshot, Workspace, scope_key
-from relaydeck.gateway.backend import prepare_event
+from relaydeck.gateway.features.metadata.events import prepare_event
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "upstream"
 SECRET = b"s" * 32

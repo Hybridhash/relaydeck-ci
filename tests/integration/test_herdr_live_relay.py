@@ -31,10 +31,9 @@ import pytest
 import websockets.asyncio.client as ws_client
 
 from relaydeck.connector.attach import AttachmentPool, AttachSession
-from relaydeck.connector.cli import LIVE_HERDR_ENV
+from relaydeck.connector.bootstrap import LIVE_HERDR_ENV
 from relaydeck.connector.cli import main as connector_main
 from relaydeck.connector.enrollment import ConnectorCreds, save_creds
-from relaydeck.connector.fixture import FixtureAdapter
 from relaydeck.connector.herdr import HerdrAdapter
 from relaydeck.connector.journal import DispatchAdapter
 from relaydeck.connector.link import ConnectorLink, LinkConfig, LinkError, TunnelTransport
@@ -45,9 +44,11 @@ from relaydeck.connector.source import (
     LiveSource,
 )
 from relaydeck.contracts.wire import terminal as terminal_wire
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal
+from relaydeck.devtools.fakes.connector import FixtureAdapter
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.support.live_server import LiveGateway
 
 UPSTREAM = Path(__file__).resolve().parent.parent / "fixtures" / "upstream"
@@ -218,10 +219,10 @@ class _ScriptedTransport:
         self.sent.append(text)
 
     async def recv_text(self) -> str:
-        if self.inbound:
-            return self.inbound.pop(0)
-        await asyncio.sleep(3600.0)
-        raise AssertionError("unreachable")
+        # The link awaits one receive without a timeout, so later appends must wake it.
+        while not self.inbound:
+            await asyncio.sleep(0.01)
+        return self.inbound.pop(0)
 
     async def close(self) -> None:
         self.closed = True
@@ -263,7 +264,7 @@ def _token(state: GatewayState) -> str:
 
 
 def _live_ticket(state: GatewayState, lease_id: str) -> str:
-    from relaydeck.gateway.identity import TicketGrant
+    from relaydeck.gateway.features.access.identity import TicketGrant
 
     session = state.sessions.lookup(_token(state), NOW)
     assert session is not None
@@ -532,7 +533,7 @@ def test_live_pty_bytes_reach_viewer(tmp_path: Path) -> None:
 def test_dead_attach_reaped_and_respawned_on_next_epochs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """F1: a dead attach session is reaped loudly (epoch kept) and the
+    """A dead attach session is reaped loudly (epoch kept) and the
     next gateway epochs respawn it; output resumes on the same epoch
     and terminal input is never replayed during recovery."""
     writes: list[bytes] = []
@@ -692,7 +693,7 @@ def test_dead_attach_reaped_and_respawned_on_next_epochs(
 
 
 def test_drain_dead_relays_buffered_bytes(tmp_path: Path) -> None:
-    """F1: the dead-session drain relays exact buffered bytes under the
+    """The dead-session drain relays exact buffered bytes under the
     gateway-provided epoch (readability-gated, no sleeps-as-sync)."""
     source = HerdrSource(
         HerdrAdapter(socket_path=str(tmp_path / "unused.sock")),
@@ -717,7 +718,7 @@ def test_drain_dead_relays_buffered_bytes(tmp_path: Path) -> None:
 
 
 def test_note_epochs_replaces_dead_unmapped_session(tmp_path: Path) -> None:
-    """F1: a session that died while epoch-unmapped is reaped and
+    """A session that died while epoch-unmapped is reaped and
     replaced by a fresh attach on the next epochs (epoch kept)."""
     source = HerdrSource(
         HerdrAdapter(socket_path=str(tmp_path / "unused.sock")),
@@ -829,7 +830,7 @@ def test_pane_subscriptions_post_snapshot_and_resub(tmp_path: Path) -> None:
 
 
 def test_pane_resubscribe_backoff_no_churn(tmp_path: Path) -> None:
-    """F2: per-pane re-subscribe honors the bounded, jittered backoff
+    """Per-pane re-subscribe honors the bounded, jittered backoff
     even with no subscription held (a sick daemon sees no hot spin),
     then exactly one retry past the bound restores coverage."""
 

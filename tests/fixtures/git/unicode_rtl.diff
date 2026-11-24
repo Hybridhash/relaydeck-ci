@@ -1,0 +1,10 @@
+diff --git a/sample/file_one.txt b/sample/file_one.txt
+index 1111111..2222222 100644
+--- a/sample/file_one.txt
++++ b/sample/file_one.txt
+@@ -1,3 +1,4 @@
+ # שלום עולם (RTL) مرحبا
+-title = "naïve 😀 שלום"
++title = "naïve 😀 עולם"
+ é café العربية
++note = "a‮b c"

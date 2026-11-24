@@ -1,13 +1,5 @@
-"""Comment-preserving edits to `[[usage.sources]]` blocks in companion.toml.
-
-Only three things happen here: a block is appended at the end of the file, a block this module wrote
-is
-removed, and the result is checked by parsing it again with `tomllib`. Nothing else in the file is
-rewritten, so comments, spacing and every other table stay exactly as the owner left them.
-
-Each appended block is preceded by a marker line that carries a digest of the block body. Undo
-removes a
-block only while its body still matches that digest, so an entry the owner edited is kept.
+"""Append or undo managed usage blocks without rewriting unrelated TOML text. Undo removes a
+block only while its body still matches the recorded digest.
 """
 
 from __future__ import annotations
@@ -16,11 +8,14 @@ import errno
 import fcntl
 import hashlib
 import os
+import re
 import secrets
 import stat
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
+
+from relaydeck.host.files.descriptors import ancestor_ok
 
 MARKER = "# relaydeck-setup: managed-source sha256="
 LIMITS_MARKER = "# relaydeck-setup: managed-limits sha256="
@@ -49,6 +44,49 @@ class ManagedBlock:
     unchanged: bool
     start: int  # line index of the marker
     end: int  # exclusive: one past the last body line (and the blank line after it, when present)
+
+
+def set_top_level(text: str, key: str, rendered: str) -> str:
+    """Replace exactly one top-level key line while preserving all other text. Raise ValueError
+    if no line or more than one line matches.
+    """
+    lines = text.split("\n")
+    hits: list[int] = []
+    for index, line in enumerate(lines):
+        if line.lstrip().startswith("["):
+            break
+        if re.match(rf"^{re.escape(key)}\s*=", line):
+            hits.append(index)
+    if len(hits) != 1:
+        raise ValueError(f"{key}: expected one top-level line")
+    lines[hits[0]] = f"{key} = {rendered}"
+    return "\n".join(lines)
+
+
+def set_updates_check(text: str, value: bool) -> str:
+    """Adds `check = value` to the `[updates]` table, or a new table at the end. Raises ValueError
+    when the table already sets `check`: an explicit choice is never changed."""
+    rendered = "true" if value else "false"
+    lines = text.split("\n")
+    for index, line in enumerate(lines):
+        if line.strip() == "[updates]":
+            for later in lines[index + 1 :]:
+                if later.lstrip().startswith("["):
+                    break
+                if re.match(r"^\s*check\s*=", later):
+                    raise ValueError("updates.check is already set")
+            lines.insert(index + 1, f"check = {rendered}")
+            return "\n".join(lines)
+    gap = "" if text.endswith("\n") or not text else "\n"
+    return f"{text}{gap}\n[updates]\ncheck = {rendered}\n"
+
+
+def render_string(value: str) -> str:
+    return _quote(value)
+
+
+def render_string_list(values: list[str]) -> str:
+    return "[" + ", ".join(_quote(value) for value in values) + "]"
 
 
 def digest(body: list[str]) -> str:
@@ -228,25 +266,24 @@ def _live_image(dir_fd: int, name: str) -> tuple[str, tuple[int, int, int, int]]
 
 
 def pinned_dir_fd(path: Path, *, create_missing: bool = False) -> int:
-    """An fd for `path` after pinning every component from the root.
-
-    Each level is opened relative to its pinned parent with O_NOFOLLOW, so a
-    component swapped for a link mid-walk fails instead of redirecting us.
-    Missing levels are created owner-only only when asked; the final
-    directory must be owned by us and writable only by us. Anything else is
-    refused, never repaired: an existing directory keeps the mode its owner
-    chose.
+    """Open each directory component through pinned, no-follow descriptors. Every ancestor must be
+    owned by root or us and not writable by others (a root-owned sticky temp folder is allowed
+    above a folder of ours); the leaf must be ours and not writable by others. Create missing
+    directories privately only when requested, and only under an ancestor that passes.
     """
     if not path.is_absolute():
         raise ValueError(f"{path}: refusing a relative directory")
     fd = os.open("/", os.O_RDONLY | os.O_DIRECTORY)
     try:
+        above = os.fstat(fd)
         for part in path.parts[1:]:
             try:
                 child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
             except FileNotFoundError:
                 if not create_missing:
                     raise ValueError(f"{path}: missing directory") from None
+                if not ancestor_ok(above, os.getuid()):
+                    raise ValueError(f"{path}: refusing a directory others can write") from None
                 try:
                     os.mkdir(part, 0o700, dir_fd=fd)
                 except FileExistsError:
@@ -262,8 +299,11 @@ def pinned_dir_fd(path: Path, *, create_missing: bool = False) -> int:
                 raise
             os.close(fd)
             fd = child
-        info = os.fstat(fd)
-        if info.st_uid != os.getuid() or info.st_mode & 0o022:
+            info = os.fstat(fd)
+            if not ancestor_ok(above, info.st_uid):
+                raise ValueError(f"{path}: refusing a directory others can write")
+            above = info
+        if above.st_uid != os.getuid() or above.st_mode & 0o022:
             raise ValueError(f"{path}: refusing a directory others can write")
         return fd
     except BaseException:
@@ -272,21 +312,9 @@ def pinned_dir_fd(path: Path, *, create_missing: bool = False) -> int:
 
 
 def replace_if_match(path: Path, expected_text: str, new_text: str, *, backup_name: str) -> None:
-    """Locked, pinned compare-and-swap of the whole file.
-
-    Holds an exclusive lock on a stable sibling lockfile (never on the config
-    itself: the replace swaps inodes, which would release an inode lock), then
-    compares the live bytes against `expected_text` twice: once before staging
-    the backup and replacement, and again immediately before the rename, so an
-    editor that saves mid-staging keeps its change instead of losing it.
-    Raises ConcurrentEdit on any mismatch, ConfigLocked when another
-    cooperating writer holds the lock, CommitUncertain when the rename
-    committed but the parent sync failed, and OSError when the commit itself
-    fails.
-
-    The lock only serializes cooperating writers; it cannot make the
-    compare-and-swap atomic against editors that ignore it, so other settings
-    writers must still be stopped while setup runs.
+    """Replace the config under a sibling-file lock after comparing expected bytes before
+    staging and again before rename. Other settings writers must still stop because
+    noncooperating editors can race the checks.
     """
     parent = path.parent
     dir_fd = pinned_dir_fd(parent)
@@ -331,9 +359,8 @@ def replace_if_match(path: Path, expected_text: str, new_text: str, *, backup_na
                 stream.write(new_text)
                 stream.flush()
                 os.fsync(stream.fileno())
-            # Staging takes time, so the live file is revalidated right before
-            # the rename: an editor that saved since the first check must keep
-            # its change instead of having it renamed over.
+            # Recheck bytes and inode after staging; a noncooperating writer can still race the
+            # rename.
             again, again_identity = _live_image(dir_fd, path.name)
             if again_identity != identity or sha256_of(again) != expected_digest:
                 raise ConcurrentEdit(f"{path.name}: changed while writing")

@@ -53,6 +53,14 @@ CANVASKIT_FILES = (
 )
 PAGE = "index.html"
 
+# The web shell conventions the index/manifest block of build_web_client.sh
+# writes and --verify enforces: page language, a zoomable viewport, the page
+# description, theme metas, and the manifest identity members.
+DESCRIPTION = "Your Herdr agents and terminals, from your phone."
+VIEWPORT = "width=device-width, initial-scale=1.0, viewport-fit=cover"
+THEME_COLOR = "#130F26"
+COLOR_SCHEME = "light dark"
+
 SNIPPET_ID = "rd-sw-register"
 CLIENT_SCRIPT = HERE / "web" / "rd-sw-client.js"
 KEYBOARD_ID = "rd-keyboard-focus"
@@ -187,6 +195,40 @@ def apply(
     return build
 
 
+def _meta_content(page: str, name: str) -> str | None:
+    match = re.search(rf'<meta name="{re.escape(name)}" content="([^"]*)"', page)
+    return match.group(1) if match else None
+
+
+def check_web_shell(out: Path) -> None:
+    """The served page and manifest keep the shell conventions (language, zoom, identity)."""
+    page = (out / PAGE).read_text()
+    try:
+        manifest: dict[str, object] = json.loads((out / "manifest.json").read_text())
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"manifest.json cannot be read: {exc}") from exc
+    if not re.search(r'<html lang="en">', page):
+        raise ValueError('index.html must declare <html lang="en">')
+    viewport = _meta_content(page, "viewport")
+    if viewport != VIEWPORT:
+        raise ValueError(f"viewport meta must be {VIEWPORT!r} (found {viewport!r})")
+    if "maximum-scale" in page or "user-scalable=no" in page:
+        raise ValueError("the viewport must not block zoom (maximum-scale / user-scalable=no)")
+    if manifest.get("description") != DESCRIPTION:
+        raise ValueError("manifest description does not match the expected text")
+    if _meta_content(page, "description") != manifest.get("description"):
+        raise ValueError("page description meta must equal the manifest description")
+    if _meta_content(page, "theme-color") != THEME_COLOR:
+        raise ValueError("theme-color meta missing or wrong")
+    if manifest.get("theme_color") != THEME_COLOR:
+        raise ValueError("manifest theme_color does not match the theme-color meta")
+    if _meta_content(page, "color-scheme") != COLOR_SCHEME:
+        raise ValueError("color-scheme meta missing or wrong")
+    for member, expected in (("id", "/"), ("scope", "/"), ("lang", "en")):
+        if manifest.get(member) != expected:
+            raise ValueError(f"manifest {member} must be {expected!r}")
+
+
 def verify(out: Path) -> str:
     """Recompute the digest from the output and check it is the one embedded everywhere."""
     build = digest(out, digest_names(out))
@@ -196,6 +238,7 @@ def verify(out: Path) -> str:
     worker = (out / "flutter_service_worker.js").read_text()
     if f"const BUILD = '{build}';" not in worker:
         raise ValueError("worker BUILD does not match the digest")
+    check_web_shell(out)
     return build
 
 

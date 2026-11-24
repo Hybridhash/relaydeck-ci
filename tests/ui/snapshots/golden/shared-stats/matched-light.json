@@ -1,0 +1,365 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "props": {
+                  "color": "#55507A",
+                  "font_family": "Bricolage Grotesque Bold",
+                  "size": 12,
+                  "text_align": null,
+                  "value": "TOKENS USED",
+                  "weight": {
+                   "enum": "FontWeight",
+                   "value": "w700"
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "key": "kpi-tokens",
+                 "props": {
+                  "color": "#17122B",
+                  "font_family": "JetBrains Mono Bold",
+                  "size": 40,
+                  "text_align": null,
+                  "value": "12.3K",
+                  "weight": {
+                   "enum": "FontWeight",
+                   "value": "w700"
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "props": {
+                  "color": "#55507A",
+                  "font_family": "Bricolage Grotesque Medium",
+                  "max_lines": 2,
+                  "overflow": {
+                   "enum": "TextOverflow",
+                   "value": "ellipsis"
+                  },
+                  "size": 12,
+                  "text_align": null,
+                  "value": "Example context",
+                  "weight": {
+                   "enum": "FontWeight",
+                   "value": "w500"
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "key": "summary-credits",
+                 "props": {
+                  "color": "#55507A",
+                  "font_family": "Bricolage Grotesque SemiBold",
+                  "max_lines": 2,
+                  "overflow": {
+                   "enum": "TextOverflow",
+                   "value": "ellipsis"
+                  },
+                  "size": 13,
+                  "text_align": null,
+                  "value": "Example separate credits",
+                  "weight": {
+                   "enum": "FontWeight",
+                   "value": "w500"
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                }
+               ],
+               "props": {
+                "tight": true
+               },
+               "slot": "content",
+               "type": "Column"
+              }
+             ],
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "props": {
+              "height": 0
+             },
+             "slot": "controls",
+             "type": "Container"
+            }
+           ],
+           "props": {
+            "spacing": 0,
+            "tight": true
+           },
+           "slot": "content",
+           "type": "Column"
+          }
+         ],
+         "key": "usage-kpi-tokens",
+         "props": {
+          "bgcolor": "#FFFFFF",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           }
+          },
+          "border_radius": 20,
+          "expand": 2,
+          "padding": {
+           "@": "Padding",
+           "bottom": 22,
+           "left": 22,
+           "right": 22,
+           "top": 22
+          }
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "props": {
+          "expand": 1
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "props": {
+                  "color": "#55507A",
+                  "font_family": "Bricolage Grotesque Bold",
+                  "size": 12,
+                  "text_align": null,
+                  "value": "EST. COST (PRICED)",
+                  "weight": {
+                   "enum": "FontWeight",
+                   "value": "w700"
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "children": [
+                  {
+                   "key": "kpi-cost",
+                   "props": {
+                    "color": "#17122B",
+                    "font_family": "JetBrains Mono Bold",
+                    "size": 26,
+                    "text_align": null,
+                    "value": "$1.00",
+                    "weight": {
+                     "enum": "FontWeight",
+                     "value": "w700"
+                    }
+                   },
+                   "slot": "controls",
+                   "type": "Text"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "color": "#7A4A00",
+                      "font_family": "Bricolage Grotesque Bold",
+                      "max_lines": 1,
+                      "overflow": {
+                       "enum": "TextOverflow",
+                       "value": "ellipsis"
+                      },
+                      "size": 12,
+                      "text_align": null,
+                      "value": "Partial",
+                      "weight": {
+                       "enum": "FontWeight",
+                       "value": "w700"
+                      }
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "props": {
+                    "alignment": {
+                     "@": "Alignment",
+                     "x": 0.0,
+                     "y": 0.0
+                    },
+                    "bgcolor": "#FFF0D2",
+                    "border_radius": 999,
+                    "height": 24,
+                    "padding": {
+                     "@": "Padding",
+                     "left": 10,
+                     "right": 10
+                    }
+                   },
+                   "slot": "controls",
+                   "type": "Container"
+                  }
+                 ],
+                 "props": {
+                  "spacing": 8
+                 },
+                 "slot": "controls",
+                 "type": "Row"
+                },
+                {
+                 "key": "kpi-partial-note",
+                 "props": {
+                  "color": "#55507A",
+                  "font_family": "Bricolage Grotesque Medium",
+                  "size": 13,
+                  "text_align": null,
+                  "value": "Example pricing note",
+                  "weight": {
+                   "enum": "FontWeight",
+                   "value": "w500"
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                },
+                {
+                 "props": {
+                  "color": "#55507A",
+                  "font_family": "Bricolage Grotesque Medium",
+                  "max_lines": 2,
+                  "overflow": {
+                   "enum": "TextOverflow",
+                   "value": "ellipsis"
+                  },
+                  "size": 12,
+                  "text_align": null,
+                  "value": "Estimate",
+                  "weight": {
+                   "enum": "FontWeight",
+                   "value": "w500"
+                  }
+                 },
+                 "slot": "controls",
+                 "type": "Text"
+                }
+               ],
+               "props": {
+                "tight": true
+               },
+               "slot": "content",
+               "type": "Column"
+              }
+             ],
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "props": {
+              "height": 0
+             },
+             "slot": "controls",
+             "type": "Container"
+            }
+           ],
+           "props": {
+            "spacing": 0,
+            "tight": true
+           },
+           "slot": "content",
+           "type": "Column"
+          }
+         ],
+         "key": "usage-kpi-cost",
+         "props": {
+          "bgcolor": "#FFFFFF",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#DAD4EA"
+           }
+          },
+          "border_radius": 20,
+          "expand": 2,
+          "padding": {
+           "@": "Padding",
+           "bottom": 22,
+           "left": 22,
+           "right": 22,
+           "top": 22
+          }
+         },
+         "slot": "controls",
+         "type": "Container"
+        }
+       ],
+       "props": {
+        "spacing": 16,
+        "vertical_alignment": {
+         "enum": "CrossAxisAlignment",
+         "value": "start"
+        }
+       },
+       "slot": "body",
+       "type": "Row"
+      }
+     ],
+     "slot": "controls",
+     "type": "Component:MatchedRow"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

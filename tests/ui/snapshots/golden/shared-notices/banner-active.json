@@ -1,0 +1,59 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "key": "banner-text",
+           "props": {
+            "value": "Example connection status"
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "label": "Example connection status",
+          "live_region": true
+         },
+         "slot": "body",
+         "type": "Semantics"
+        }
+       ],
+       "key": "banner-live",
+       "slot": "content",
+       "type": "Component:LiveRegion"
+      },
+      {
+       "key": "banner-action",
+       "props": {
+        "content": "Retry",
+        "height": 48
+       },
+       "slot": "actions",
+       "type": "TextButton"
+      },
+      {
+       "props": {
+        "color": "#1A73E8",
+        "icon": 69374
+       },
+       "slot": "leading",
+       "type": "Icon"
+      }
+     ],
+     "key": "connection-banner",
+     "slot": "body",
+     "type": "Banner"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:ConnectionBanner"
+  }
+ ]
+}

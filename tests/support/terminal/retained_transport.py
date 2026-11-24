@@ -11,9 +11,10 @@ from typing import Any
 import flet as ft
 from relaydeck_terminal import protocol
 
-from relaydeck.client.features.terminal.screen import TerminalScreen
-from relaydeck.client.resources import AppResources
-from relaydeck.client.retained_sessions import RetainedSessions
+from relaydeck.client.app.resources import AppResources
+from relaydeck.client.app.sessions.retained import RetainedSessions
+from relaydeck.client.widgets.terminal.screen import TerminalScreen
+from relaydeck.client.widgets.terminal.screen import deliver_output as _deliver_output
 from tests.support.host_harness import render_component
 from tests.support.scripted_sessions import make_scripted_sessions
 from tests.support.terminal.resume import _hello, _MuxConn
@@ -85,7 +86,7 @@ async def mounted(kind: str) -> tuple[Any, ...]:
             if term is None:
                 session.unbind_view()
             else:
-                session.bind_view(term)
+                session.bind_view(term, write=_deliver_output)
 
         return TerminalScreen(
             session.term_state,

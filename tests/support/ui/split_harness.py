@@ -9,8 +9,8 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.features.terminal.input_modes import KEYBOARD_KEYS
-from relaydeck.client.features.terminal.surfaces import mount_agent_screen
+from relaydeck.client.models.input.modes import KEYBOARD_KEYS
+from relaydeck.client.screens.terminal.screen import mount_agent_screen
 from tests.support.host_harness import render_component
 from tests.support.terminal.sessions import _agent_session
 

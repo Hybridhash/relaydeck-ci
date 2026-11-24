@@ -1,0 +1,154 @@
+{
+  "clock": 1700000000000,
+  "directory_mode": 448,
+  "keys": {
+    "storage.lookup.v1": "20fce39eb4cd6f5b5f41ac9c0177eb9c5dc00310db59b189ddf408ccc5d08480",
+    "storage.6fd9dcb73d45672a66615a18ae4eb6ba.authority.133a20495eaf38e54e243bce5ba112b5": "da593ebff9d7a40258b5c407846f6d338ea291d8821af8e07d83593200b348b3",
+    "storage.6fd9dcb73d45672a66615a18ae4eb6ba.drafts.e5258b6a77d5107b7d308b0d0486eae5": "c954850f4eb26735e071aac63363f43a7d5023cb384c4f99a7fb1ff56e8a684a",
+    "storage.6fd9dcb73d45672a66615a18ae4eb6ba.web.840939890042f55ab3b5666030c7bd32": "31c4ea7f8456892029413d89ff92933cb530744a0040d309504321cdccc03cc3"
+  },
+  "records": [
+    {
+      "table": "gateway_verifiers",
+      "key": "synthetic-gateway_verifiers",
+      "scope": [
+        "origin",
+        "account",
+        "device"
+      ],
+      "body": "73796e7468657469632d75706461746564",
+      "revision": 2,
+      "updated_ms": 1700000000000,
+      "expires_ms": 1700000100000,
+      "schema_version": 1
+    },
+    {
+      "table": "gateway_grants",
+      "key": "synthetic-gateway_grants",
+      "scope": [
+        "origin",
+        "account",
+        "device"
+      ],
+      "body": "73796e7468657469632d75706461746564",
+      "revision": 2,
+      "updated_ms": 1700000000000,
+      "expires_ms": 1700000100000,
+      "schema_version": 1
+    },
+    {
+      "table": "web_sessions",
+      "key": "synthetic-web_sessions",
+      "scope": [
+        "origin",
+        "account",
+        "device"
+      ],
+      "body": "73796e7468657469632d75706461746564",
+      "revision": 2,
+      "updated_ms": 1700000000000,
+      "expires_ms": 1700000100000,
+      "schema_version": 1
+    },
+    {
+      "table": "revocations",
+      "key": "synthetic-revocations",
+      "scope": [
+        "origin",
+        "account",
+        "device"
+      ],
+      "body": "73796e7468657469632d75706461746564",
+      "revision": 2,
+      "updated_ms": 1700000000000,
+      "expires_ms": 1700000100000,
+      "schema_version": 1
+    },
+    {
+      "table": "tab_aliases",
+      "key": "synthetic-tab_aliases",
+      "scope": [
+        "origin",
+        "account",
+        "device"
+      ],
+      "body": "73796e7468657469632d75706461746564",
+      "revision": 2,
+      "updated_ms": 1700000000000,
+      "expires_ms": 1700000100000,
+      "schema_version": 1
+    },
+    {
+      "table": "pending_fences",
+      "key": "synthetic-pending_fences",
+      "scope": [
+        "origin",
+        "account",
+        "device"
+      ],
+      "body": "73796e7468657469632d75706461746564",
+      "revision": 2,
+      "updated_ms": 1700000000000,
+      "expires_ms": 1700000100000,
+      "schema_version": 1
+    }
+  ],
+  "draft": {
+    "target": {
+      "host": "host",
+      "terminal": "terminal"
+    },
+    "snapshot": "kept",
+    "revision": 4294967298,
+    "updated_ms": 1700000000000,
+    "schema_version": 1
+  },
+  "command": {
+    "protocol": "relaydeck.gateway.v1",
+    "command_id": "synthetic-command",
+    "principal": "synthetic-principal",
+    "device_id": "",
+    "host_id": "synthetic-host",
+    "host_epoch": "",
+    "generation": 0,
+    "kind": "agent.prompt",
+    "target": {
+      "agent_id": "synthetic-agent"
+    },
+    "payload": {
+      "text": "synthetic"
+    },
+    "digest": "890819161b9817db62779618c1a59f26f0e229de4aa96bbb6ac5e6a349f917e4",
+    "status": "accepted",
+    "result_digest": "",
+    "result": {},
+    "progress": {},
+    "error_code": "",
+    "created_ms": 1700000000000,
+    "updated_ms": 1700000000000,
+    "expires_ms": 1700000100000,
+    "tombstone": false
+  },
+  "files": {
+    "persistence.reserve": {
+      "mode": 384,
+      "size": 8388608
+    },
+    "persistence.db.lock": {
+      "mode": 384,
+      "size": 0
+    },
+    "commands.db": {
+      "mode": 384,
+      "size": 36864
+    },
+    "private.json": {
+      "mode": 384,
+      "size": 20
+    },
+    "persistence.db": {
+      "mode": 384,
+      "size": 8511488
+    }
+  }
+}

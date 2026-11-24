@@ -1,10 +1,5 @@
-// RelayDeck terminal extension tests.
-//
-// Run from this package directory once the Flutter SDK is provisioned:
-//   flutter pub get && flutter test
-// Fixture files are shared with the Python suite (tests/fixtures/vt,
-// tests/fixtures/keys) and loaded by relative path; a missing fixture
-// fails loudly rather than silently testing nothing.
+// Exercise the terminal extension against shared VT and key fixtures. Missing fixtures fail
+// explicitly so the suite cannot pass without its inputs.
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -19,10 +14,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:xterm2/xterm.dart';
 
-import '../lib/src/ack.dart';
-import '../lib/src/relaydeck_terminal.dart';
-import '../lib/src/snapshot.dart';
-import '../lib/src/utf8_accumulator.dart';
+import 'package:relaydeck_terminal/src/ack.dart';
+import 'package:relaydeck_terminal/src/relaydeck_terminal.dart';
+import 'package:relaydeck_terminal/src/snapshot.dart';
+import 'package:relaydeck_terminal/src/utf8_accumulator.dart';
 
 const _fixtures = '../../../../../tests/fixtures';
 
@@ -243,13 +238,8 @@ void main() {
     });
 
     test('shift-enter default diverges (why the widget intercepts)', () {
-      // Locks the xterm2 5.2.0 defaults so the Shift+Enter intercept
-      // (Shift+Enter -> 0x0A in onKeyEvent) stays justified. Physical
-      // Enter arrives as TerminalKey.enter, whose keytab rules have no
-      // shift variant, so shifted Enter falls through to Enter-NewLine
-      // (CR) — NOT to the ESC O M rule, which names Qt Return =
-      // TerminalKey.returnKey (unreachable from the Flutter key path).
-      // If a future xterm2 changes either default, revisit the intercept.
+      // Physical Shift+Enter must emit LF rather than the Enter keytab CR. The distinct
+      // Return-key mapping does not apply to this hardware event.
       final t = Terminal(maxLines: 10);
       final out = StringBuffer();
       t.onOutput = out.write;
@@ -1254,7 +1244,7 @@ void main() {
       String? hz;
       t.onOutput = (s) => hz = (hz ?? '') + s;
       t.mouseInput(TerminalMouseButton.wheelLeft, TerminalMouseButtonState.down,
-          CellOffset(300, 300));
+          const CellOffset(300, 300));
       expect(hz, isNotNull);
       final hr = extractWheelScroll(hz!);
       expect(hr.total, 0);
@@ -1276,13 +1266,8 @@ void main() {
   });
 
   group('normal-buffer mouse gestures drive local scroll', () {
-    // xterm routes normal-buffer drag/wheel to application scrolling
-    // when mouse reporting is on (dead local physics + mouse output
-    // Python must reject). RelayDeck scrolls those gestures locally
-    // instead: parsed per-line wheel output while controlling, raw
-    // pointer deltas while watching. The emulator keeps its mouse
-    // mode; consumed wheels never reach the PTY. Alternate-buffer
-    // routing is unchanged (exact wheel / arrow fallback / swallow).
+    // Normal-buffer mouse-mode drags scroll locally and consume emitted wheel reports.
+    // Alternate-buffer routing follows its separate input policy.
     Future<void> feed(
         WidgetTester tester, _GateHarness harness, String data) async {
       final bytes = utf8.encode(data);
@@ -1472,13 +1457,8 @@ void main() {
   });
 
   group('wide-coordinate normal-buffer gestures drive local scroll', () {
-    // classic X10 emits NO report past 1-based coord 223 and
-    // UTF reports there use wide chars, so gestures must not depend on
-    // parsing reports. The always-mounted Listener drives the owned
-    // controller from raw pointer deltas in both control and watch;
-    // reports are consumed, never double-counted, never PTY-bound.
-    // Each gesture lands in the bottom-right corner of a 310+ col/row
-    // view (size asserted from SIZE_REPORT), so col AND row are wide.
+    // Raw pointers drive both watch and control scrolling beyond the X10 coordinate limit. No
+    // wheel bytes may reach the PTY from this normal-buffer gesture.
     Future<void> feed(
         WidgetTester tester, _GateHarness harness, String data) async {
       final bytes = utf8.encode(data);
@@ -1695,11 +1675,8 @@ void main() {
   });
 
   group('symbol glyph fallback (Noto Sans Symbols 2)', () {
-    // Agents emit dingbats/geometric/braille/status glyphs the mono
-    // face lacks (agent TUI U+2733 titles, U+25D0 circle spinners,
-    // braille spinners). The view lists the bundled symbols family
-    // (page.fonts) between JetBrains Mono and monospace. This asserts
-    // the configured fallback list, not renderer pixels.
+    // Assert the configured symbol-font fallback for glyph coverage. This checks font
+    // selection, not rasterized glyph output.
     Future<void> feed(
         WidgetTester tester, _GateHarness harness, String data) async {
       final bytes = utf8.encode(data);

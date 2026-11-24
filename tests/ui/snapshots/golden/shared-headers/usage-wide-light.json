@@ -1,0 +1,84 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "key": "usage-title",
+           "props": {
+            "color": "#17122B",
+            "font_family": "Bricolage Grotesque ExtraBold",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 32,
+            "text_align": null,
+            "value": "Usage",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "key": "[\"heading\", \"str\", \"usage-title\"]",
+         "props": {
+          "header": true
+         },
+         "slot": "controls",
+         "type": "Semantics"
+        },
+        {
+         "key": "usage-meta",
+         "props": {
+          "color": "#55507A",
+          "font_family": "Bricolage Grotesque SemiBold",
+          "size": 13,
+          "text_align": null,
+          "value": "Example freshness",
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "expand": true,
+        "spacing": 2,
+        "tight": true
+       },
+       "slot": "controls",
+       "type": "Column"
+      },
+      {
+       "props": {
+        "content": "Refresh"
+       },
+       "slot": "controls",
+       "type": "TextButton"
+      }
+     ],
+     "props": {
+      "spacing": 12
+     },
+     "slot": "controls",
+     "type": "Row"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

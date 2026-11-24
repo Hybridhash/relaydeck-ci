@@ -18,15 +18,14 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from relaydeck.connector.fixture import fixture_event
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import (
-    MAX_EVENT_LOG_PER_HOST,
-    BackendError,
-    FakeBackend,
-)
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal
+from relaydeck.devtools.fakes.connector import fixture_event
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.features.metadata.events import MAX_EVENT_LOG_PER_HOST
+from relaydeck.gateway.ports import BackendError
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.security.helpers import SECRET, auth, make_client, mint_token
 
 NOW = 1_000_000

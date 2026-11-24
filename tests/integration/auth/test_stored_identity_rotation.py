@@ -16,9 +16,9 @@ from relaydeck.client.features.auth.service import (
     AuthService,
     AuthState,
     GatewayConfig,
-    HttpxTransport,
 )
-from relaydeck.gateway.app import create_app
+from relaydeck.client.platform.transport.http import HttpxTransport
+from relaydeck.gateway.app.bootstrap import create_app
 from tests.security.helpers import ALL_CAPS, NOW, make_state
 from tests.support.fakes import FakeCredentialStore
 

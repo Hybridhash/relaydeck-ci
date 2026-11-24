@@ -7,6 +7,8 @@ import pytest
 from relaydeck.client.features.terminal.layout_budget import (
     MIN_ROWS_CLOSED,
     MIN_ROWS_KEYBOARD,
+    SAFARI_ACCESSORY_BAR,
+    keyboard_overlap,
     plan_detail,
 )
 
@@ -109,3 +111,28 @@ def test_zero_room_is_neither_inline_nor_overlay(picture: bool) -> None:
         picture_visible=picture,
     )
     assert b.collapse and b.dock_inline == 0 and b.dock_overlay == 0
+
+
+@pytest.mark.parametrize(
+    ("base", "height", "inset", "keyboard_up", "expected"),
+    [
+        (600, 600, 0, False, 0.0),  # no keyboard
+        (600, 600, 335, True, 335.0),  # page kept its height: the whole inset is uncovered
+        (600, 318, 335, True, 53.0),  # page removed the keyboard, not the accessory bar
+        (600, 265, 335, True, 0.0),  # page removed keyboard and bar
+        (600, 318, 0, True, SAFARI_ACCESSORY_BAR),  # no sample: assume the bar is uncovered
+        (600, 600, 0, True, 0.0),  # no sample and no shrink: nothing known
+        (600, 318, 0, False, 0.0),  # a plain window shrink without the keyboard
+        (0, 318, 335, True, 335.0),  # no baseline yet: the safe side
+    ],
+)
+def test_keyboard_overlap(
+    base: float, height: float, inset: float, keyboard_up: bool, expected: float
+) -> None:
+    assert keyboard_overlap(base, height, inset, keyboard_up=keyboard_up) == expected
+
+
+def test_visual_inset_marks_the_keyboard_open_on_a_page_that_keeps_its_height() -> None:
+    assert plan_detail(detail_height=552, viewport_height=648, font_size=None, dock_open=False)
+    shrunk = plan_detail(detail_height=552, viewport_height=302, font_size=None, dock_open=False)
+    assert shrunk.keyboard_open and shrunk.collapse

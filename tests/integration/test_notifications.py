@@ -25,22 +25,22 @@ from relaydeck_notifications.payload import (
     parse_push_payload,
 )
 
-from relaydeck.client.adapters.ports import PushPermission, PushTap
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
-from relaydeck.gateway.push import (
+from relaydeck.client.ports.notifications import PushPermission, PushTap
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.gateway.features.notifications.adapters.sqlite_store import PushStore
+from relaydeck.gateway.features.notifications.model import (
     BACKOFF_BASE_MS,
     DEVICE_TOMBSTONE_MS,
     HINT_CATEGORIES,
     HINT_KEYS,
     LINK_KEEP_MS,
     TERMINAL_KEEP_MS,
-    ProviderOutcome,
     PushDenied,
-    PushStore,
     backoff_ms,
-    pump_outbox,
 )
+from relaydeck.gateway.features.notifications.service import ProviderOutcome, pump_outbox
 from tests.support.fakes import FakeNotifications
 from tests.support.push import StubProvider
 

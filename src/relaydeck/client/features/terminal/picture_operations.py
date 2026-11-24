@@ -1,10 +1,5 @@
-"""One picture-attachment operation, shared by every source that can supply a picture.
-
-A source (the file picker today, a clipboard paste later) only supplies the bytes: it exposes
-its metadata and an `upload(grant, live_guard, progress)` coroutine. Everything that decides
-whether the picture may be staged or inserted lives here, so every source has the same fences:
-the grant, the polling, the draft/session identity checks after each await, the accepted-before-
-write rule and the retention of files that were not inserted.
+"""Run picture attachment from picker or browser-paste sources through one shared operation.
+Revalidate session, workflow, draft and writer facts before staging or insertion.
 """
 
 from __future__ import annotations
@@ -17,7 +12,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from relaydeck.client.features.composer.pictures import Picture
+from relaydeck.client.models.pictures import Picture
 
 MAX_PICTURE_BYTES = 10 * 1024 * 1024
 MAX_STAGED_PICTURES = 8
@@ -256,10 +251,8 @@ async def start_from_source(
     activation: Activation,
     insert: Callable[[Any, Picture, Any, Callable[[], bool]], Any],
 ) -> str:
-    """Run a source that arrives without the picker: same fences, same busy gate.
-
-    Returns "started" once the operation ran, otherwise the reason it was refused. A picture is
-    never queued: a refused source is disposed and the user attaches again.
+    """Run a source that arrives without the picker: same fences, same busy gate. Returns
+    "started" once the operation ran, otherwise the reason it was refused.
     """
     request_id = activation.request_id
     if host.session is not activation.session or host.identity() != activation.identity:

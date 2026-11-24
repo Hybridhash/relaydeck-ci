@@ -1,0 +1,220 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "props": {
+      "color": "#A9A2C8",
+      "expand": false,
+      "max_lines": 1,
+      "overflow": {
+       "enum": "TextOverflow",
+       "value": "ellipsis"
+      },
+      "size": 12,
+      "value": "SUGGESTIONS FROM ITS TASK",
+      "weight": {
+       "enum": "FontWeight",
+       "value": "w700"
+      }
+     },
+     "slot": "controls",
+     "type": "Text"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F2EFFA",
+            "expand": false,
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 14,
+            "value": "Example suggestion",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w600"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#13101F",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#3E3270"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#3E3270"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#3E3270"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#3E3270"
+           }
+          },
+          "border_radius": 18,
+          "height": 36,
+          "padding": {
+           "@": "Padding",
+           "left": 14,
+           "right": 14
+          }
+         },
+         "slot": "content",
+         "type": "Container"
+        }
+       ],
+       "key": "agent-rename-suggestion-0",
+       "props": {
+        "height": 44,
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": "transparent",
+         "overlay_color": "transparent",
+         "padding": 0,
+         "shape": {
+          "@": "StadiumBorder"
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "transparent",
+           "width": 0
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#7046F0",
+           "width": 2
+          }
+         }
+        }
+       },
+       "slot": "controls",
+       "type": "TextButton"
+      },
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F2EFFA",
+            "expand": false,
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 14,
+            "value": "Longer example suggestion",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w600"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#13101F",
+          "border": {
+           "@": "Border",
+           "bottom": {
+            "@": "BorderSide",
+            "color": "#3E3270"
+           },
+           "left": {
+            "@": "BorderSide",
+            "color": "#3E3270"
+           },
+           "right": {
+            "@": "BorderSide",
+            "color": "#3E3270"
+           },
+           "top": {
+            "@": "BorderSide",
+            "color": "#3E3270"
+           }
+          },
+          "border_radius": 18,
+          "height": 36,
+          "padding": {
+           "@": "Padding",
+           "left": 14,
+           "right": 14
+          }
+         },
+         "slot": "content",
+         "type": "Container"
+        }
+       ],
+       "key": "agent-rename-suggestion-1",
+       "props": {
+        "height": 44,
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": "transparent",
+         "overlay_color": "transparent",
+         "padding": 0,
+         "shape": {
+          "@": "StadiumBorder"
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "transparent",
+           "width": 0
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#7046F0",
+           "width": 2
+          }
+         }
+        }
+       },
+       "slot": "controls",
+       "type": "TextButton"
+      }
+     ],
+     "props": {
+      "run_spacing": 8,
+      "spacing": 8,
+      "wrap": true
+     },
+     "slot": "controls",
+     "type": "Row"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

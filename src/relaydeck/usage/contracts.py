@@ -1,9 +1,6 @@
-"""Versioned, Flet-free contracts for local agent token usage.
-
-Readers are named by log FORMAT, never by product; the owner's companion.toml maps each
-configured agent kind to a format id and an allowlisted root folder.
-Only numeric aggregates, opaque ids and timestamps cross the reader boundary: never
-transcript text, prompts, tool arguments or filesystem paths.
+"""Shared numeric usage contracts with format-based readers and configured root allowlists.
+Reader results carry aggregates, opaque IDs and timestamps rather than transcript content or
+paths.
 """
 
 from __future__ import annotations
@@ -19,7 +16,7 @@ from relaydeck.contracts.canonical import canonical_json
 
 USAGE_VERSION = 1
 
-# Approved retention and bounds; the collector enforces them, readers honour the budget.
+# Retention and reader budgets shared by the collector and format adapters.
 RETENTION_DAYS = 90
 MAX_SOURCES = 16
 MAX_LINE_BYTES = 1024 * 1024
@@ -128,12 +125,9 @@ class Counters:
 
 @dataclass(frozen=True)
 class UsageEvent:
-    """One billable unit. `event_key` is stable across re-reads, replays and rewrites.
-    Dedup namespace: (host_id, kind, source_key, session_key, event_key). A re-read with
-    the same key replaces the earlier counters (subtracting its old contribution, even if
-    day or model changed); absence from a rewritten file never deletes an event.
-    `accounting_verified=False` (format readable, semantics unproven) keeps the event out
-    of confirmed totals."""
+    """One keyed billable unit whose replacement updates its earlier contribution without
+    deleting absent events. Only accounting-verified events enter confirmed totals.
+    """
 
     session_key: str = field(repr=False)  # opaque; matches a Herdr agent_session value
     event_key: str = field(repr=False)  # unique within session_key
@@ -146,8 +140,7 @@ class UsageEvent:
     # keyed digest of the session's working folder (link_digests.cwd_digest),
     # or None when the format carries no folder or no key exists. Never a raw path.
     cwd_digest: str | None = field(default=None, repr=False)
-    # the meter this event is accounted in. Token events carry counters;
-    # credit events carry credits_milli with zero counters. Never converted.
+    # Token events carry counters; credit events carry milli-credits without conversion.
     meter: str = "tokens"
     credits_milli: int = 0
 
@@ -159,9 +152,7 @@ class LimitWindow:
     window_minutes: int | None = None  # never assume a fixed meaning for primary/secondary
     resets_at_ms: int | None = None
     status: LimitStatus = LimitStatus.FRESH  # per window: an expired window stays expired
-    # Exact amounts behind the percent. `used_percent` is derived only when both are present and
-    # limit > 0, else the window needs a native percent. used > limit clamps the percent to 100 and
-    # sets `over_allowance`.
+    # Derive percent only with valid used/limit amounts; clamp over-allowance to 100 and mark it.
     used_amount: float | None = None
     limit_amount: float | None = None
     unit: str | None = None  # validated `[a-z_]{1,16}` (e.g. "credit")
@@ -224,10 +215,9 @@ def sanitize_unit(value: object) -> str | None:
 
 @dataclass(frozen=True)
 class FileCursor:
-    """Resume point for one file, at the end of the last COMPLETE record (a partial
-    final line is re-read next pass, never stored). Identity (dev, ino) plus a hash of the
-    first bytes detects rotation and same-size replacement; size < offset detects
-    truncation. Whole-file JSON snapshots are re-parsed when size/mtime/digest change."""
+    """A file checkpoint ending at a complete record, with identity and head digest for
+    rotation/replacement checks. Partial final records resume on the next pass.
+    """
 
     dev: int
     ino: int
@@ -242,10 +232,9 @@ class FileCursor:
 
 @dataclass(frozen=True)
 class Cursor:
-    """Per-source resume state, keyed by a reader-chosen opaque file key (never sent out).
-    `state` holds validated accounting metadata only (e.g. last cumulative totals, current
-    model), at most MAX_CURSOR_STATE_ENTRIES / MAX_CURSOR_STATE_BYTES; never content.
-    `revision` increases by one on every successful apply (compare-and-swap)."""
+    """Bounded per-source resume state containing validated accounting metadata and opaque file
+    keys. Revision increases only after successful compare-and-swap apply.
+    """
 
     files: Mapping[str, FileCursor] = field(default_factory=dict, repr=False)
     state: Mapping[str, str] = field(default_factory=dict, repr=False)  # reader-private
@@ -311,9 +300,7 @@ class Batch:
     # True only for a resumable backlog (discovery, read or event budget ran out); False
     # for tails awaiting growth, permanent gaps or capacity blocks. Independent of coverage.
     more: bool = False
-    # True only for an obstruction met in THIS pass (unreadable file, incomplete enumeration,
-    # capacity refusal, oversize line). Historical gap flags alone leave it False. A
-    # scheduling hint only: never stored and never sent on the wire.
+    # Only obstructions met in this pass set the scheduling hint; historical gaps do not.
     retry_blocked: bool = False
     # Connector-owned uncertainty, committed atomically with mappings/cursor. Readers
     # never invent these; no transcript contents or session identities are carried.
@@ -368,22 +355,10 @@ class UsageSource:
 
 @dataclass(frozen=True)
 class SessionMapping:
-    """One observation episode of a Herdr pane running `session_key` in a space.
-    A->B->A moves are three episodes with distinct `interval_id`s, so moving never
-    rewrites earlier days. Attribution of an event at time t: the episode whose
-    [first_seen_ms, last_seen_ms] contains t; if several containing episodes name
-    different spaces, the event is ambiguous and stays not_linked (no winner is
-    picked, and it never falls through to inferred linking); containing episodes
-    that agree on one space attribute to it; before the first episode -> the first
-    episode; in a gap between episodes -> the episode that ended most recently
-    before t; after the last (disconnect) -> the last episode. Sessions with no
-    episode (null Herdr identity) stay unmapped: not counted, only reported in
-    KindCoverage. Explicit MappingGap intervals override this fallback: no space
-    is guessed. `generation` disambiguates Herdr workspace-id reuse: episodes are
-    keyed (workspace_id, generation); `label`/`repo_fp` are the space's display
-    label and keyed repo fingerprint as observed with the episode. `rank` is the
-    evidence ladder: rank 1 (reported identity) always wins over rank 2
-    (process evidence); ambiguity is judged within the winning rank only."""
+    """One confirmed session-to-space observation episode, with host/workspace generation and
+    evidence rank. Attribution preserves ambiguity and mapping gaps instead of choosing a
+    space.
+    """
 
     source_key: str
     kind: str
@@ -401,10 +376,8 @@ class SessionMapping:
 
 @dataclass(frozen=True)
 class MappingGap:
-    """Bounded mapping backpressure interval. None ends only after a clean snapshot.
-
-    Attribution during this interval is unknown, even if a nearby mapping exists.
-    The collector acknowledges its exact version only after a committed apply.
+    """A versioned mapping-backpressure interval whose attribution remains unknown until clean
+    snapshot evidence closes it. Acknowledge only after committed apply.
     """
 
     source_key: str
@@ -415,13 +388,9 @@ class MappingGap:
 
 @dataclass(frozen=True)
 class PaneCwdObservation:
-    """One episode of a pane observed with one working-folder digest in a space.
-
-    The connector's pane-side evidence for inferred linking: the raw folder is
-    digested in memory and never leaves the connector. Attribution joins
-    `digest` against the session's `UsageEvent.cwd_digest` with kind equality
-    and time overlap; several candidate spaces mean not_linked. No pane id is
-    stored: `interval_id` correlates acknowledgement only."""
+    """One pane observation containing a keyed working-folder digest and a space/time interval.
+    Raw paths and pane IDs are not stored in this evidence.
+    """
 
     source_key: str
     kind: str
@@ -457,9 +426,9 @@ def space_wire_id(workspace_id: str, generation: int, current: int) -> str:
 
 @dataclass(frozen=True)
 class PriceRate:
-    """USD per million tokens, effective from a date. A missing rate for any bucket an
-    event uses (incl. any cache_write_unknown) => that event is tokens-only. Rates must be
-    finite and nonnegative. Credits reported by a log are never reinterpreted as USD."""
+    """Dated, finite, nonnegative USD rates per million tokens. Any missing used-bucket rate
+    leaves the event tokens-only; credit amounts never become USD.
+    """
 
     model: str
     effective_from: str  # ISO date
@@ -468,9 +437,8 @@ class PriceRate:
     cache_read: float | None = None
     cache_write_short: float | None = None
     cache_write_long: float | None = None
-    # Catalog 'above_Nk_tokens': N*1000 prompt tokens, strictly greater than the threshold.
-    # Prompt size includes uncached input, cache reads and all writes, never output/reasoning.
-    # Above rates never fall back to base rates: a used bucket without a rate is unpriced.
+    # Tier thresholds count all prompt buckets, excluding output/reasoning; missing tier rates stay
+    # unpriced.
     tier_threshold_tokens: int | None = None
     input_above_threshold: float | None = None
     output_above_threshold: float | None = None
@@ -581,13 +549,10 @@ class UsageStore(Protocol):
         source_key: str,
         cwd: tuple[PaneCwdObservation, ...] = (),
     ) -> ApplyResult:
-        """In one transaction: compare-and-swap the source cursor revision against
-        batch.expected_revision, upsert events (replacing a keyed event's previous
-        contribution), limits (latest observed per quota/window), mappings, session
-        working-folder digests (from batch events) and pane cwd observations, then
-        store next_cursor. Exact retry of an applied batch: no-op. Stale batch: raise
-        UsageUnavailable("stale_batch") and change nothing. Returns what durably changed
-        (an exact retry returns ApplyResult())."""
+        """Atomically compare cursor revision and commit numeric events, limits, linking
+        evidence and the next cursor. Exact retries are no-ops; stale batches raise
+        stale_batch without changes.
+        """
         ...
 
     def cursor(self, source_key: str) -> Cursor: ...

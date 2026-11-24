@@ -1,7 +1,6 @@
-"""Bounded output history for selection and diagnostics.
-
-Keep the newest 256 KiB per session and count evicted bytes so incomplete
-history is explicit. Five retained logs together stay below 2 MiB."""
+"""Bounded output history for selection and diagnostics. Keep the newest 256 KiB per session and
+count evicted bytes so incomplete history is explicit.
+"""
 
 from __future__ import annotations
 

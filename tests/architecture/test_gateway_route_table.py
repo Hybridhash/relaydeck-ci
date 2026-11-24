@@ -3,8 +3,13 @@
 
 from __future__ import annotations
 
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from typing import cast
+
+from starlette.routing import Route, WebSocketRoute
+
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
 
 ROUTES: list[tuple[str, str, tuple[str, ...], str]] = [
     ("http", "/v1/pictures", ("POST",), "begin"),
@@ -41,6 +46,25 @@ ROUTES: list[tuple[str, str, tuple[str, ...], str]] = [
     ("http", "/v1/events", ("GET",), "get_events"),
     ("http", "/v1/hosts/{host_id}/commands", ("POST",), "post_command"),
     ("http", "/v1/hosts/{host_id}/commands/{command_id}", ("GET",), "get_command"),
+    ("http", "/v1/hosts/{host_id}/commands/{command_id}/resolve", ("POST",), "resolve_prompt"),
+    ("http", "/v1/hosts/{host_id}/git/summaries", ("POST",), "git_summaries"),
+    ("http", "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/changes", ("GET",), "git_changes"),
+    (
+        "http",
+        "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/files/{file_id}/diff",
+        ("GET",),
+        "git_file_diff",
+    ),
+    ("http", "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits", ("GET",), "git_commits"),
+    ("http", "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/graph", ("GET",), "git_graph"),
+    (
+        "http",
+        "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits/{commit_id}/changes",
+        ("GET",),
+        "git_commit_changes",
+    ),
+    ("http", "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/bases", ("GET",), "git_bases"),
+    ("http", "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/base", ("PUT",), "git_set_base"),
     (
         "http",
         "/v1/hosts/{host_id}/terminals/{terminal_id}/attachments",
@@ -57,20 +81,29 @@ ROUTES: list[tuple[str, str, tuple[str, ...], str]] = [
 ]
 
 
-def test_gateway_route_table_is_unchanged() -> None:
+def registered(updates: object = None) -> list[tuple[str, str, tuple[str, ...], str]]:
     state = GatewayState(
         backend=FakeBackend(now_ms=lambda: 1_000_000),
         cursor_secret=b"x" * 32,
         now_ms=lambda: 1_000_000,
     )
-    app = create_app(state)
-    actual = [
+    state.updates = updates
+    return [
         (
             "websocket" if "WebSocket" in type(route).__name__ else "http",
-            route.path,
+            cast(Route | WebSocketRoute, route).path,
             tuple(sorted(getattr(route, "methods", None) or ())),
-            route.name,
+            cast(Route | WebSocketRoute, route).name,
         )
-        for route in app.routes
+        for route in create_app(state).routes
     ]
-    assert actual == ROUTES
+
+
+def test_gateway_route_table_is_unchanged() -> None:
+    assert registered() == ROUTES
+
+
+def test_the_companion_only_updates_route_sits_right_after_the_pictures() -> None:
+    """Registered through a companion-only state attribute: absent on a bare gateway."""
+    updates_route = ("http", "/v1/updates", ("GET",), "get_updates")
+    assert registered(updates=object()) == [*ROUTES[:4], updates_route, *ROUTES[4:]]

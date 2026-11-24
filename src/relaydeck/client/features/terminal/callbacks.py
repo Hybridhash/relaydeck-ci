@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Callable
+from functools import wraps
 from typing import Any
 
-from relaydeck.client.features.sync.transport import TransportError
-from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
+from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
+from relaydeck.client.ports.transport import TransportError
 
 
 def foreground_action(session: Any, action: Callable[..., Any]) -> Callable[..., Any]:
@@ -23,6 +24,7 @@ def foreground_action(session: Any, action: Callable[..., Any]) -> Callable[...,
 
     if inspect.iscoroutinefunction(action):
 
+        @wraps(action)
         async def call_async(*args: Any, **kwargs: Any) -> Any:
             if not live():
                 return "ignored"
@@ -38,6 +40,7 @@ def foreground_action(session: Any, action: Callable[..., Any]) -> Callable[...,
 
         return call_async
 
+    @wraps(action)
     def call(*args: Any, **kwargs: Any) -> Any:
         if not live():
             return None

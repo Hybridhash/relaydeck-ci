@@ -1,9 +1,5 @@
-"""Versioned gateway JSON schemas.
-
-Every client↔gateway JSON document validates against exactly one schema
-here. Schemas use a constrained Draft 2020-12 subset enforced by
-`validate` in this module (stdlib only, no third-party validator).
-Wire version: v1. Unknown fields are rejected unless a schema opts in.
+"""Versioned gateway JSON schemas with strict field validation and a constrained,
+standard-library-only Draft 2020-12 validator.
 """
 
 import re
@@ -41,10 +37,9 @@ from relaydeck.contracts.terminal_ownership import (
 from relaydeck.contracts.terminal_ownership import (
     TerminalLeaseRequest as TerminalLeaseRequest,
 )
+from relaydeck.contracts.updates import UPDATES_SCHEMAS, Updates
 
-# envelope marker. Write paths and the event stream carry
-# it so a Herdr passthrough line can never be mistaken for a gateway
-# document (and vice versa). Auth-layer envelopes (error, token) omit it.
+# Distinguish gateway write/event envelopes from Herdr payloads; auth envelopes omit this marker.
 GATEWAY_PROTOCOL: Final = "relaydeck.gateway.v1"
 
 # Strict UTC RFC 3339 (`Z` only; the gateway mints and compares these).
@@ -99,17 +94,8 @@ ERROR_CODES = (
     "internal",
 )
 
-# Deliberate error mappings:
-# - Malformed JSON, schema violations, unknown fields -> 400 + forbidden (details.reason).
-# - Unknown operation kinds -> 400 + unsupported_capability; missing capability -> 403 + same.
-# - Unknown host/command/agent/pane/tab/workspace -> 404 + not_found.
-# - Invalid/expired/forged cursor -> 409 + stale_epoch, details.reason=cursor (resnapshot).
-# - Stale writer generation -> 409 + stale_revision.
-# - Herdr transport failure -> 503 + host_offline (retryable); protocol drift -> 500 +
-#   upstream_incompatible (not retryable).
-# - Herdr command outcomes (agent_blocked, agent_not_ready, pane_not_found, ...) are not envelope
-#   codes: they ride command records and event payloads as details.upstream_code.
-# - Unhandled gateway faults -> 500 + internal; the request ID travels in the X-Request-ID header.
+# HTTP error mappings and command-outcome distinctions are documented in
+# docs/architecture/contracts.md.
 ERROR_STATUS = {
     "unauthenticated": 401,
     "forbidden": 400,
@@ -129,6 +115,17 @@ ERROR_STATUS = {
 }
 
 SCHEMAS: dict[str, dict[str, Any]] = {
+    "relaydeck/gateway/v1/prompt-resolution": {
+        "$id": "relaydeck/gateway/v1/prompt-resolution",
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["protocol", "agent_id", "created_ms"],
+        "properties": {
+            "protocol": {"const": GATEWAY_PROTOCOL},
+            "agent_id": {"type": "string", "minLength": 1, "maxLength": 128},
+            "created_ms": {"type": "integer", "minimum": 0},
+        },
+    },
     "relaydeck/gateway/v1/snapshot": {
         "$id": "relaydeck/gateway/v1/snapshot",
         "type": "object",
@@ -315,8 +312,7 @@ SCHEMAS: dict[str, dict[str, Any]] = {
             "expires_at": {"type": "string", "pattern": RFC3339_UTC},
         },
     },
-    # TODO: wire gap -- v1 command-record lacks `acked`/`expired`
-    # statuses + `result_digest`; relaydeck/journal.py:119-128 maps them until this grows.
+    # v1 records carry no `acked`/`expired` status or result digest; the journal maps them.
     "relaydeck/gateway/v1/command-record": {
         "$id": "relaydeck/gateway/v1/command-record",
         "type": "object",
@@ -770,6 +766,7 @@ SCHEMAS: dict[str, dict[str, Any]] = {
 SCHEMAS.update(PAIRING_SCHEMAS)
 SCHEMAS.update(PICTURE_SCHEMAS)
 SCHEMAS.update(SERVER_METRICS_SCHEMAS)
+SCHEMAS.update(UPDATES_SCHEMAS)
 SCHEMAS.update(TERMINAL_OWNERSHIP_SCHEMAS)
 
 
@@ -777,7 +774,7 @@ SCHEMAS.update(TERMINAL_OWNERSHIP_SCHEMAS)
 class SnapshotHostAgentCatalogEntriesItem(TypedDict):
     kind: str
     available: bool
-    reason: Literal["installed", "not_installed"]
+    reason: Literal["installed", "not_installed", "unsupported"]
 
 
 class SnapshotHostAgentCatalog(TypedDict):
@@ -893,6 +890,12 @@ class MetadataEvent(TypedDict):
     resource_revision: NotRequired[int]
     observed_at: str
     payload: NotRequired[dict[str, Any]]
+
+
+class PromptResolution(TypedDict):
+    protocol: Literal["relaydeck.gateway.v1"]
+    agent_id: str
+    created_ms: int
 
 
 class CommandSubmit(TypedDict):
@@ -1059,7 +1062,7 @@ class Me(TypedDict):
 class HostsHostsItemAgentCatalogEntriesItem(TypedDict):
     kind: str
     available: bool
-    reason: Literal["installed", "not_installed"]
+    reason: Literal["installed", "not_installed", "unsupported"]
 
 
 class HostsHostsItemAgentCatalog(TypedDict):
@@ -1172,6 +1175,7 @@ class AgentRead(TypedDict):
 
 
 TYPED_SCHEMAS: dict[str, type] = {
+    "relaydeck/gateway/v1/prompt-resolution": PromptResolution,
     "relaydeck/gateway/v1/snapshot": Snapshot,
     "relaydeck/gateway/v1/metadata-event": MetadataEvent,
     "relaydeck/gateway/v1/command-submit": CommandSubmit,
@@ -1204,6 +1208,7 @@ TYPED_SCHEMAS: dict[str, type] = {
     "relaydeck/gateway/v1/pairing-status": PairingStatus,
     "relaydeck/gateway/v1/picture-request": PictureRequest,
     "relaydeck/gateway/v1/server-metrics": ServerMetrics,
+    "relaydeck/gateway/v1/updates": Updates,
     "relaydeck/gateway/v1/picture-grant": PictureGrant,
     "relaydeck/gateway/v1/picture-result": PictureResult,
     "relaydeck/gateway/v1/terminal-attach-request": TerminalAttachRequest,

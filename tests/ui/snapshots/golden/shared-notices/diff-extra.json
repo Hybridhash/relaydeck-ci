@@ -1,0 +1,48 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "props": {
+        "color": "#D9D3F2",
+        "size": 14,
+        "value": "Example message"
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "props": {
+        "value": "Example detail"
+       },
+       "slot": "controls",
+       "type": "Text"
+      }
+     ],
+     "props": {
+      "horizontal_alignment": {
+       "enum": "CrossAxisAlignment",
+       "value": "center"
+      },
+      "tight": true
+     },
+     "slot": "content",
+     "type": "Column"
+    }
+   ],
+   "props": {
+    "alignment": {
+     "@": "Alignment",
+     "x": 0.0,
+     "y": 0.0
+    },
+    "expand": true,
+    "padding": 16
+   },
+   "slot": "root",
+   "type": "Container"
+  }
+ ]
+}

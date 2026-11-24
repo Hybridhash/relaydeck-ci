@@ -1,0 +1,4271 @@
+{
+  "bare": [
+    {
+      "kind": "http",
+      "path": "/v1/pictures",
+      "methods": [
+        "POST"
+      ],
+      "name": "begin",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.begin",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.begin",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}/content",
+      "methods": [
+        "PUT"
+      ],
+      "name": "upload",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.upload",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.upload",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}",
+      "methods": [
+        "GET"
+      ],
+      "name": "result",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.result",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.result",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "cancel",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.cancel",
+      "status_code": 204,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.cancel",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/healthz",
+      "methods": [
+        "GET"
+      ],
+      "name": "healthz",
+      "endpoint": "relaydeck.gateway.http.health:build_router.<locals>.healthz",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.health:build_router.<locals>.healthz",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/readyz",
+      "methods": [
+        "GET"
+      ],
+      "name": "readyz",
+      "endpoint": "relaydeck.gateway.http.health:build_router.<locals>.readyz",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.health:build_router.<locals>.readyz",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/requests",
+      "methods": [
+        "POST"
+      ],
+      "name": "request_pairing",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.request_pairing",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.request_pairing",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/{request_id}/status",
+      "methods": [
+        "POST"
+      ],
+      "name": "pairing_status",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.pairing_status",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.pairing_status",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/{request_id}/redeem",
+      "methods": [
+        "POST"
+      ],
+      "name": "redeem_pairing",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.redeem_pairing",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.redeem_pairing",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/authorize",
+      "methods": [
+        "GET"
+      ],
+      "name": "authorize",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.authorize",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.authorize",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/identity/callback",
+      "methods": [
+        "GET"
+      ],
+      "name": "identity_callback",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.identity_callback",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.identity_callback",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/token",
+      "methods": [
+        "POST"
+      ],
+      "name": "token_exchange",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.token_exchange",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.token_exchange",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/logout",
+      "methods": [
+        "POST"
+      ],
+      "name": "logout_session",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.logout_session",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.logout_session",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices",
+      "methods": [
+        "POST"
+      ],
+      "name": "register_device",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.register_device",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.register_device",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices/{device_id}/rotate",
+      "methods": [
+        "POST"
+      ],
+      "name": "rotate_device_token",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.rotate_device_token",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.rotate_device_token",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_devices",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.list_devices",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.list_devices",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices/{device_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_device",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.delete_device",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.delete_device",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/deep-links/resolve",
+      "methods": [
+        "POST"
+      ],
+      "name": "resolve_deep_link",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.resolve_deep_link",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.resolve_deep_link",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "server_metrics",
+      "endpoint": "relaydeck.gateway.http.metrics:build_router.<locals>.server_metrics",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.metrics:build_router.<locals>.server_metrics",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "server.health"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_enrollment",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.create_enrollment",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.create_enrollment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments/{enrollment_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "enrollment_status",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.enrollment_status",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.enrollment_status",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments/{enrollment_id}/redeem",
+      "methods": [
+        "POST"
+      ],
+      "name": "redeem_enrollment",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.redeem_enrollment",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.redeem_enrollment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "websocket",
+      "path": "/v1/connectors",
+      "methods": [],
+      "name": "connector_socket",
+      "endpoint": "relaydeck.gateway.app.tunnel:build_connector_router.<locals>.connector_socket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.app.tunnel:build_connector_router.<locals>.connector_socket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/usage/limits/refresh",
+      "methods": [
+        "POST"
+      ],
+      "name": "refresh_limits",
+      "endpoint": "relaydeck.gateway.http.usage:install.<locals>.refresh_limits",
+      "status_code": 202,
+      "dependency": {
+        "call": "relaydeck.gateway.http.usage:install.<locals>.refresh_limits",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/usage",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_usage",
+      "endpoint": "relaydeck.gateway.http.usage:install.<locals>.get_usage",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.usage:install.<locals>.get_usage",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/me",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_me",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.get_me",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.get_me",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_hosts",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.list_hosts",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.list_hosts",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "sessions.read"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_host",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.delete_host",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.delete_host",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "hosts.enroll"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/snapshot",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_snapshot",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.get_snapshot",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.get_snapshot",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/agents",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_agents",
+      "endpoint": "relaydeck.gateway.http.agents:build_router.<locals>.list_agents",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.agents:build_router.<locals>.list_agents",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/agents/{agent_id}/read",
+      "methods": [
+        "POST"
+      ],
+      "name": "mark_agent_read",
+      "endpoint": "relaydeck.gateway.http.agents:build_router.<locals>.mark_agent_read",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.agents:build_router.<locals>.mark_agent_read",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/events",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_events",
+      "endpoint": "relaydeck.gateway.http.events:build_router.<locals>.get_events",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.events:build_router.<locals>.get_events",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands",
+      "methods": [
+        "POST"
+      ],
+      "name": "post_command",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.post_command",
+      "status_code": 202,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.post_command",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands/{command_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_command",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.get_command",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.get_command",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands/{command_id}/resolve",
+      "methods": [
+        "POST"
+      ],
+      "name": "resolve_prompt",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.resolve_prompt",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.resolve_prompt",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/summaries",
+      "methods": [
+        "POST"
+      ],
+      "name": "git_summaries",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_summaries",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_summaries",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/changes",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_changes",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_changes",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_changes",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/files/{file_id}/diff",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_file_diff",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_file_diff",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_file_diff",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_commits",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_commits",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_commits",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/graph",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_graph",
+      "endpoint": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_graph",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_graph",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits/{commit_id}/changes",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_commit_changes",
+      "endpoint": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_commit_changes",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_commit_changes",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/bases",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_bases",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_bases",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_bases",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/base",
+      "methods": [
+        "PUT"
+      ],
+      "name": "git_set_base",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_set_base",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_set_base",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/terminals/{terminal_id}/attachments",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_attachment",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.create_attachment",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.create_attachment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          },
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "_scope",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "terminal.attach"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/terminals/{terminal_id}/control",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_control_holder",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.get_control_holder",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.get_control_holder",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          },
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "_scope",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "terminal.view"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-attachments/{attachment_id}/leases",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.create_lease",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.create_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-attachments/{attachment_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_attachment",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_attachment",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_attachment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-leases/{lease_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_lease",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-leases/{lease_id}/renew",
+      "methods": [
+        "POST"
+      ],
+      "name": "renew_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.renew_lease",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.renew_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-tickets",
+      "methods": [
+        "POST"
+      ],
+      "name": "issue_terminal_ticket",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.issue_terminal_ticket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.issue_terminal_ticket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "websocket",
+      "path": "/v1/terminal/{lease_id}",
+      "methods": [],
+      "name": "terminal_socket",
+      "endpoint": "relaydeck.gateway.http.sockets:build_terminal_socket_router.<locals>.terminal_socket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.sockets:build_terminal_socket_router.<locals>.terminal_socket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    }
+  ],
+  "notice": [
+    {
+      "kind": "http",
+      "path": "/v1/pictures",
+      "methods": [
+        "POST"
+      ],
+      "name": "begin",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.begin",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.begin",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}/content",
+      "methods": [
+        "PUT"
+      ],
+      "name": "upload",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.upload",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.upload",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}",
+      "methods": [
+        "GET"
+      ],
+      "name": "result",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.result",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.result",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "cancel",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.cancel",
+      "status_code": 204,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.cancel",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/updates",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_updates",
+      "endpoint": "relaydeck.gateway.http.updates:install.<locals>.get_updates",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.updates:install.<locals>.get_updates",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "server.health"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/healthz",
+      "methods": [
+        "GET"
+      ],
+      "name": "healthz",
+      "endpoint": "relaydeck.gateway.http.health:build_router.<locals>.healthz",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.health:build_router.<locals>.healthz",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/readyz",
+      "methods": [
+        "GET"
+      ],
+      "name": "readyz",
+      "endpoint": "relaydeck.gateway.http.health:build_router.<locals>.readyz",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.health:build_router.<locals>.readyz",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/requests",
+      "methods": [
+        "POST"
+      ],
+      "name": "request_pairing",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.request_pairing",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.request_pairing",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/{request_id}/status",
+      "methods": [
+        "POST"
+      ],
+      "name": "pairing_status",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.pairing_status",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.pairing_status",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/{request_id}/redeem",
+      "methods": [
+        "POST"
+      ],
+      "name": "redeem_pairing",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.redeem_pairing",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.redeem_pairing",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/authorize",
+      "methods": [
+        "GET"
+      ],
+      "name": "authorize",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.authorize",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.authorize",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/identity/callback",
+      "methods": [
+        "GET"
+      ],
+      "name": "identity_callback",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.identity_callback",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.identity_callback",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/token",
+      "methods": [
+        "POST"
+      ],
+      "name": "token_exchange",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.token_exchange",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.token_exchange",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/logout",
+      "methods": [
+        "POST"
+      ],
+      "name": "logout_session",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.logout_session",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.logout_session",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices",
+      "methods": [
+        "POST"
+      ],
+      "name": "register_device",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.register_device",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.register_device",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices/{device_id}/rotate",
+      "methods": [
+        "POST"
+      ],
+      "name": "rotate_device_token",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.rotate_device_token",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.rotate_device_token",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_devices",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.list_devices",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.list_devices",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices/{device_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_device",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.delete_device",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.delete_device",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/deep-links/resolve",
+      "methods": [
+        "POST"
+      ],
+      "name": "resolve_deep_link",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.resolve_deep_link",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.resolve_deep_link",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "server_metrics",
+      "endpoint": "relaydeck.gateway.http.metrics:build_router.<locals>.server_metrics",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.metrics:build_router.<locals>.server_metrics",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "server.health"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_enrollment",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.create_enrollment",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.create_enrollment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments/{enrollment_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "enrollment_status",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.enrollment_status",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.enrollment_status",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments/{enrollment_id}/redeem",
+      "methods": [
+        "POST"
+      ],
+      "name": "redeem_enrollment",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.redeem_enrollment",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.redeem_enrollment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "websocket",
+      "path": "/v1/connectors",
+      "methods": [],
+      "name": "connector_socket",
+      "endpoint": "relaydeck.gateway.app.tunnel:build_connector_router.<locals>.connector_socket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.app.tunnel:build_connector_router.<locals>.connector_socket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/usage/limits/refresh",
+      "methods": [
+        "POST"
+      ],
+      "name": "refresh_limits",
+      "endpoint": "relaydeck.gateway.http.usage:install.<locals>.refresh_limits",
+      "status_code": 202,
+      "dependency": {
+        "call": "relaydeck.gateway.http.usage:install.<locals>.refresh_limits",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/usage",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_usage",
+      "endpoint": "relaydeck.gateway.http.usage:install.<locals>.get_usage",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.usage:install.<locals>.get_usage",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/me",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_me",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.get_me",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.get_me",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_hosts",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.list_hosts",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.list_hosts",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "sessions.read"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_host",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.delete_host",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.delete_host",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "hosts.enroll"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/snapshot",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_snapshot",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.get_snapshot",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.get_snapshot",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/agents",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_agents",
+      "endpoint": "relaydeck.gateway.http.agents:build_router.<locals>.list_agents",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.agents:build_router.<locals>.list_agents",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/agents/{agent_id}/read",
+      "methods": [
+        "POST"
+      ],
+      "name": "mark_agent_read",
+      "endpoint": "relaydeck.gateway.http.agents:build_router.<locals>.mark_agent_read",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.agents:build_router.<locals>.mark_agent_read",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/events",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_events",
+      "endpoint": "relaydeck.gateway.http.events:build_router.<locals>.get_events",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.events:build_router.<locals>.get_events",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands",
+      "methods": [
+        "POST"
+      ],
+      "name": "post_command",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.post_command",
+      "status_code": 202,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.post_command",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands/{command_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_command",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.get_command",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.get_command",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands/{command_id}/resolve",
+      "methods": [
+        "POST"
+      ],
+      "name": "resolve_prompt",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.resolve_prompt",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.resolve_prompt",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/summaries",
+      "methods": [
+        "POST"
+      ],
+      "name": "git_summaries",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_summaries",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_summaries",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/changes",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_changes",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_changes",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_changes",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/files/{file_id}/diff",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_file_diff",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_file_diff",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_file_diff",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_commits",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_commits",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_commits",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/graph",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_graph",
+      "endpoint": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_graph",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_graph",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits/{commit_id}/changes",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_commit_changes",
+      "endpoint": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_commit_changes",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_commit_changes",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/bases",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_bases",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_bases",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_bases",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/base",
+      "methods": [
+        "PUT"
+      ],
+      "name": "git_set_base",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_set_base",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_set_base",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/terminals/{terminal_id}/attachments",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_attachment",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.create_attachment",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.create_attachment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          },
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "_scope",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "terminal.attach"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/terminals/{terminal_id}/control",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_control_holder",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.get_control_holder",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.get_control_holder",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          },
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "_scope",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "terminal.view"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-attachments/{attachment_id}/leases",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.create_lease",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.create_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-attachments/{attachment_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_attachment",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_attachment",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_attachment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-leases/{lease_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_lease",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-leases/{lease_id}/renew",
+      "methods": [
+        "POST"
+      ],
+      "name": "renew_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.renew_lease",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.renew_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-tickets",
+      "methods": [
+        "POST"
+      ],
+      "name": "issue_terminal_ticket",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.issue_terminal_ticket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.issue_terminal_ticket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "websocket",
+      "path": "/v1/terminal/{lease_id}",
+      "methods": [],
+      "name": "terminal_socket",
+      "endpoint": "relaydeck.gateway.http.sockets:build_terminal_socket_router.<locals>.terminal_socket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.sockets:build_terminal_socket_router.<locals>.terminal_socket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    }
+  ],
+  "docs": [
+    {
+      "kind": "http",
+      "path": "/openapi.json",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "name": "openapi",
+      "endpoint": "fastapi.applications:FastAPI.setup.<locals>.openapi",
+      "status_code": null
+    },
+    {
+      "kind": "http",
+      "path": "/docs",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "name": "swagger_ui_html",
+      "endpoint": "fastapi.applications:FastAPI.setup.<locals>.swagger_ui_html",
+      "status_code": null
+    },
+    {
+      "kind": "http",
+      "path": "/docs/oauth2-redirect",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "name": "swagger_ui_redirect",
+      "endpoint": "fastapi.applications:FastAPI.setup.<locals>.swagger_ui_redirect",
+      "status_code": null
+    },
+    {
+      "kind": "http",
+      "path": "/redoc",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "name": "redoc_html",
+      "endpoint": "fastapi.applications:FastAPI.setup.<locals>.redoc_html",
+      "status_code": null
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures",
+      "methods": [
+        "POST"
+      ],
+      "name": "begin",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.begin",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.begin",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}/content",
+      "methods": [
+        "PUT"
+      ],
+      "name": "upload",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.upload",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.upload",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}",
+      "methods": [
+        "GET"
+      ],
+      "name": "result",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.result",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.result",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pictures/{identifier}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "cancel",
+      "endpoint": "relaydeck.gateway.http.pictures:install.<locals>.cancel",
+      "status_code": 204,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pictures:install.<locals>.cancel",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/healthz",
+      "methods": [
+        "GET"
+      ],
+      "name": "healthz",
+      "endpoint": "relaydeck.gateway.http.health:build_router.<locals>.healthz",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.health:build_router.<locals>.healthz",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/readyz",
+      "methods": [
+        "GET"
+      ],
+      "name": "readyz",
+      "endpoint": "relaydeck.gateway.http.health:build_router.<locals>.readyz",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.health:build_router.<locals>.readyz",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/requests",
+      "methods": [
+        "POST"
+      ],
+      "name": "request_pairing",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.request_pairing",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.request_pairing",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/{request_id}/status",
+      "methods": [
+        "POST"
+      ],
+      "name": "pairing_status",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.pairing_status",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.pairing_status",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/pairing/{request_id}/redeem",
+      "methods": [
+        "POST"
+      ],
+      "name": "redeem_pairing",
+      "endpoint": "relaydeck.gateway.http.pairing:build_router.<locals>.redeem_pairing",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.pairing:build_router.<locals>.redeem_pairing",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/authorize",
+      "methods": [
+        "GET"
+      ],
+      "name": "authorize",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.authorize",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.authorize",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/identity/callback",
+      "methods": [
+        "GET"
+      ],
+      "name": "identity_callback",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.identity_callback",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.identity_callback",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/token",
+      "methods": [
+        "POST"
+      ],
+      "name": "token_exchange",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.token_exchange",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.token_exchange",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/logout",
+      "methods": [
+        "POST"
+      ],
+      "name": "logout_session",
+      "endpoint": "relaydeck.gateway.http.identity:build_router.<locals>.logout_session",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.identity:build_router.<locals>.logout_session",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices",
+      "methods": [
+        "POST"
+      ],
+      "name": "register_device",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.register_device",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.register_device",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices/{device_id}/rotate",
+      "methods": [
+        "POST"
+      ],
+      "name": "rotate_device_token",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.rotate_device_token",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.rotate_device_token",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_devices",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.list_devices",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.list_devices",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/devices/{device_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_device",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.delete_device",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.delete_device",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/deep-links/resolve",
+      "methods": [
+        "POST"
+      ],
+      "name": "resolve_deep_link",
+      "endpoint": "relaydeck.gateway.http.devices:build_router.<locals>.resolve_deep_link",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.devices:build_router.<locals>.resolve_deep_link",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "server_metrics",
+      "endpoint": "relaydeck.gateway.http.metrics:build_router.<locals>.server_metrics",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.metrics:build_router.<locals>.server_metrics",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "server.health"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_enrollment",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.create_enrollment",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.create_enrollment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments/{enrollment_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "enrollment_status",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.enrollment_status",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.enrollment_status",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/enrollments/{enrollment_id}/redeem",
+      "methods": [
+        "POST"
+      ],
+      "name": "redeem_enrollment",
+      "endpoint": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.redeem_enrollment",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.enrollments:install_enrollments.<locals>.redeem_enrollment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "websocket",
+      "path": "/v1/connectors",
+      "methods": [],
+      "name": "connector_socket",
+      "endpoint": "relaydeck.gateway.app.tunnel:build_connector_router.<locals>.connector_socket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.app.tunnel:build_connector_router.<locals>.connector_socket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/usage/limits/refresh",
+      "methods": [
+        "POST"
+      ],
+      "name": "refresh_limits",
+      "endpoint": "relaydeck.gateway.http.usage:install.<locals>.refresh_limits",
+      "status_code": 202,
+      "dependency": {
+        "call": "relaydeck.gateway.http.usage:install.<locals>.refresh_limits",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/usage",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_usage",
+      "endpoint": "relaydeck.gateway.http.usage:install.<locals>.get_usage",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.usage:install.<locals>.get_usage",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/me",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_me",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.get_me",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.get_me",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_hosts",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.list_hosts",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.list_hosts",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "sessions.read"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_host",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.delete_host",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.delete_host",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "hosts.enroll"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/snapshot",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_snapshot",
+      "endpoint": "relaydeck.gateway.http.hosts:build_router.<locals>.get_snapshot",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.hosts:build_router.<locals>.get_snapshot",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/agents",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_agents",
+      "endpoint": "relaydeck.gateway.http.agents:build_router.<locals>.list_agents",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.agents:build_router.<locals>.list_agents",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/agents/{agent_id}/read",
+      "methods": [
+        "POST"
+      ],
+      "name": "mark_agent_read",
+      "endpoint": "relaydeck.gateway.http.agents:build_router.<locals>.mark_agent_read",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.agents:build_router.<locals>.mark_agent_read",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/events",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_events",
+      "endpoint": "relaydeck.gateway.http.events:build_router.<locals>.get_events",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.events:build_router.<locals>.get_events",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands",
+      "methods": [
+        "POST"
+      ],
+      "name": "post_command",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.post_command",
+      "status_code": 202,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.post_command",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands/{command_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_command",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.get_command",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.get_command",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/commands/{command_id}/resolve",
+      "methods": [
+        "POST"
+      ],
+      "name": "resolve_prompt",
+      "endpoint": "relaydeck.gateway.http.commands:build_router.<locals>.resolve_prompt",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.commands:build_router.<locals>.resolve_prompt",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/summaries",
+      "methods": [
+        "POST"
+      ],
+      "name": "git_summaries",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_summaries",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_summaries",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/changes",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_changes",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_changes",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_changes",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/files/{file_id}/diff",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_file_diff",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_file_diff",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_file_diff",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_commits",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_commits",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_commits",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/graph",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_graph",
+      "endpoint": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_graph",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_graph",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits/{commit_id}/changes",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_commit_changes",
+      "endpoint": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_commit_changes",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git_graph:build_graph_router.<locals>.git_commit_changes",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/bases",
+      "methods": [
+        "GET"
+      ],
+      "name": "git_bases",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_bases",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_bases",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/base",
+      "methods": [
+        "PUT"
+      ],
+      "name": "git_set_base",
+      "endpoint": "relaydeck.gateway.http.git:build_router.<locals>.git_set_base",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.git:build_router.<locals>.git_set_base",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/terminals/{terminal_id}/attachments",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_attachment",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.create_attachment",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.create_attachment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          },
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "_scope",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "terminal.attach"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/hosts/{host_id}/terminals/{terminal_id}/control",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_control_holder",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.get_control_holder",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.get_control_holder",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_host",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ]
+          },
+          {
+            "call": "relaydeck.gateway.http.auth:require_scope.<locals>.dependency",
+            "name": "_scope",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": [
+              {
+                "call": "relaydeck.gateway.http.auth:require_session",
+                "name": "session",
+                "use_cache": true,
+                "security_scopes": [],
+                "scope": null,
+                "dependencies": []
+              }
+            ],
+            "required_scope": "terminal.view"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-attachments/{attachment_id}/leases",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.create_lease",
+      "status_code": 201,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.create_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-attachments/{attachment_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_attachment",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_attachment",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_attachment",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-leases/{lease_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_lease",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.delete_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-leases/{lease_id}/renew",
+      "methods": [
+        "POST"
+      ],
+      "name": "renew_lease",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.renew_lease",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.renew_lease",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "http",
+      "path": "/v1/terminal-tickets",
+      "methods": [
+        "POST"
+      ],
+      "name": "issue_terminal_ticket",
+      "endpoint": "relaydeck.gateway.http.terminals:build_router.<locals>.issue_terminal_ticket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.terminals:build_router.<locals>.issue_terminal_ticket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": [
+          {
+            "call": "relaydeck.gateway.http.auth:require_session",
+            "name": "session",
+            "use_cache": true,
+            "security_scopes": [],
+            "scope": null,
+            "dependencies": []
+          }
+        ]
+      }
+    },
+    {
+      "kind": "websocket",
+      "path": "/v1/terminal/{lease_id}",
+      "methods": [],
+      "name": "terminal_socket",
+      "endpoint": "relaydeck.gateway.http.sockets:build_terminal_socket_router.<locals>.terminal_socket",
+      "status_code": null,
+      "dependency": {
+        "call": "relaydeck.gateway.http.sockets:build_terminal_socket_router.<locals>.terminal_socket",
+        "name": null,
+        "use_cache": true,
+        "security_scopes": [],
+        "scope": "function",
+        "dependencies": []
+      }
+    }
+  ]
+}

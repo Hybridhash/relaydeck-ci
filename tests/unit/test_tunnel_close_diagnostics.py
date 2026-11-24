@@ -17,13 +17,13 @@ from websockets.http11 import Response
 from websockets.uri import parse_uri
 
 from relaydeck.connector import link as link_module
-from relaydeck.connector.fixture import FixtureAdapter
 from relaydeck.connector.link import (
     ConnectorLink,
     LinkConfig,
     _PongTrackedConnection,
     _WebsocketTransport,
 )
+from relaydeck.devtools.fakes.connector import FixtureAdapter
 from tests.support.sync.scripted_transport import _ScriptedTransport
 
 
@@ -77,8 +77,8 @@ def test_gateway_stopwatches_receive_handler_outbox_and_final_idle(
 ) -> None:
     from fastapi.routing import APIWebSocketRoute
 
-    from relaydeck.gateway.api import sockets as sockets_module
-    from relaydeck.gateway.app import create_app
+    from relaydeck.gateway.app import tunnel as sockets_module
+    from relaydeck.gateway.app.bootstrap import create_app
     from tests.support.terminal.sockets import _state
 
     async def scenario() -> None:
@@ -139,8 +139,9 @@ def test_gateway_stopwatches_receive_handler_outbox_and_final_idle(
 
         await endpoint(Socket())
         text = caplog.text
-        for branch in ("receive", "terminal.output", "pump_outbox"):
+        for branch in ("terminal.output", "pump_outbox"):
             assert f"tunnel_stall branch={branch} ms=" in text
+        assert "tunnel_stall branch=receive ms=" not in text
         assert "tunnel_loop idle_recv_s=" in text
         assert marker not in text and token not in text
         assert all(r.exc_info is None for r in caplog.records)
@@ -286,3 +287,40 @@ def test_send_timeout_is_distinct_from_abnormal_wire_close(
         assert "last_pong_age_s=None" in caplog.text
 
     asyncio.run(scenario())
+
+
+def test_admission_overload_retries_the_real_websocket_handshake(tmp_path: Path) -> None:
+    from relaydeck.gateway.app.bootstrap import create_app
+    from relaydeck.gateway.http.middleware.body_cap import BodyCapMiddleware
+    from tests.security.helpers import make_state
+    from tests.support.live_server import LiveGateway
+
+    state, _ = make_state()
+    admission = BodyCapMiddleware(create_app(state), websocket_limit=1)
+    assert admission._websockets.acquire()  # represents a live connection occupying the sole slot
+    sleeps: list[float] = []
+
+    async def pause(seconds: float) -> None:
+        sleeps.append(seconds)
+
+    async def scenario(url: str) -> None:
+        link = ConnectorLink(
+            LinkConfig(
+                gateway_url=url,
+                host_id="home-mac",
+                host_token="synthetic",
+                journal_path=str(tmp_path / "journal.db"),
+                max_retries=1,
+            ),
+            FixtureAdapter(),
+            sleep=pause,
+        )
+        outcome = await asyncio.wait_for(link.run(asyncio.Event()), 5)
+        assert outcome.reason == "retries-exhausted"
+        assert len(sleeps) == 1
+
+    try:
+        with LiveGateway(admission) as live:
+            asyncio.run(scenario(live.base_url))
+    finally:
+        admission._websockets.release()

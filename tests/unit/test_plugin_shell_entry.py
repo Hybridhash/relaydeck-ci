@@ -96,8 +96,8 @@ def test_build_without_an_installation_is_one_line_exit_zero(tmp_path: Path) -> 
 def test_the_setup_popup_prints_the_install_steps_and_waits_for_a_key(tmp_path: Path) -> None:
     result = _run(_home(tmp_path), "setup", stdin="\n")
     assert result.returncode == 3
-    assert "uv tool install --managed-python --python 3.13" in result.stdout
-    assert "relaydeck[companion] @ git+https://github.com/Hybridhash/relaydeck@" in result.stdout
+    assert "mktemp -d" in result.stdout
+    assert "releases/download/v0.3.0/install.sh" in result.stdout
     assert "Nothing was installed by this plugin." in result.stdout
     assert "Press Enter to close." in result.stdout
 
@@ -107,7 +107,7 @@ def test_the_other_popups_without_an_installation_show_the_same_steps(
     tmp_path: Path, entry: str
 ) -> None:
     result = _run(_home(tmp_path), entry)
-    assert result.returncode == 3 and "relaydeck setup" in result.stdout
+    assert result.returncode == 3 and "releases/download/v0.3.0/install.sh" in result.stdout
 
 
 @pytest.mark.parametrize("action", ["setup", "pair", "status"])

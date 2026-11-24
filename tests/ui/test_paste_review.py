@@ -15,38 +15,39 @@ from typing import Any
 
 import pytest
 
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
 from relaydeck.client.features.terminal.controller import TerminalController
-from relaydeck.client.features.terminal.paste_policy import (
+from relaydeck.client.features.terminal.paste_review import (
+    REQUEST_BLOCKED,
+    REQUEST_INSERTED,
+    REQUEST_REJECTED,
+    REQUEST_REVIEW,
+    PasteReviewSession,
+    bind_review_session,
+)
+from relaydeck.client.features.terminal.paste_sheet import (
+    CANCEL_KEY,
+    CONFIRM_KEY,
+    COUNTS_KEY,
+    PREVIEW_KEY,
+    SHEET_KEY,
+    TITLE_KEY,
+    PasteReviewSheet,
+    counts_line,
+)
+from relaydeck.client.features.terminal.projection import TerminalProjection
+from relaydeck.client.models.input.paste_policy import (
     BRACKET_END,
     BRACKET_START,
     PasteError,
     PasteReview,
     confirm_chunks,
 )
-from relaydeck.client.features.terminal.paste_policy import (
-    character_count as policy_character_count,
+from relaydeck.client.models.input.paste_policy import character_count as policy_character_count
+from relaydeck.client.models.input.paste_policy import line_count as policy_line_count
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
 )
-from relaydeck.client.features.terminal.paste_policy import (
-    line_count as policy_line_count,
-)
-from relaydeck.client.features.terminal.paste_review import (
-    CANCEL_KEY,
-    CONFIRM_KEY,
-    COUNTS_KEY,
-    PREVIEW_KEY,
-    REQUEST_BLOCKED,
-    REQUEST_INSERTED,
-    REQUEST_REJECTED,
-    REQUEST_REVIEW,
-    SHEET_KEY,
-    TITLE_KEY,
-    PasteReviewSession,
-    PasteReviewSheet,
-    bind_review_session,
-    counts_line,
-)
-from relaydeck.client.features.terminal.projection import TerminalProjection
+from relaydeck.client.ports.transport import TerminalSocket, TransportError
 from relaydeck.contracts.wire import terminal as terminal_wire
 from tests.support.host_harness import render_component, run
 
@@ -421,6 +422,7 @@ def test_unframed_captured_at_open_ignores_later_engine_flip() -> None:
 
 def _controller(sock: _ScriptedSocket, mode: str, generation: int = 1) -> TerminalController:
     return TerminalController(
+        stream_factory=_terminal_stream_factory,
         socket_factory=lambda ticket: sock,
         lease_id="lease-1",
         generation=generation,

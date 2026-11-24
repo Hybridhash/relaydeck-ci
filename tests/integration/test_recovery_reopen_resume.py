@@ -11,10 +11,10 @@ from urllib.parse import urlsplit
 
 import pytest
 
+from relaydeck.client.app.sessions.factory import SessionFactory, production_stream_factory
+from relaydeck.client.features.terminal.sessions import drive_recovery
 from relaydeck.client.features.terminal.stream import INCOMPLETE_HISTORY
-from relaydeck.client.features.terminal.surfaces.sessions import drive_recovery
-from relaydeck.client.sessions import SessionFactory, production_stream_factory
-from relaydeck.gateway.ring import RING_MAX_AGE_MS
+from relaydeck.gateway.features.terminals.ring import RING_MAX_AGE_MS
 from tests.support.asgi_socket import AsgiSocket
 from tests.support.host_harness import run
 from tests.support.terminal.reader_handoff import _actor, _Socket, _wait

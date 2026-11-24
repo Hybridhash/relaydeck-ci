@@ -54,16 +54,8 @@ _COVERAGE = {
 
 
 class UsageCollector:
-    """clock returns epoch milliseconds; sleep accepts seconds.
-
-    Readers must cooperate with Budget deadlines. Stop interrupts the default sleep;
-    an injected sleep must also return promptly. No replacement worker starts while
-    an earlier worker is still alive, even if a reader violates its deadline.
-
-    Catch-up keeps the cooperative 750 ms pass deadline and at least 250 ms between
-    sequential passes: about 75% duty of one thread at the reading budget limit.
-    SQLite commits/bookkeeping can extend a pass; this is not a hard CPU quota.
-    Process scheduling priority is unchanged (os.nice would affect the entire process).
+    """Collect configured sources on one owned worker using cooperative reader deadlines. The
+    injected clock returns epoch milliseconds and sleep accepts seconds.
     """
 
     def __init__(
@@ -130,6 +122,11 @@ class UsageCollector:
         self._last_unmapped_refresh: int | None = None
         self._busy_window: deque[tuple[float, int]] = deque()
         self._backfill_digest: str | None = None
+        # One mappings/gaps/observations snapshot per pass, shared by every
+        # source in it instead of rebuilt per source.
+        self._pass_mappings: tuple[SessionMapping, ...] | None = None
+        self._pass_gaps: tuple[MappingGap, ...] | None = None
+        self._pass_cwd: tuple[PaneCwdObservation, ...] | None = None
 
     @property
     def catching_up(self) -> bool:
@@ -212,10 +209,9 @@ class UsageCollector:
         self._retry_at.pop(source_key, None)
 
     def _schedule(self, source_key: str, result: ApplyResult, batch: Batch, now_ms: int) -> None:
-        """Scheduling after one committed batch. Progress is a changed cursor or changed
-        events, never a revision bump or a count of returned events. Historical gaps and PARTIAL
-        coverage alone never back off: they are reported, and the source keeps its normal
-        interval."""
+        """Schedule from committed cursor or event changes rather than revision bumps or
+        returned-event counts. Historical gaps alone retain normal cadence.
+        """
         progress = result.events_changed > 0 or result.cursor_changed
         if progress:
             self._clear_backoff(source_key)
@@ -260,7 +256,7 @@ class UsageCollector:
             pass  # Keep the previous observation; failure never refreshes its capture time.
 
     def _unmapped_coverage(self, now: int) -> None:
-        """Use the same retained verified events as report NOT_LINKED rows (addendum C)."""
+        """Count the same retained, verified unlinked events used by NOT_LINKED reports."""
         if (
             self._last_unmapped_refresh is not None
             and 0 <= now - self._last_unmapped_refresh < UNMAPPED_REFRESH_MS
@@ -297,26 +293,42 @@ class UsageCollector:
         except Exception:  # noqa: S110 - keep prior state when storage is unavailable
             pass  # Unavailable storage does not invent a zero count.
 
+    def _mappings_now(self) -> tuple[SessionMapping, ...]:
+        if self._pass_mappings is None:
+            self._pass_mappings = tuple(self.mappings())
+        return self._pass_mappings
+
+    def _gaps_now(self) -> tuple[MappingGap, ...]:
+        if self._pass_gaps is None:
+            self._pass_gaps = tuple(self.mapping_gaps())
+        return self._pass_gaps
+
+    def _cwd_now(self) -> tuple[PaneCwdObservation, ...]:
+        if self._pass_cwd is None:
+            self._pass_cwd = tuple(self.cwd_observations())
+        return self._pass_cwd
+
     def _mapping_pending(self, source: UsageSource) -> bool:
         """True while this source has unacknowledged mapping gaps, or its mappings differ from the
         set
         last applied. Such a source is due at once, so a durable handoff closes promptly."""
         try:
-            if any(g.source_key == source.source_key for g in self.mapping_gaps()):
+            if any(g.source_key == source.source_key for g in self._gaps_now()):
                 return True
             seen = self._mapping_seen.get(source.source_key)
-            if seen is not None and seen != tuple(self.mappings()):
+            if seen is not None and seen != self._mappings_now():
                 return True
             cwd_seen = self._cwd_seen.get(source.source_key)
             if cwd_seen is None:
                 return False
-            current = tuple(o for o in self.cwd_observations() if o.source_key == source.source_key)
+            current = tuple(o for o in self._cwd_now() if o.source_key == source.source_key)
             return cwd_seen != current
         except Exception:
             return False  # unavailable mapping data never forces a read; the normal cadence holds
 
     def run_once(self, now_ms: int) -> int:
         with self._pass:
+            self._pass_mappings = self._pass_gaps = self._pass_cwd = None
             start = self._clock()
             wall = time.monotonic()
             produced = 0
@@ -380,13 +392,11 @@ class UsageCollector:
                             Coverage.PARTIAL if conflicts else Coverage.COMPLETE,
                             key=_COVERAGE.__getitem__,
                         )
-                        mappings = self.mappings()
+                        mappings = self._mappings_now()
                         gaps = tuple(
-                            g for g in self.mapping_gaps() if g.source_key == source.source_key
+                            g for g in self._gaps_now() if g.source_key == source.source_key
                         )
-                        cwd = tuple(
-                            o for o in self.cwd_observations() if o.source_key == source.source_key
-                        )
+                        cwd = tuple(o for o in self._cwd_now() if o.source_key == source.source_key)
                         value = max(
                             value,
                             Coverage.UNVERIFIED if gaps else Coverage.COMPLETE,
@@ -444,7 +454,7 @@ class UsageCollector:
                     "usage_pass kind=%s events=%d coverage=%s skipped=%d ms=%d",
                     source.kind,
                     count,
-                    value,
+                    value.value,
                     skipped,
                     max(0, self._clock() - began, int((time.monotonic() - source_wall) * 1000)),
                 )
@@ -484,4 +494,5 @@ class UsageCollector:
                                 self._backfill_digest = digest_fn()
                     except Exception:  # noqa: S110 - keep prior state when storage is unavailable
                         pass
+            self._pass_mappings = self._pass_gaps = self._pass_cwd = None
             return produced

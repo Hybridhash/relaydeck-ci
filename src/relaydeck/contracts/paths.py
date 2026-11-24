@@ -10,6 +10,9 @@ PICTURES = "/v1/pictures"
 PICTURE_CONTENT = "/v1/pictures/{identifier}/content"
 PICTURE = "/v1/pictures/{identifier}"
 
+# Release notice (companion).
+UPDATES = "/v1/updates"
+
 # Pairing.
 PAIRING_REQUESTS = "/v1/pairing/requests"
 PAIRING_STATUS = "/v1/pairing/{request_id}/status"
@@ -54,6 +57,17 @@ AGENT_READ = "/v1/hosts/{host_id}/agents/{agent_id}/read"
 EVENTS = "/v1/events"
 HOST_COMMANDS = "/v1/hosts/{host_id}/commands"
 HOST_COMMAND = "/v1/hosts/{host_id}/commands/{command_id}"
+HOST_COMMAND_RESOLVE = "/v1/hosts/{host_id}/commands/{command_id}/resolve"
+
+# Read-only agent changes. Worktree and file ids are opaque gateway cursors, never paths.
+GIT_SUMMARIES = "/v1/hosts/{host_id}/git/summaries"
+GIT_CHANGES = "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/changes"
+GIT_FILE_DIFF = "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/files/{file_id}/diff"
+GIT_COMMITS = "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits"
+GIT_GRAPH = "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/graph"
+GIT_COMMIT_CHANGES = "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/commits/{commit_id}/changes"
+GIT_BASES = "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/bases"
+GIT_BASE = "/v1/hosts/{host_id}/git/worktrees/{worktree_id}/base"
 
 # Terminals.
 TERMINAL_ATTACHMENTS = "/v1/hosts/{host_id}/terminals/{terminal_id}/attachments"
@@ -87,8 +101,7 @@ def _segment(value: str) -> str:
     return quote(value, safe="")
 
 
-# Builders fill a template. Ids are quoted where the call sites always did, and left as given
-# elsewhere (those ids come from the gateway itself).
+# Quote IDs at the boundaries that require quoting; preserve gateway-issued IDs elsewhere.
 def picture(identifier: str) -> str:
     return PICTURE.format(identifier=identifier)
 
@@ -149,6 +162,10 @@ def host_command(host_id: str, command_id: str) -> str:
     return HOST_COMMAND.format(host_id=_segment(host_id), command_id=_segment(command_id))
 
 
+def host_command_resolve(host_id: str, command_id: str) -> str:
+    return HOST_COMMAND_RESOLVE.format(host_id=_segment(host_id), command_id=_segment(command_id))
+
+
 def terminal_attachments(host_id: str, terminal_id: str) -> str:
     return TERMINAL_ATTACHMENTS.format(host_id=host_id, terminal_id=terminal_id)
 
@@ -175,3 +192,50 @@ def lease_renew(lease_id: str) -> str:
 
 def terminal_socket(lease_id: str) -> str:
     return TERMINAL_SOCKET.format(lease_id=_segment(lease_id))
+
+
+def git_summaries(host_id: str) -> str:
+    return GIT_SUMMARIES.format(host_id=_segment(host_id))
+
+
+def git_changes(host_id: str, worktree_id: str) -> str:
+    return GIT_CHANGES.format(host_id=_segment(host_id), worktree_id=_segment(worktree_id))
+
+
+def git_file_diff(host_id: str, worktree_id: str, file_id: str) -> str:
+    return GIT_FILE_DIFF.format(
+        host_id=_segment(host_id), worktree_id=_segment(worktree_id), file_id=_segment(file_id)
+    )
+
+
+def git_commits(host_id: str, worktree_id: str) -> str:
+    return GIT_COMMITS.format(host_id=_segment(host_id), worktree_id=_segment(worktree_id))
+
+
+def git_graph(host_id: str, worktree_id: str) -> str:
+    return GIT_GRAPH.format(host_id=_segment(host_id), worktree_id=_segment(worktree_id))
+
+
+def git_commit_changes(host_id: str, worktree_id: str, commit_id: str) -> str:
+    return GIT_COMMIT_CHANGES.format(
+        host_id=_segment(host_id), worktree_id=_segment(worktree_id), commit_id=_segment(commit_id)
+    )
+
+
+def git_bases(host_id: str, worktree_id: str) -> str:
+    return GIT_BASES.format(host_id=_segment(host_id), worktree_id=_segment(worktree_id))
+
+
+def git_base(host_id: str, worktree_id: str) -> str:
+    return GIT_BASE.format(host_id=_segment(host_id), worktree_id=_segment(worktree_id))
+
+
+def api_namespace() -> str:
+    """Versioned namespace shared by routing and content-free diagnostics."""
+    return "/v1"
+
+
+def is_api_path(path: str) -> bool:
+    """Whether a request targets the versioned API namespace."""
+    prefix = api_namespace()
+    return path == prefix or path.startswith(prefix + "/")

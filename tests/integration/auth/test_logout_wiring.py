@@ -13,15 +13,22 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.app import Root, run_app
-from relaydeck.client.serve import (
+from relaydeck.client.app.root import Root, run_app
+from relaydeck.companion.app.hosted_web.serve import (
     WebSessionStore,
     _current_handshake,
     _Handshake,
     make_relaydeck_main,
 )
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.backend import FakeBackend
+from relaydeck.devtools.fakes.gateway import FakeBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 
 SECRET = b"flet-boundary-test-secret-32bytes!!"
 NOW = 2_000_000
@@ -34,7 +41,7 @@ class _CapPage:
         self.fonts: dict[str, str] = {}
         self.platform_brightness = ft.Brightness.LIGHT
         self.platform = ft.PagePlatform.MACOS
-        self.session = type("Session", (), {"id": "f1"})()
+        self.session = type("Session", (), {"id": "f1", "connection": object()})()
         self.route = "/"
         self.width = 1280
         self.height = 800
@@ -107,6 +114,46 @@ def test_flet_main_logout_tears_down_and_shows_login() -> None:
             await asyncio.sleep(0.01)
         assert store.identity(sid) is None
         assert gateway_state.sessions.lookup(access, NOW) is None
+        assert len(page.renders) == 2
+        assert page.renders[1][0] is not Root
+
+    asyncio.run(scenario())
+
+
+def test_flet_main_logout_shows_login_when_the_session_is_already_gone() -> None:
+    async def scenario() -> None:
+        gateway_state = GatewayState(
+            backend=FakeBackend(now_ms=lambda: NOW),
+            cursor_secret=b"x" * 32,
+            now_ms=lambda: NOW,
+        )
+        store = WebSessionStore(public_origin="http://127.0.0.1:9", cookie_secret=SECRET)
+        access, refresh = gateway_state.sessions.create(
+            "dev", frozenset({"sessions.read"}), frozenset({"h1"}), NOW, "web-dev"
+        )
+        sid = store.create_session("dev", "web-dev", access, refresh, NOW + 900_000)
+        handshake = _Handshake(ip="", user_agent="t", page_name="")
+        store.bind_flet(sid, "f1", handshake)
+        flet_main = make_relaydeck_main(
+            store=store,
+            base_url="http://127.0.0.1:9",
+            gateway_app=create_app(gateway_state),
+            gateway_state=gateway_state,
+            host_id="h1",
+        )
+        page = _CapPage()
+        token = _current_handshake.set((sid, handshake))
+        try:
+            flet_main(page)
+        finally:
+            _current_handshake.reset(token)
+        on_logout = page.renders[0][1]["on_logout"]
+        store.retire_local(sid)
+        on_logout()
+        for _ in range(50):
+            if len(page.renders) > 1:
+                break
+            await asyncio.sleep(0.01)
         assert len(page.renders) == 2
         assert page.renders[1][0] is not Root
 

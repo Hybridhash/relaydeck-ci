@@ -1,0 +1,178 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "key": "composer-draft",
+               "props": {
+                "border": {
+                 "ControlState.DEFAULT": {
+                  "@": "OutlineInputBorder",
+                  "border_radius": 12,
+                  "side": {
+                   "@": "BorderSide",
+                   "color": "#747B88"
+                  }
+                 },
+                 "ControlState.FOCUSED": {
+                  "@": "OutlineInputBorder",
+                  "border_radius": 12,
+                  "side": {
+                   "@": "BorderSide",
+                   "color": "#0063CC",
+                   "width": 2
+                  }
+                 }
+                },
+                "color": "#191B20",
+                "content_padding": 8,
+                "cursor_color": "#0063CC",
+                "expand": true,
+                "fill_color": "#E9EAEE",
+                "filled": true,
+                "hint_text": "Message the agent…",
+                "label": "Agent draft",
+                "label_style": {
+                 "@": "TextStyle",
+                 "color": "#606570"
+                },
+                "max_lines": 5,
+                "min_lines": 1,
+                "multiline": true,
+                "text_size": 16,
+                "value": "Example draft"
+               },
+               "slot": "body",
+               "type": "TextField"
+              }
+             ],
+             "key": "draft-editor-<serial>",
+             "slot": "controls",
+             "type": "Component:NativeDraftField"
+            },
+            {
+             "key": "composer-send",
+             "props": {
+              "height": 48,
+              "icon": 66025,
+              "style": {
+               "@": "ButtonStyle",
+               "bgcolor": {
+                "ControlState.DEFAULT": "#0063CC",
+                "ControlState.DISABLED": "#E9EAEE",
+                "ControlState.FOCUSED": "#0063CC",
+                "ControlState.HOVERED": "#0063CC"
+               },
+               "color": {
+                "ControlState.DEFAULT": "#FFFFFF",
+                "ControlState.DISABLED": "#606570"
+               },
+               "elevation": 0,
+               "icon_size": 20,
+               "overlay_color": "transparent",
+               "padding": 0,
+               "shape": {
+                "@": "RoundedRectangleBorder",
+                "radius": 24
+               },
+               "side": {
+                "ControlState.DEFAULT": {
+                 "@": "BorderSide",
+                 "color": "#747B88"
+                },
+                "ControlState.FOCUSED": {
+                 "@": "BorderSide",
+                 "color": "#FFFFFF",
+                 "width": 2
+                }
+               },
+               "text_style": {
+                "@": "TextStyle",
+                "font_family_fallback": [
+                 "Noto Sans Symbols 2",
+                 "Noto Sans Symbols"
+                ],
+                "size": 14,
+                "weight": {
+                 "enum": "FontWeight",
+                 "value": "w500"
+                }
+               }
+              },
+              "tooltip": "Send (Ctrl+Enter)",
+              "width": 48
+             },
+             "slot": "controls",
+             "type": "IconButton"
+            }
+           ],
+           "key": "composer-footer",
+           "props": {
+            "vertical_alignment": {
+             "enum": "CrossAxisAlignment",
+             "value": "end"
+            }
+           },
+           "slot": "controls",
+           "type": "Row"
+          }
+         ],
+         "props": {
+          "spacing": 8
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "key": "composer-frame",
+       "props": {
+        "bgcolor": "#FFFFFF",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#C9CDD5"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#C9CDD5"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#C9CDD5"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#C9CDD5"
+         }
+        },
+        "border_radius": 8,
+        "padding": 12
+       },
+       "slot": "controls",
+       "type": "Container"
+      }
+     ],
+     "key": "composer-box",
+     "props": {
+      "spacing": 8
+     },
+     "slot": "body",
+     "type": "Column"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:ComposerBox"
+  }
+ ]
+}

@@ -6,6 +6,12 @@ from dataclasses import replace
 
 from relaydeck.client.features.terminal.switcher import SwitcherRow, switcher_rows, working_count
 from relaydeck.domain.models import AgentStatus
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.ui.spaces_filter import _spaces_state
 
 

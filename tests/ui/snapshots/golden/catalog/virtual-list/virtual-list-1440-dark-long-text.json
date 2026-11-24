@@ -1,0 +1,1501 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "key": "catalog-title",
+         "props": {
+          "color": "#F5F2FF",
+          "size": 22,
+          "value": "VirtualList"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "catalog-case",
+         "props": {
+          "color": "#B7AFDA",
+          "value": "1440 px · dark · long-text"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "catalog-state-note",
+         "props": {
+          "color": "#B7AFDA",
+          "value": "Existing fixed console tokens; theme changes the surrounding canvas."
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 1"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-0",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 1"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 2"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-1",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 2"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 3"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-2",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 3"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 4"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-3",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 4"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 5"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-4",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 5"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 6"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-5",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 6"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 7"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-6",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 7"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 8"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-7",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 8"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 9"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-8",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 9"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 10"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-9",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 10"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 11"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-10",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 11"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 12"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-11",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 12"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 13"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-12",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 13"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 14"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-13",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 14"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 15"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-14",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 15"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 16"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-15",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 16"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 17"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-16",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 17"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 18"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-17",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 18"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 19"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-18",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 19"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "value": "An unusually long example label that must remain readable at a narrow viewport and enlarged text settings. 20"
+                     },
+                     "slot": "content",
+                     "type": "Text"
+                    }
+                   ],
+                   "key": "sample-row-19",
+                   "props": {
+                    "expand": false,
+                    "height": 48,
+                    "style": {
+                     "@": "ButtonStyle",
+                     "bgcolor": "transparent",
+                     "overlay_color": {
+                      "ControlState.DEFAULT": "transparent",
+                      "ControlState.FOCUSED": "#33FFFFFF"
+                     },
+                     "padding": 0,
+                     "shape": {
+                      "@": "RoundedRectangleBorder",
+                      "radius": 8
+                     },
+                     "side": {
+                      "ControlState.DEFAULT": {
+                       "@": "BorderSide",
+                       "color": "transparent",
+                       "width": 3
+                      },
+                      "ControlState.FOCUSED": {
+                       "@": "BorderSide",
+                       "color": "#F5F2FF",
+                       "width": 3
+                      }
+                     }
+                    },
+                    "tooltip": "Open example 20"
+                   },
+                   "slot": "controls",
+                   "type": "TextButton"
+                  },
+                  {
+                   "key": "sample-control-after",
+                   "props": {
+                    "height": 0.0
+                   },
+                   "slot": "controls",
+                   "type": "Container"
+                  }
+                 ],
+                 "key": "sample-control",
+                 "props": {
+                  "expand": false,
+                  "item_extents": [
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   56.0,
+                   0.0
+                  ],
+                  "padding": {
+                   "@": "Padding"
+                  },
+                  "scroll_interval": 100,
+                  "size_change_interval": 100
+                 },
+                 "slot": "body",
+                 "type": "PlacedListView"
+                }
+               ],
+               "slot": "content",
+               "type": "Component:VirtualList"
+              }
+             ],
+             "key": "catalog-subject",
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "key": "catalog-actions",
+             "props": {
+              "color": "#B7AFDA",
+              "value": "Example actions: 0"
+             },
+             "slot": "controls",
+             "type": "Text"
+            }
+           ],
+           "props": {
+            "spacing": 16
+           },
+           "slot": "body",
+           "type": "Column"
+          }
+         ],
+         "slot": "controls",
+         "type": "Component:Specimen"
+        }
+       ],
+       "props": {
+        "spacing": 16
+       },
+       "slot": "content",
+       "type": "Column"
+      }
+     ],
+     "key": "catalog-preview-virtual-list-1440-dark-long-text",
+     "props": {
+      "bgcolor": "#130F26",
+      "padding": 16,
+      "theme": {
+       "@": "Theme",
+       "button_theme": {
+        "@": "ButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "canvas_color": "#130F26",
+       "color_scheme": {
+        "@": "ColorScheme",
+        "error": "#FFB4AB",
+        "error_container": "#3C2024",
+        "on_error": "#191335",
+        "on_error_container": "#FFB4AB",
+        "on_primary": "#FFFFFF",
+        "on_primary_container": "#F5F2FF",
+        "on_secondary": "#FFFFFF",
+        "on_secondary_container": "#F5F2FF",
+        "on_surface": "#F5F2FF",
+        "on_surface_variant": "#B7AFDA",
+        "on_tertiary": "#191335",
+        "outline": "#8E86B8",
+        "outline_variant": "#3B3270",
+        "primary": "#7443F5",
+        "primary_container": "#1F1840",
+        "secondary": "#7443F5",
+        "secondary_container": "#1F1840",
+        "surface": "#191335",
+        "surface_bright": "#2B2356",
+        "surface_container": "#191335",
+        "surface_container_high": "#2B2356",
+        "surface_container_highest": "#2B2356",
+        "surface_container_low": "#191335",
+        "surface_container_lowest": "#130F26",
+        "surface_dim": "#130F26",
+        "surface_tint": "transparent",
+        "tertiary": "#FF8A3D"
+       },
+       "disabled_color": "#B7AFDA",
+       "divider_color": "#3B3270",
+       "filled_button_theme": {
+        "@": "FilledButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#7443F5",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#7443F5",
+          "ControlState.HOVERED": "#7443F5"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#FFFFFF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#FFFFFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "focus_color": "#1F1840",
+       "font_family": "Bricolage Grotesque",
+       "hint_color": "#B7AFDA",
+       "hover_color": "#2B2356",
+       "icon_button_theme": {
+        "@": "IconButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "icon_theme": {
+        "@": "IconTheme",
+        "color": "#B7AFDA",
+        "size": 20
+       },
+       "list_tile_theme": {
+        "@": "ListTileTheme",
+        "icon_color": "#B7AFDA",
+        "min_height": 48,
+        "selected_color": "#F5F2FF",
+        "selected_tile_color": "#1F1840",
+        "text_color": "#F5F2FF"
+       },
+       "navigation_bar_theme": {
+        "@": "NavigationBarTheme",
+        "bgcolor": "#191335",
+        "elevation": 0,
+        "height": 64,
+        "indicator_color": "#1F1840",
+        "indicator_shape": {
+         "@": "RoundedRectangleBorder",
+         "radius": 8
+        },
+        "label_text_style": {
+         "ControlState.DEFAULT": {
+          "@": "TextStyle",
+          "color": "#B7AFDA",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 11
+         },
+         "ControlState.SELECTED": {
+          "@": "TextStyle",
+          "color": "#A98BFF",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 11
+         }
+        }
+       },
+       "navigation_rail_theme": {
+        "@": "NavigationRailTheme",
+        "bgcolor": "#191335",
+        "elevation": 0,
+        "indicator_color": "#1F1840",
+        "indicator_shape": {
+         "@": "RoundedRectangleBorder",
+         "radius": 8
+        },
+        "label_type": {
+         "enum": "NavigationRailLabelType",
+         "value": "all"
+        },
+        "selected_label_text_style": {
+         "@": "TextStyle",
+         "color": "#A98BFF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 11
+        },
+        "unselected_label_text_style": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 11
+        }
+       },
+       "outlined_button_theme": {
+        "@": "OutlinedButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "scaffold_bgcolor": "#130F26",
+       "text_button_theme": {
+        "@": "TextButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "text_theme": {
+        "@": "TextTheme",
+        "body_large": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 16
+        },
+        "body_medium": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 14
+        },
+        "body_small": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 12
+        },
+        "label_large": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 14
+        },
+        "label_medium": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 12
+        },
+        "label_small": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 12
+        },
+        "title_large": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 22,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w600"
+         }
+        },
+        "title_medium": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 15,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w600"
+         }
+        },
+        "title_small": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 14
+        }
+       },
+       "use_material3": true
+      },
+      "theme_mode": {
+       "enum": "ThemeMode",
+       "value": "dark"
+      },
+      "width": 1440
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:Preview"
+  }
+ ]
+}

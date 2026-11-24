@@ -5,13 +5,9 @@ import 'package:flutter/widgets.dart';
 
 import 'picture_paste.dart';
 
-/// Layout-neutral wrapper that makes the inputs below it a picture-paste region.
-///
-/// It adds no visual or focus behavior of its own: its focus node cannot take
-/// focus and is skipped by traversal, it only reports whether focus is somewhere
-/// inside. Offers go to Python as `offer`/`reject` events; the retained Blob stays
-/// in the browser until Python asks to `upload` or `abort` it. Pasted text goes to
-/// the focused terminal as a `text` event, or into the focused text field here.
+/// Observe browser paste without changing layout or focus, retaining image Blobs for approved
+/// upload or abort. Terminal text follows the application paste event; text fields receive
+/// native insertion.
 class RelayDeckPicturePasteControl extends StatefulWidget {
   const RelayDeckPicturePasteControl({super.key, required this.control});
 

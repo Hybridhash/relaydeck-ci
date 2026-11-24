@@ -1,11 +1,5 @@
-"""Herdr API key-combo grammar (upstream-derived, not designed).
-
-Mirrors Herdr 0.9.1 `src/config/keybinds.rs::parse_key_combo` plus the
-`src/app/api_helpers.rs::normalize_api_key_alias` aliases at pinned
-commit 065ef9d6. The gateway validates `key` input frames against this
-grammar so bad combos fail fast; Herdr re-parses at dispatch and remains
-authoritative. Exact terminal bytes are Herdr's encoder output (verified
-live in); this module never invents byte mappings.
+"""Validate Herdr key-combo names using the pinned upstream grammar and aliases. Herdr remains
+authoritative for parsing and terminal byte encoding.
 """
 
 from __future__ import annotations

@@ -1,10 +1,5 @@
-"""Terminal stream controller. Flet-free.
-
-Owns one `TerminalStreamClient` plus the ordered `TerminalByteStream`,
-drives `TerminalViewState`, and gates resize to the control lease: size
-reports from a view lease are recorded as rejected and never sent. The
-screen layer forwards bytes to the extension control and reports viewer
-overflow back through `on_viewer_overflow`.
+"""Control ordered terminal streaming and generation-bound input with explicit recovery after
+continuity loss.
 """
 
 from __future__ import annotations
@@ -14,9 +9,10 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field, replace
 from typing import Any
 
-from relaydeck.client import open_timing
-from relaydeck.client.features.sync.controller import TerminalStreamClient
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
+from relaydeck.client.features.terminal.gap_recovery import GAP_STABLE_S, GapRecovery
+from relaydeck.client.features.terminal.gap_recovery import (
+    WATCH_RETRY_DELAYS_S as WATCH_RETRY_DELAYS_S,
+)
 from relaydeck.client.features.terminal.keys import KeyInputError
 from relaydeck.client.features.terminal.models import (
     OLDER_OUTPUT_NOT_KEPT,
@@ -28,14 +24,6 @@ from relaydeck.client.features.terminal.models import (
     apply_live,
     apply_reset,
     history_notice,
-)
-from relaydeck.client.features.terminal.paste_policy import PasteError
-from relaydeck.client.features.terminal.session.recovery_state import (
-    GAP_STABLE_S,
-    GapRecovery,
-)
-from relaydeck.client.features.terminal.session.recovery_state import (
-    WATCH_RETRY_DELAYS_S as WATCH_RETRY_DELAYS_S,
 )
 from relaydeck.client.features.terminal.stream import (
     ACTION_REATTACH,
@@ -51,15 +39,24 @@ from relaydeck.client.features.terminal.stream import (
     TerminalByteStream,
     decide_recovery,
 )
+from relaydeck.client.models.input.paste_policy import PasteError
+from relaydeck.client.platform.diagnostics import open_timing
+from relaydeck.client.ports.transport import TerminalSocket, TerminalStreamFactory, TransportError
 from relaydeck.contracts.wire.terminal import OutputChunk
 from relaydeck.lease_diagnostics import LeaseTrace
 
 MAX_GEOMETRY_CELL = 1024
 
 
+# Upstream refused the attach: another Herdr client owns the terminal. Shown as the holder.
+EXTERNAL_HOLDER_LABEL = "another Herdr client"
+OWNED_ELSEWHERE = "This terminal is attached elsewhere. Take over to use it here."
+
+
 @dataclass
 class TerminalController:
     socket_factory: Callable[[str], TerminalSocket]
+    stream_factory: TerminalStreamFactory = field(kw_only=True, repr=False, compare=False)
     lease_id: str
     generation: int
     mode: str
@@ -73,6 +70,9 @@ class TerminalController:
     state: TerminalViewState = field(init=False)
     pending_resume: ResumeRequest | None = field(init=False, default=None)
     reattach_needed: bool = field(init=False, default=False)
+    # Upstream refused the attach because another client owns the terminal: no automatic
+    # reattach; the session shows the conflict and only an explicit Take over attaches again.
+    owned_elsewhere: bool = field(init=False, default=False)
     live_edge_pending: bool = field(init=False, default=False)
     _overflow_attempts: int = field(init=False, default=0)
     _overflow_stable_since: float | None = field(init=False, default=None)
@@ -81,6 +81,7 @@ class TerminalController:
     _writer_paused: bool = field(init=False, default=False)
     _writer_revoked: bool = field(init=False, default=False)
     _ui_input_fenced: bool = field(init=False, default=False)
+    _ui_input_generation: int = field(init=False, default=0)
     _revoke_reason: str = field(init=False, default="")
     _viewer_lost: bool = field(init=False, default=False)
     _detached: bool = field(init=False, default=False)
@@ -90,7 +91,7 @@ class TerminalController:
         self.state = TerminalViewState(lease_mode=self.mode)
         self._stream = TerminalByteStream()
         self._started = False
-        self._client = TerminalStreamClient(
+        self._client = self.stream_factory(
             socket_factory=self.socket_factory,
             diagnostics=self.diagnostics,
             on_output=self._handle_output,
@@ -179,11 +180,8 @@ class TerminalController:
         return self._client.reopening
 
     def viewer_reopened(self) -> None:
-        """A new native emulator owns no bytes from the previous viewer.
-
-        Fence synchronously, before queued input/output or a recovery driver
-        can reuse the old cursor. Only an explicit session reattach creates a
-        replacement controller; this never requests takeover or replays input.
+        """A new native emulator owns no bytes from the previous viewer. Fence synchronously,
+        before queued input/output or a recovery driver can reuse the old cursor.
         """
         self._viewer_lost = True
         self.invalidate_writer("viewer_reopened")
@@ -215,28 +213,24 @@ class TerminalController:
         return self._writer_paused
 
     def pause_writer(self) -> None:
-        """Invalidate the control writer immediately. Probes report no live writer
-        while paused, so every send path fails closed with `no_writer`
-        and no byte is delivered. Idempotent."""
+        """Invalidate the control writer immediately. Probes report no live writer while paused,
+        so every send path fails closed with `no_writer` and no byte is delivered.
+        """
         self._writer_paused = True
         self.gap_recovery.cancel_wait()
 
     def resume_writer(self) -> None:
-        """Explicitly re-enable the writer after the resume flow finished.
-
-        Re-enables ONLY this controller's own probe: the generation and
-        lease are unchanged, so this cannot silently steal control held
-        elsewhere (a taken-over lease fails at ticket mint and the
-        session maps the mint failure to disconnected -- "Could not
-        stream" -- never to conflict). A revoked writer stays revoked."""
+        """Resume this controller after recovery without changing its lease or generation. A
+        revoked writer remains revoked and server ticket checks still enforce current
+        ownership.
+        """
         self._writer_paused = False
 
     def invalidate_writer(self, reason: str = "") -> None:
-        """Revoke the control writer immediately. Probes report
-        no live writer from now on, so every send path fails closed with
-        `no_writer` and no byte is delivered. One-way within this
-        controller's life: only a replacement controller (takeover /
-        reconnect) can produce a live writer again. Idempotent."""
+        """Permanently invalidate this controller writer so every input path fails closed.
+        Repeated invalidation is harmless; only a replacement controller can supply a live
+        writer again.
+        """
         if not self._writer_revoked:
             self._revoke_reason = reason  # the first cause stays; later local fences add none
         self._writer_revoked = True
@@ -374,10 +368,9 @@ class TerminalController:
             and offered is not None
             and offered > self._stream.next_offset
         ):
-            # The first retained replay starts beyond the preserved cursor:
-            # history was evicted. Resuming the same missing cursor repeats
-            # the gap forever. Reset the viewer explicitly, then recover this
-            # lease at the offered base; never acquire control or resize.
+            # Evicted replay history requires an explicit viewer reset before recovery at the
+            # offered base.
+            # Never acquire control or resize to repair this gap.
             self.pending_resume = None
             self.emulator = EMULATOR_FRESH
             self._apply_reset(StreamEvent(EVENT_RESET, self._stream.next_offset, b"", detail))
@@ -397,6 +390,12 @@ class TerminalController:
             self.on_viewer_overflow()
             return
         if self._viewer_lost or self._detached:
+            return
+        if reason == "lease_conflict":
+            self.owned_elsewhere = True
+            self.reattach_needed = False
+            self.pending_resume = None
+            self._set(apply_reset(self.state, OWNED_ELSEWHERE))
             return
         self._apply_reset(StreamEvent(EVENT_RESET, self._stream.next_offset, b"", reason))
 
@@ -457,15 +456,10 @@ class TerminalController:
 
     # -- paste writer probe/sender ------------------------
     def paste_generation(self) -> int | None:
-        """Current writer generation for paste routing, or None when this
-        controller holds no live writer (view lease or closed socket).
-        The review session binds this at open and revalidates at
-        confirm; a mismatch fails closed with no input sent.
-
-        Lifecycle caveat: this reflects close()-driven state only. After
-        an unclean run() exit the probe may still report a generation
-        while the socket is dead; `send_paste_chunk` then raises
-        TransportError and no bytes are delivered (fail closed)."""
+        """Current writer generation for paste routing, or None when this controller holds no
+        live writer (view lease or closed socket). The review session binds this at open and
+        revalidates at confirm; a mismatch fails closed with no input sent.
+        """
         if not self.writer_eligible or self._ui_input_fenced:
             return None
         return self.generation
@@ -482,12 +476,18 @@ class TerminalController:
 
     def fence_ui_input(self, fenced: bool) -> None:
         """UI transport verification never changes lease/pause/revocation ownership."""
+        if fenced and not self._ui_input_fenced:
+            self._ui_input_generation += 1
         self._ui_input_fenced = fenced
         open_timing.mark_current("unfenced" if not fenced else "fenced")
 
     @property
     def ui_input_fenced(self) -> bool:
         return self._ui_input_fenced
+
+    @property
+    def ui_input_generation(self) -> int:
+        return self._ui_input_generation
 
     def next_input_identity(self) -> tuple[int, int]:
         """Identity reserved synchronously immediately before a writer send."""

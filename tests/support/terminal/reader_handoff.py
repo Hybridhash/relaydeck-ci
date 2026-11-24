@@ -10,11 +10,15 @@ from urllib.parse import urlencode
 
 import httpx
 
-from relaydeck.client.features.shell.ops import HttpxShellGatewayOps
-from relaydeck.client.features.shell.session import ShellSession
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
 from relaydeck.client.features.terminal.agent_session import AgentSession
-from relaydeck.gateway.leases import READER_HANDOFF_TTL_MS
+from relaydeck.client.features.terminal.pictures import PictureApi as PictureApiFactory
+from relaydeck.client.features.terminal.shell_session import ShellSession
+from relaydeck.client.platform.transport.shell_ops import HttpxShellGatewayOps
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
+)
+from relaydeck.client.ports.transport import TerminalSocket, TransportError
+from relaydeck.gateway.features.terminals.leases import READER_HANDOFF_TTL_MS
 from tests.support.asgi_socket import AsgiSocket
 from tests.support.fakes import FakeClipboard
 from tests.support.terminal.lease_gateway import _client, _token
@@ -97,7 +101,7 @@ async def _actor(kind, *, now_ms=None):
         base_url="http://test",
         event_hooks={"request": [record]},
     ) as http:
-        ops = HttpxShellGatewayOps("http://test", auth, http)
+        ops = HttpxShellGatewayOps("http://test", auth, http, picture_api_factory=PictureApiFactory)
         factory = _Factory(app, clock)
         kwargs = dict(
             ops=ops,
@@ -108,6 +112,7 @@ async def _actor(kind, *, now_ms=None):
         )
         if kind == "agent":
             actor = AgentSession(
+                stream_factory=_terminal_stream_factory,
                 **kwargs,
                 submit_command=no_command,
                 prompt_text=no_command,
@@ -116,7 +121,7 @@ async def _actor(kind, *, now_ms=None):
                 target="term-1",
             )
         else:
-            actor = ShellSession(**kwargs)
+            actor = ShellSession(stream_factory=_terminal_stream_factory, **kwargs)
         factory.actor = actor
         readers = []
         try:

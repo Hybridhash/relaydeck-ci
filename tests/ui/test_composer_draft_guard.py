@@ -14,7 +14,7 @@ from relaydeck.client.features.composer.components import (
     VALIDATION_KEY,
     ComposerBox,
 )
-from relaydeck.client.features.composer.domain import BLOCKER_EMPTY
+from relaydeck.client.features.composer.model import BLOCKER_EMPTY
 from tests.support.host_harness import render_component, run
 
 

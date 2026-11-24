@@ -21,18 +21,18 @@ class CookieSocket(AsgiSocket):
         scope = {
             "type": "websocket",
             "asgi": {"version": "3.0"},
-            "scheme": "ws",
+            "scheme": "wss",
             "path": "/ws",
             "raw_path": b"/ws",
             "query_string": b"",
             "root_path": "",
             "headers": [
-                (b"origin", b"http://test"),
+                (b"origin", b"https://test"),
                 (b"user-agent", self.ua.encode()),
                 (b"cookie", self.cookie.encode()),
             ],
             "client": (self.ip, 1234),
-            "server": ("test", 80),
+            "server": ("test", 443),
             "subprotocols": [],
         }
         await self.inbound.put({"type": "websocket.connect"})

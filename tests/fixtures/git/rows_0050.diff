@@ -1,0 +1,56 @@
+diff --git a/sample/file_one.txt b/sample/file_one.txt
+index 1111111..2222222 100644
+--- a/sample/file_one.txt
++++ b/sample/file_one.txt
+@@ -1,12 +1,16 @@
+     keep_00000 = 0
+-    value_00000 = old_00000
++    value_00000 = new_00000
+     after_00000()
++    extra_00000 = True
+     keep_00001 = 1
+-    value_00001 = old_00001
++    value_00001 = new_00001
+     after_00001()
++    extra_00001 = True
+     keep_00002 = 2
+-    value_00002 = old_00002
++    value_00002 = new_00002
+     after_00002()
++    extra_00002 = True
+     keep_00003 = 3
+-    value_00003 = old_00003
++    value_00003 = new_00003
+     after_00003()
++    extra_00003 = True
+@@ -101,18 +105,24 @@ def sample():
+     keep_00100 = 100
+-    value_00100 = old_00100
++    value_00100 = new_00100
+     after_00100()
++    extra_00100 = True
+     keep_00101 = 101
+-    value_00101 = old_00101
++    value_00101 = new_00101
+     after_00101()
++    extra_00101 = True
+     keep_00102 = 102
+-    value_00102 = old_00102
++    value_00102 = new_00102
+     after_00102()
++    extra_00102 = True
+     keep_00103 = 103
+-    value_00103 = old_00103
++    value_00103 = new_00103
+     after_00103()
++    extra_00103 = True
+     keep_00104 = 104
+-    value_00104 = old_00104
++    value_00104 = new_00104
+     after_00104()
++    extra_00104 = True
+     keep_00105 = 105
+-    value_00105 = old_00105
++    value_00105 = new_00105
+     after_00105()
++    extra_00105 = True

@@ -1,10 +1,5 @@
-"""Agent prompt command envelope. Pure mapping from a
-validated composer draft to the gateway command envelope.
-
-The gateway operation name `agent.prompt` mirrors the verified upstream
-method, but gateway fields and target shape are RelayDeck design; the
-adapter translates into the exact upstream parameter schema. Live
-dispatch of the recorded intent belongs to the gateway adapter.
+"""Agent prompt command envelope. Pure mapping from a validated composer draft to the gateway
+command envelope.
 """
 
 from __future__ import annotations

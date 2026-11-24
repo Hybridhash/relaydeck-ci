@@ -1,0 +1,126 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "size": 15,
+            "value": "Paste",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "bold"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "size": 13,
+            "value": "Long-press in the box and choose Paste."
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "key": "paste-entry-field",
+           "props": {
+            "hint_text": "Paste here",
+            "max_lines": 6,
+            "min_lines": 3,
+            "multiline": true
+           },
+           "slot": "controls",
+           "type": "TextField"
+          },
+          {
+           "children": [
+            {
+             "key": "paste-entry-cancel",
+             "props": {
+              "content": "Cancel",
+              "height": 48
+             },
+             "slot": "controls",
+             "type": "Button"
+            },
+            {
+             "key": "paste-entry-review",
+             "props": {
+              "content": "Review",
+              "disabled": true,
+              "height": 48
+             },
+             "slot": "controls",
+             "type": "Button"
+            }
+           ],
+           "props": {
+            "alignment": {
+             "enum": "MainAxisAlignment",
+             "value": "end"
+            }
+           },
+           "slot": "controls",
+           "type": "Row"
+          }
+         ],
+         "props": {
+          "spacing": 8,
+          "tight": true
+         },
+         "slot": "content",
+         "type": "Column"
+        }
+       ],
+       "key": "paste-entry-frame",
+       "props": {
+        "bgcolor": "#191335",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         }
+        },
+        "border_radius": 8,
+        "padding": 12
+       },
+       "slot": "content",
+       "type": "Container"
+      }
+     ],
+     "key": "paste-entry-layer",
+     "props": {
+      "right": 12,
+      "top": 12,
+      "width": 480
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:PasteEntrySheet"
+  }
+ ]
+}

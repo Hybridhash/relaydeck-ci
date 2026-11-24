@@ -7,10 +7,11 @@ from pathlib import Path
 
 import httpx
 
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport
-from relaydeck.connector.pubkey import fingerprint_of_raw, generate, openssh_to_raw
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.hosts import HostStore
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.contracts.pubkeys import fingerprint_of_raw, openssh_to_raw
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.features.access.hosts import HostStore
+from relaydeck.host.security.enrollment import generate
 from tests.security.helpers import ALL_CAPS, NOW, make_state
 from tests.support.companion.enrollment import _redeem_body
 from tests.support.gateway.fake_socket import _FakeSocket

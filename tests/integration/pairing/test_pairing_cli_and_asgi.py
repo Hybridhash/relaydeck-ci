@@ -8,17 +8,26 @@ import os
 from pathlib import Path
 from typing import Any
 
+import pytest
 from fastapi.testclient import TestClient
 
+from relaydeck.companion.app.runtime import CompanionRuntime
 from relaydeck.companion.cli import main
 from relaydeck.companion.config import load_config
-from relaydeck.companion.runtime import CompanionRuntime
 from relaydeck.contracts.schemas import validate
-from relaydeck.gateway.app import create_app
-from relaydeck.gateway.revocation import revoke_host_and_close
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.revocation import revoke_host_and_close
 from tests.security.helpers import auth
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.companion.asgi_companion import AsgiServer, config_file
 from tests.support.pairing import ORIGIN, VERIFIER, foundation, proof
+
+pytestmark = pytest.mark.usefixtures("hosted_web_bundle")
 
 
 def test_exact_companion_cli_approval_and_denial(
@@ -26,7 +35,7 @@ def test_exact_companion_cli_approval_and_denial(
 ) -> None:
     config = config_file(tmp_path, advertised_origin=ORIGIN)
     state, now, body = foundation(tmp_path / "state")
-    monkeypatch.setattr("relaydeck.companion.pairing.time.time", lambda: now[0] / 1000)
+    monkeypatch.setattr("relaydeck.companion.pairing.service.time.time", lambda: now[0] / 1000)
     argv = ["--config", str(config), "pairing"]
     assert main([*argv, "open", "--ttl-seconds", "120"]) == 0
     assert "selected host only" in capsys.readouterr().out

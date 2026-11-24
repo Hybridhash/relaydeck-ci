@@ -1,22 +1,5 @@
-"""Gateway<->client terminal WebSocket framing v2.
-
-Binary messages carry bytes; JSON text messages carry control documents
-(validated against relaydeck/gateway/v1/terminal-control: ack, gap,
-reset, bye). v1 (0x01) frames are rejected: no silent downgrade.
-
-Client -> gateway input (0x02):
-  [0x02][u16 lease_len][lease utf8][u32 generation][u32 input_seq]
-  [u8 kind][u32 len][payload]
-  kind 0x01 text:   payload is UTF-8 (validated), <= 16 KiB
-  kind 0x02 key:     payload is a Herdr key-combo name (validated
-                    against relaydeck.contracts.keys), <= 64 bytes
-  kind 0x03 resize:  payload is exactly [u16 cols][u16 rows], 1..1024
-
-Gateway -> client output (0x03):
-  [0x03][u16 epoch_len][epoch utf8][u64 offset][u32 len][bytes <= 64 KiB]
-`offset` is the cumulative byte offset of this chunk. An epoch change
-means reset; an offset gap means resync. Gap/reset markers themselves
-ride the text control channel.
+"""Versioned terminal WebSocket framing for binary output and validated input. Control documents
+carry acknowledgments, gaps, resets and closure separately.
 """
 
 from __future__ import annotations

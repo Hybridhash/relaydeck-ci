@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from relaydeck.gateway.push import ProviderOutcome, ProviderPort
+from relaydeck.gateway.features.notifications.service import ProviderOutcome, ProviderPort
 
 
 class StubProvider(ProviderPort):

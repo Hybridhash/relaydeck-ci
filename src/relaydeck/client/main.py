@@ -2,7 +2,7 @@
 
 import flet as ft
 
-from relaydeck.client.app import main
+from relaydeck.client.app.native.entry import main
 from relaydeck.client.asset_paths import CLIENT_ASSETS
 
 if __name__ == "__main__":

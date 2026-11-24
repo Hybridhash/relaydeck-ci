@@ -318,7 +318,7 @@ def test_pending_retry_never_survives_removal_shutdown_or_explicit_control(
                 def running(self) -> bool:
                     return True
 
-            def attach(terminal: str) -> None:
+            def attach(terminal: str, **_: Any) -> None:
                 source._attached[f"shell:{terminal}"] = (Control([]), terminal, "")
 
             monkeypatch.setattr(source, "attach_shell", attach)

@@ -13,6 +13,7 @@ import pytest
 
 from relaydeck.client.features.usage import model
 from relaydeck.client.features.usage import selectors as s
+from relaydeck.client.features.usage.selectors import console_card as usage_console_card
 
 ZONE = "UTC"
 NOW = int(datetime(2026, 10, 11, 12, tzinfo=ZoneInfo(ZONE)).timestamp() * 1000)
@@ -561,7 +562,7 @@ def test_console_card_totals_come_from_the_shared_selector() -> None:
         ],
         kinds=[kind_doc("kind-a", "Tool A")],
     )
-    card = model.console_card(parsed, NOW)
+    card = usage_console_card(parsed, NOW)
     assert card.has_today and card.tokens == 125
     assert card.cost_micro_usd == 125  # every token priced: the legacy number is present
 
@@ -574,7 +575,7 @@ def test_console_card_names_partial_cost_as_partial() -> None:
         ],
         kinds=[kind_doc("kind-a", "Tool A")],
     )
-    card = model.console_card(parsed, NOW)
+    card = usage_console_card(parsed, NOW)
     assert (
         card.cost_micro_usd is None and card.priced_micro_usd == 90 and card.unpriced_tokens == 13
     )
@@ -644,7 +645,7 @@ def test_readings_naming_two_accounts_are_never_picked_by_timestamp() -> None:
         limits=[_plane("k", "acct-a", 91.0, NOW - 10_000), _plane("k", "acct-b", 5.0, NOW)],
     )
     assert s.latest_limit(parsed, "k") is None  # ambiguous: shown as no reading, never a guess
-    assert model.console_card(parsed, NOW).pick is None
+    assert usage_console_card(parsed, NOW).pick is None
 
 
 def test_one_account_with_two_quotas_still_picks_the_latest_reading() -> None:

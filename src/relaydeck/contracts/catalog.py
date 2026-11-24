@@ -29,7 +29,7 @@ CATALOG_SCHEMA: dict[str, Any] = {
                 "properties": {
                     "kind": {"type": "string", "pattern": AGENT_KIND_PATTERN},
                     "available": {"type": "boolean"},
-                    "reason": {"enum": ["installed", "not_installed"]},
+                    "reason": {"enum": ["installed", "not_installed", "unsupported"]},
                 },
             },
         },

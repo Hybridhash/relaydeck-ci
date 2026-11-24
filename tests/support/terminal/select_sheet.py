@@ -7,7 +7,7 @@ from typing import Any
 from flet.messaging.protocol import MessageAction
 from relaydeck_terminal import protocol
 
-from relaydeck.client.features.terminal.surfaces import direct_typing
+import relaydeck.client.widgets.terminal.direct_typing as direct_typing
 from tests.support.terminal.channel_open import _HarnessChannel
 from tests.support.terminal.direct_typing import _direct
 

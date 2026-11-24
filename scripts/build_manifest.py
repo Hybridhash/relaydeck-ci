@@ -1,11 +1,11 @@
 """Release build manifest emitter.
 
-Emits the release manifest as JSON: app revision, Flet version,
+Emits the release manifest as JSON: the package `version`, app revision, Flet version,
 Python dev/packaged versions, Flutter version, native extension versions,
 build-template revision, lockfile hash, Android SDK/JDK versions,
 target/min SDK, upstream schema hash, and APK/AAB hashes.
 
-Q2 additions (additive, same schema id): `patches` (every file under
+Also recorded: `patches` (every file under
 patches/ with sha256 plus one combined hash), `flutter_sdk` (version, engine
 revision and whether the patched files match their recorded hashes),
 `lockfiles`, and `web_output` (main.dart.js hash, repair markers, font set,
@@ -14,28 +14,32 @@ scripts/build_web_client.sh.
 
 Every field is either measured from the local tree/toolchain (or from
 explicit CLI inputs) or emitted as {"status": "unavailable", "reason": ...}.
-This script never fabricates a value. Stdlib plus relaydeck.webbundle (the marker table).
+This script never fabricates a value. Stdlib plus relaydeck.releases.bundles (the marker table).
 """
 
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import importlib.metadata as md
+import importlib.util
 import json
 import os
 import platform
 import re
 import subprocess
 import sys
+import tomllib
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from relaydeck.webbundle import REPAIR_MARKERS, markers_ok, repair_markers
+from relaydeck.releases.bundles import REPAIR_MARKERS, csp_for_index, markers_ok, repair_markers
 
 SCHEMA = "relaydeck.build-manifest/1"
+CSP_POLICY_MODE = "report-only"
 PATCHES_DIR = Path("patches")
 LOCKFILE_NAMES = ("uv.lock", "pubspec.lock")
 UPSTREAM_SCHEMA = Path("tests/fixtures/upstream/herdr-0.9.1-schema.json")
@@ -316,6 +320,67 @@ def flutter_sdk_record(sdk: str | None, root: Path) -> Mapping[str, object]:
     return record
 
 
+# Shell first-load budget: the shell set (SHELL_FIXED plus CanvasKit, from
+# scripts/web_service_worker.py) may not grow more than this many percent in
+# raw or gzip bytes over the previous build manifest's record.
+SHELL_BUDGET_MAX_GROWTH_PCT = 5.0
+
+
+def _shell_member_names() -> tuple[str, ...]:
+    """SHELL_FIXED plus CanvasKit, read from the service-worker script (one source)."""
+    sibling = Path(__file__).resolve().with_name("web_service_worker.py")
+    spec = importlib.util.spec_from_file_location("web_service_worker", sibling)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load scripts/web_service_worker.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return tuple(module.SHELL_FIXED) + tuple(module.CANVASKIT_FILES)
+
+
+def shell_sizes(base: Path) -> dict[str, object]:
+    """Raw and gzip bytes per shell member present in the built tree, plus totals."""
+    files: dict[str, dict[str, int]] = {}
+    for name in _shell_member_names():
+        path = base / name
+        if not path.is_file():
+            continue
+        data = path.read_bytes()
+        files[name] = {"bytes": len(data), "gzip_bytes": len(gzip.compress(data, mtime=0))}
+    return {
+        "files": files,
+        "total_bytes": sum(entry["bytes"] for entry in files.values()),
+        "total_gzip_bytes": sum(entry["gzip_bytes"] for entry in files.values()),
+    }
+
+
+def shell_budget_check(
+    previous_manifest: str, web_out: str, *, max_growth_pct: float = SHELL_BUDGET_MAX_GROWTH_PCT
+) -> dict[str, object]:
+    """Compare this build's shell totals with a previous manifest's recorded totals.
+
+    A previous manifest written before the size record existed has no
+    baseline: the check reports `baseline: false` and passes, so the first
+    new manifest becomes the baseline the next build compares with.
+    """
+    current = shell_sizes(Path(web_out))
+    previous_doc = json.loads(Path(previous_manifest).read_text(encoding="utf-8"))
+    previous = previous_doc.get("web_output", {}).get("shell_sizes")
+    if not isinstance(previous, dict) or not previous.get("total_bytes"):
+        return {"baseline": False, "current": current, "ok": True}
+    outcome: dict[str, object] = {"baseline": True, "ok": True}
+    for key in ("total_bytes", "total_gzip_bytes"):
+        before = previous[key]
+        after = current[key]
+        if not isinstance(before, int) or not isinstance(after, int):
+            raise ValueError(f"shell size record has a non-integer {key}")
+        growth = (after - before) * 100.0 / before if before else 0.0
+        outcome[key] = {"previous": before, "current": after, "growth_pct": round(growth, 3)}
+        if growth > max_growth_pct:
+            outcome["ok"] = False
+    outcome["max_growth_pct"] = max_growth_pct
+    return outcome
+
+
 def web_output_record(out: str | None) -> Mapping[str, object]:
     if not out:
         return unavailable("no web output supplied (pass --web-out)")
@@ -343,7 +408,54 @@ def web_output_record(out: str | None) -> Mapping[str, object]:
         },
         "tree_sha256": tree.get("combined_sha256"),
         "file_count": tree.get("count"),
+        "shell_sizes": shell_sizes(base),
     }
+
+
+def prepare_hosted_index(out: Path) -> None:
+    """Bake the pinned root configuration before worker and policy hashing."""
+    from flet.controls.types import RouteUrlStrategy, WebRenderer
+    from flet.utils import get_bool_env_var
+    from flet_web.patch_index import patch_index_html
+
+    from relaydeck.contracts import paths
+
+    index = out / "index.html"
+    patch_index_html(
+        str(index),
+        base_href="",
+        websocket_endpoint_path="/ws",
+        web_renderer=WebRenderer(os.environ.get("FLET_WEB_RENDERER") or "auto"),
+        no_cdn=get_bool_env_var("FLET_WEB_NO_CDN") or False,
+        route_url_strategy=RouteUrlStrategy(
+            os.environ.get("FLET_WEB_ROUTE_URL_STRATEGY") or "path"
+        ),
+    )
+    body = index.read_bytes()
+    script = f'<script src="{paths.AUTH_RECOVERY_SCRIPT}"></script>'.encode()
+    if script not in body:
+        body = body.replace(b"<head>", b"<head>\n" + script, 1)
+    index.write_bytes(body)
+
+
+def web_csp_record(out: str | None) -> Mapping[str, object]:
+    if not out:
+        return unavailable("no web output supplied (pass --web-out)")
+    try:
+        return csp_for_index((Path(out) / "index.html").read_bytes(), CSP_POLICY_MODE)
+    except (OSError, ValueError):
+        return unavailable("final hosted index is unavailable")
+
+
+def package_version(root: Path) -> str | dict[str, Any]:
+    """The release version, read from pyproject.toml (never from package metadata,
+    so a manifest built in a tree always names that tree's version)."""
+    try:
+        data = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
+        version = data["project"]["version"]
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return unavailable(f"cannot read the package version: {exc}")
+    return version if isinstance(version, str) else unavailable("version is not text")
 
 
 def build_manifest(
@@ -369,6 +481,7 @@ def build_manifest(
     )
     return {
         "schema": SCHEMA,
+        "version": package_version(root),
         "generated_at": datetime.now(UTC).isoformat(),
         "app": app_revision(root),
         "flet": flet_version(),
@@ -404,6 +517,7 @@ def build_manifest(
         "lockfiles": lockfiles(root),
         "flutter_sdk": flutter_sdk_record(flutter_sdk, root),
         "web_output": web_output_record(web_out),
+        "web": {"csp": web_csp_record(web_out)},
     }
 
 
@@ -418,10 +532,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--root", default="", help="repo root (default: script parent)")
     parser.add_argument("--flutter-sdk", help="Flutter SDK directory used for the build")
     parser.add_argument("--web-out", help="built web client directory (holds main.dart.js)")
+    parser.add_argument("--prepare-hosted-index", type=Path, help="bake the hosted configuration")
+    parser.add_argument("--write-web-csp", type=Path, help="write the final hosted policy record")
     parser.add_argument(
         "--check-markers",
         metavar="MAIN_DART_JS",
         help="exit 1 unless the compiled bundle carries every repair marker",
+    )
+    parser.add_argument(
+        "--check-shell-budget",
+        metavar="PREVIOUS_MANIFEST",
+        help="exit 1 if --web-out's shell set grew past the budget vs that manifest",
     )
     parser.add_argument(
         "--patches",
@@ -429,6 +550,35 @@ def main(argv: list[str] | None = None) -> int:
         help="comma-separated patch folders the marker check applies to (default: all)",
     )
     args = parser.parse_args(argv)
+    if args.prepare_hosted_index:
+        prepare_hosted_index(args.prepare_hosted_index)
+        return 0
+    if args.write_web_csp:
+        record = web_csp_record(str(args.write_web_csp))
+        if "index_sha256" not in record:
+            sys.stderr.write("csp_metadata_required\n")
+            return 1
+        (args.write_web_csp / "csp.json").write_text(
+            json.dumps(record, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        return 0
+    if args.check_shell_budget:
+        if not args.web_out:
+            sys.stderr.write("--check-shell-budget needs --web-out\n")
+            return 2
+        try:
+            outcome = shell_budget_check(args.check_shell_budget, args.web_out)
+        except (OSError, ValueError) as exc:
+            sys.stderr.write(f"shell budget check failed: {exc}\n")
+            return 1
+        sys.stdout.write(json.dumps(outcome, indent=2, sort_keys=True) + chr(10))
+        if not outcome["ok"]:
+            sys.stderr.write(
+                f"shell budget exceeded: growth past {SHELL_BUDGET_MAX_GROWTH_PCT}% "
+                "over the previous build\n"
+            )
+            return 1
+        return 0
     if args.check_markers:
         try:
             js = Path(args.check_markers).read_text(encoding="utf-8", errors="replace")

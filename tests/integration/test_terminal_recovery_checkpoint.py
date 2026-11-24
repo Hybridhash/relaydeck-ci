@@ -14,15 +14,23 @@ from flet.data_channel import _ProtocolMuxedDataChannel
 from relaydeck_terminal import protocol
 from relaydeck_terminal.terminal import RelayDeckTerminal
 
-from relaydeck.client import serve
-from relaydeck.client.features.shell.ops import HttpxShellGatewayOps
-from relaydeck.client.features.sync.transport import TransportError
+from relaydeck.client.app.sessions.factory import SessionFactory
+from relaydeck.client.app.sessions.retained import RetainedSessions
 from relaydeck.client.features.terminal.models import TerminalViewState
-from relaydeck.client.features.terminal.screen import status_line
-from relaydeck.client.retained_sessions import RetainedSessions
-from relaydeck.client.sessions import SessionFactory
+from relaydeck.client.features.terminal.pictures import PictureApi as PictureApiFactory
+from relaydeck.client.platform.transport.shell_ops import HttpxShellGatewayOps
+from relaydeck.client.ports.transport import TransportError
+from relaydeck.client.widgets.terminal.screen import deliver_output as _deliver_output
+from relaydeck.client.widgets.terminal.screen import status_line
+from relaydeck.companion.app.hosted_web import serve
 from relaydeck.domain.models import ConnectionState
-from relaydeck.gateway.app import create_app
+from relaydeck.gateway.app.bootstrap import create_app
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 from tests.support.fakes import FakeClipboard
 from tests.support.gateway.flet_gateway import _gateway_state
 from tests.support.host_harness import render_component, run
@@ -207,7 +215,7 @@ def test_same_channel_native_replacement_uses_existing_explicit_screen_recovery(
             await session.confirm_takeover()
             await session.type_text("exact retained draft")
         app, term = await viewer()
-        session.bind_view(term)
+        session.bind_view(term, write=_deliver_output)
         await channel(app, 32)
         retained = term._channel
         assert isinstance(retained, _ProtocolMuxedDataChannel)
@@ -277,8 +285,8 @@ def test_size_diagnostics_report_applied_and_fenced_without_content(
 def test_binding_and_foreground_diagnostics_are_event_only_and_content_free(
     caplog: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
-    from relaydeck.client.features.terminal.surfaces import mount_agent_screen
+    from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
+    from relaydeck.client.screens.terminal.screen import mount_agent_screen
 
     monkeypatch.setattr(diagnostics_logger(), "propagate", True)
 
@@ -331,7 +339,7 @@ def test_fresh_viewer_fences_writer_cursor_and_preserves_retained_draft(kind: st
             await session.confirm_takeover()
             await session.type_text("unsent draft")
         app, term = await viewer()
-        session.bind_view(term)
+        session.bind_view(term, write=_deliver_output)
         await channel(app, 21)
         controller = session.controller
         assert controller is not None
@@ -357,7 +365,7 @@ def test_fresh_viewer_fences_writer_cursor_and_preserves_retained_draft(kind: st
         await channel(app, 21)
         assert session.controller is controller and controller.paste_generation() is writer_before
         session.unbind_view()
-        session.bind_view(term)
+        session.bind_view(term, write=_deliver_output)
         assert session.controller is controller and controller.paste_generation() is writer_before
         sent_before = len(factory.sockets[0].sent_bytes)
         attaches_before = len(ops.attaches)
@@ -430,7 +438,7 @@ def test_replacing_python_viewer_cannot_inherit_native_history() -> None:
         session, _, _ = _session()
         await session.open("term-1")
         old_app, old_term = await viewer()
-        session.bind_view(old_term)
+        session.bind_view(old_term, write=_deliver_output)
         await channel(old_app, 41)
         controller = session.controller
         assert controller is not None
@@ -438,7 +446,7 @@ def test_replacing_python_viewer_cannot_inherit_native_history() -> None:
         controller._handle_output(0, b"hello")
         session.unbind_view()
         new_app, new_term = await viewer()
-        session.bind_view(new_term)
+        session.bind_view(new_term, write=_deliver_output)
         assert session.controller is controller and not controller.writer_revoked
         await channel(new_app, 42)
         assert session.controller is None and controller.writer_revoked
@@ -470,7 +478,7 @@ def test_diagnostics_are_opt_in_and_reset_reasons_are_bounded(
 
 def test_disconnected_screen_cannot_enable_native_input() -> None:
     async def scenario() -> None:
-        from relaydeck.client.features.terminal.screen import TerminalScreen
+        from relaydeck.client.widgets.terminal.screen import TerminalScreen
 
         app = await render_component(
             TerminalScreen,
@@ -540,8 +548,10 @@ def test_synthetic_login_issued_identity_self_reconnect_and_foreign_owner(monkey
     async def scenario() -> None:
         state = _gateway_state()
         monkeypatch.setattr(serve.time, "time", lambda: 1000)
-        monkeypatch.setitem(serve._DEV_LOGIN_TOKEN, "value", "synthetic")
-        monkeypatch.setitem(serve._DEV_HOSTS, "value", frozenset({"home-mac"}))
+        from relaydeck.devtools import dev_server
+
+        monkeypatch.setitem(dev_server._DEV_LOGIN_TOKEN, "value", "synthetic")
+        monkeypatch.setitem(dev_server._DEV_HOSTS, "value", frozenset({"home-mac"}))
         app, store = serve.build_web_app(
             gateway_state=state,
             gateway_app=create_app(state),
@@ -555,7 +565,7 @@ def test_synthetic_login_issued_identity_self_reconnect_and_foreign_owner(monkey
         ) as http:
             response = await http.get("/v1/auth/dev-login", params={"token": "synthetic"})
             assert response.status_code == 302
-            sid = store.verify_cookie(http.cookies.get("rd_session"))
+            sid = store.verify_cookie(http.cookies.get("rd_dev_session"))
             identity = store.identity(sid)
             assert sid and identity
             access, _ = store.take_session(sid)
@@ -570,7 +580,12 @@ def test_synthetic_login_issued_identity_self_reconnect_and_foreign_owner(monkey
                 pytest.fail("Unexpected mutation")
 
             resources_factory = SessionFactory(
-                ops=HttpxShellGatewayOps(base_url=store.public_origin, token=token, client=http),
+                ops=HttpxShellGatewayOps(
+                    base_url=store.public_origin,
+                    token=token,
+                    client=http,
+                    picture_api_factory=PictureApiFactory,
+                ),
                 open_stream=lambda lease, ticket: factory(ticket),
                 submit_command=submit,
                 prompt_text=None,
@@ -591,7 +606,10 @@ def test_synthetic_login_issued_identity_self_reconnect_and_foreign_owner(monkey
                 return foreign_access
 
             foreign_ops = HttpxShellGatewayOps(
-                base_url=store.public_origin, token=foreign_token, client=http
+                base_url=store.public_origin,
+                token=foreign_token,
+                client=http,
+                picture_api_factory=PictureApiFactory,
             )
             await foreign_ops.attach("home-mac", "term-shell-1", "shell", True)
             assert await shell.reconnect() == "conflict"
@@ -607,8 +625,8 @@ def test_revoked_root_explains_recovery_without_restoring_inventory() -> None:
 
         calls: list[str] = []
         state = reducers.revoke(_state())
-        from relaydeck.client.app import Root
-        from relaydeck.client.features.inventory.routing import RouteBridge
+        from relaydeck.client.app.navigation import RouteBridge
+        from relaydeck.client.app.root import Root
 
         controller = _StubController()
         app = await render_component(

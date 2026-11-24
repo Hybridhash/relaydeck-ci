@@ -1,0 +1,880 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "key": "catalog-title",
+         "props": {
+          "color": "#F5F2FF",
+          "size": 22,
+          "value": "Stepper"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "catalog-case",
+         "props": {
+          "color": "#B7AFDA",
+          "value": "1440 px · dark · loading"
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "key": "catalog-state-note",
+         "props": {
+          "color": "#B7AFDA",
+          "value": "Existing fixed console tokens; theme changes the surrounding canvas. Loading context; the control has no loading property."
+         },
+         "slot": "controls",
+         "type": "Text"
+        },
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "color": "#F5F2FF",
+                      "icon": 71741,
+                      "size": 18
+                     },
+                     "slot": "content",
+                     "type": "Icon"
+                    }
+                   ],
+                   "props": {
+                    "alignment": {
+                     "@": "Alignment",
+                     "x": 0.0,
+                     "y": 0.0
+                    },
+                    "bgcolor": "#1F1840",
+                    "border": {
+                     "@": "Border",
+                     "bottom": {
+                      "@": "BorderSide",
+                      "color": "#3B3270"
+                     },
+                     "left": {
+                      "@": "BorderSide",
+                      "color": "#3B3270"
+                     },
+                     "right": {
+                      "@": "BorderSide",
+                      "color": "#3B3270"
+                     },
+                     "top": {
+                      "@": "BorderSide",
+                      "color": "#3B3270"
+                     }
+                    },
+                    "border_radius": {
+                     "@": "BorderRadius",
+                     "bottom_left": 24,
+                     "bottom_right": 24,
+                     "top_left": 24,
+                     "top_right": 24
+                    }
+                   },
+                   "slot": "content",
+                   "type": "Container"
+                  }
+                 ],
+                 "key": "sample-control-minus",
+                 "props": {
+                  "expand": false,
+                  "height": 48,
+                  "style": {
+                   "@": "ButtonStyle",
+                   "bgcolor": "transparent",
+                   "overlay_color": {
+                    "ControlState.DEFAULT": "transparent",
+                    "ControlState.FOCUSED": "#33FFFFFF"
+                   },
+                   "padding": 0,
+                   "shape": {
+                    "@": "RoundedRectangleBorder",
+                    "radius": 24
+                   },
+                   "side": {
+                    "ControlState.DEFAULT": {
+                     "@": "BorderSide",
+                     "color": "transparent",
+                     "width": 3
+                    },
+                    "ControlState.FOCUSED": {
+                     "@": "BorderSide",
+                     "color": "#F5F2FF",
+                     "width": 3
+                    }
+                   }
+                  },
+                  "tooltip": "Smaller text",
+                  "width": 48
+                 },
+                 "slot": "controls",
+                 "type": "TextButton"
+                },
+                {
+                 "children": [
+                  {
+                   "key": "sample-control-value",
+                   "props": {
+                    "style": {
+                     "@": "TextStyle",
+                     "color": "#F5F2FF",
+                     "font_family": "JetBrains Mono Bold",
+                     "font_family_fallback": [
+                      "Noto Sans Symbols 2"
+                     ],
+                     "height": 1.2,
+                     "size": 14,
+                     "weight": {
+                      "enum": "FontWeight",
+                      "value": "bold"
+                     }
+                    },
+                    "value": "16"
+                   },
+                   "slot": "content",
+                   "type": "Text"
+                  }
+                 ],
+                 "props": {
+                  "alignment": {
+                   "@": "Alignment",
+                   "x": 0.0,
+                   "y": 0.0
+                  },
+                  "width": 56
+                 },
+                 "slot": "controls",
+                 "type": "Container"
+                },
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "color": "#F5F2FF",
+                      "icon": 65604,
+                      "size": 18
+                     },
+                     "slot": "content",
+                     "type": "Icon"
+                    }
+                   ],
+                   "props": {
+                    "alignment": {
+                     "@": "Alignment",
+                     "x": 0.0,
+                     "y": 0.0
+                    },
+                    "bgcolor": "#1F1840",
+                    "border": {
+                     "@": "Border",
+                     "bottom": {
+                      "@": "BorderSide",
+                      "color": "#3B3270"
+                     },
+                     "left": {
+                      "@": "BorderSide",
+                      "color": "#3B3270"
+                     },
+                     "right": {
+                      "@": "BorderSide",
+                      "color": "#3B3270"
+                     },
+                     "top": {
+                      "@": "BorderSide",
+                      "color": "#3B3270"
+                     }
+                    },
+                    "border_radius": {
+                     "@": "BorderRadius",
+                     "bottom_left": 24,
+                     "bottom_right": 24,
+                     "top_left": 24,
+                     "top_right": 24
+                    }
+                   },
+                   "slot": "content",
+                   "type": "Container"
+                  }
+                 ],
+                 "key": "sample-control-plus",
+                 "props": {
+                  "expand": false,
+                  "height": 48,
+                  "style": {
+                   "@": "ButtonStyle",
+                   "bgcolor": "transparent",
+                   "overlay_color": {
+                    "ControlState.DEFAULT": "transparent",
+                    "ControlState.FOCUSED": "#33FFFFFF"
+                   },
+                   "padding": 0,
+                   "shape": {
+                    "@": "RoundedRectangleBorder",
+                    "radius": 24
+                   },
+                   "side": {
+                    "ControlState.DEFAULT": {
+                     "@": "BorderSide",
+                     "color": "transparent",
+                     "width": 3
+                    },
+                    "ControlState.FOCUSED": {
+                     "@": "BorderSide",
+                     "color": "#F5F2FF",
+                     "width": 3
+                    }
+                   }
+                  },
+                  "tooltip": "Larger text",
+                  "width": 48
+                 },
+                 "slot": "controls",
+                 "type": "TextButton"
+                }
+               ],
+               "key": "sample-control",
+               "props": {
+                "spacing": 8,
+                "tight": true
+               },
+               "slot": "content",
+               "type": "Row"
+              }
+             ],
+             "key": "catalog-subject",
+             "slot": "controls",
+             "type": "Container"
+            },
+            {
+             "children": [
+              {
+               "children": [
+                {
+                 "children": [
+                  {
+                   "children": [
+                    {
+                     "props": {
+                      "bgcolor": "#A98BFF",
+                      "border_radius": 2,
+                      "height": 11.200000000000001,
+                      "width": 4.666666666666667
+                     },
+                     "slot": "controls",
+                     "type": "Container"
+                    },
+                    {
+                     "props": {
+                      "bgcolor": "#A98BFF",
+                      "border_radius": 2,
+                      "height": 22.400000000000002,
+                      "width": 4.666666666666667
+                     },
+                     "slot": "controls",
+                     "type": "Container"
+                    },
+                    {
+                     "props": {
+                      "bgcolor": "#A98BFF",
+                      "border_radius": 2,
+                      "height": 15.400000000000002,
+                      "width": 4.666666666666667
+                     },
+                     "slot": "controls",
+                     "type": "Container"
+                    },
+                    {
+                     "props": {
+                      "bgcolor": "#A98BFF",
+                      "border_radius": 2,
+                      "height": 28.0,
+                      "width": 4.666666666666667
+                     },
+                     "slot": "controls",
+                     "type": "Container"
+                    }
+                   ],
+                   "props": {
+                    "alignment": {
+                     "enum": "MainAxisAlignment",
+                     "value": "center"
+                    },
+                    "spacing": 2.3333333333333335,
+                    "vertical_alignment": {
+                     "enum": "CrossAxisAlignment",
+                     "value": "end"
+                    }
+                   },
+                   "slot": "content",
+                   "type": "Row"
+                  }
+                 ],
+                 "key": "usage-loading-icon",
+                 "props": {
+                  "alignment": {
+                   "@": "Alignment",
+                   "x": 0.0,
+                   "y": 1.0
+                  },
+                  "height": 28,
+                  "width": 28
+                 },
+                 "slot": "body",
+                 "type": "Container"
+                }
+               ],
+               "slot": "content",
+               "type": "Component:LoadingBars"
+              }
+             ],
+             "key": "catalog-loading-context",
+             "props": {
+              "label": "Loading example",
+              "live_region": true
+             },
+             "slot": "controls",
+             "type": "Semantics"
+            },
+            {
+             "key": "catalog-actions",
+             "props": {
+              "color": "#B7AFDA",
+              "value": "Example actions: 0"
+             },
+             "slot": "controls",
+             "type": "Text"
+            }
+           ],
+           "props": {
+            "spacing": 16
+           },
+           "slot": "body",
+           "type": "Column"
+          }
+         ],
+         "slot": "controls",
+         "type": "Component:Specimen"
+        }
+       ],
+       "props": {
+        "spacing": 16
+       },
+       "slot": "content",
+       "type": "Column"
+      }
+     ],
+     "key": "catalog-preview-stepper-1440-dark-loading",
+     "props": {
+      "bgcolor": "#130F26",
+      "padding": 16,
+      "theme": {
+       "@": "Theme",
+       "button_theme": {
+        "@": "ButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "canvas_color": "#130F26",
+       "color_scheme": {
+        "@": "ColorScheme",
+        "error": "#FFB4AB",
+        "error_container": "#3C2024",
+        "on_error": "#191335",
+        "on_error_container": "#FFB4AB",
+        "on_primary": "#FFFFFF",
+        "on_primary_container": "#F5F2FF",
+        "on_secondary": "#FFFFFF",
+        "on_secondary_container": "#F5F2FF",
+        "on_surface": "#F5F2FF",
+        "on_surface_variant": "#B7AFDA",
+        "on_tertiary": "#191335",
+        "outline": "#8E86B8",
+        "outline_variant": "#3B3270",
+        "primary": "#7443F5",
+        "primary_container": "#1F1840",
+        "secondary": "#7443F5",
+        "secondary_container": "#1F1840",
+        "surface": "#191335",
+        "surface_bright": "#2B2356",
+        "surface_container": "#191335",
+        "surface_container_high": "#2B2356",
+        "surface_container_highest": "#2B2356",
+        "surface_container_low": "#191335",
+        "surface_container_lowest": "#130F26",
+        "surface_dim": "#130F26",
+        "surface_tint": "transparent",
+        "tertiary": "#FF8A3D"
+       },
+       "disabled_color": "#B7AFDA",
+       "divider_color": "#3B3270",
+       "filled_button_theme": {
+        "@": "FilledButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#7443F5",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#7443F5",
+          "ControlState.HOVERED": "#7443F5"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#FFFFFF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#FFFFFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "focus_color": "#1F1840",
+       "font_family": "Bricolage Grotesque",
+       "hint_color": "#B7AFDA",
+       "hover_color": "#2B2356",
+       "icon_button_theme": {
+        "@": "IconButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "icon_theme": {
+        "@": "IconTheme",
+        "color": "#B7AFDA",
+        "size": 20
+       },
+       "list_tile_theme": {
+        "@": "ListTileTheme",
+        "icon_color": "#B7AFDA",
+        "min_height": 48,
+        "selected_color": "#F5F2FF",
+        "selected_tile_color": "#1F1840",
+        "text_color": "#F5F2FF"
+       },
+       "navigation_bar_theme": {
+        "@": "NavigationBarTheme",
+        "bgcolor": "#191335",
+        "elevation": 0,
+        "height": 64,
+        "indicator_color": "#1F1840",
+        "indicator_shape": {
+         "@": "RoundedRectangleBorder",
+         "radius": 8
+        },
+        "label_text_style": {
+         "ControlState.DEFAULT": {
+          "@": "TextStyle",
+          "color": "#B7AFDA",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 11
+         },
+         "ControlState.SELECTED": {
+          "@": "TextStyle",
+          "color": "#A98BFF",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 11
+         }
+        }
+       },
+       "navigation_rail_theme": {
+        "@": "NavigationRailTheme",
+        "bgcolor": "#191335",
+        "elevation": 0,
+        "indicator_color": "#1F1840",
+        "indicator_shape": {
+         "@": "RoundedRectangleBorder",
+         "radius": 8
+        },
+        "label_type": {
+         "enum": "NavigationRailLabelType",
+         "value": "all"
+        },
+        "selected_label_text_style": {
+         "@": "TextStyle",
+         "color": "#A98BFF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 11
+        },
+        "unselected_label_text_style": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 11
+        }
+       },
+       "outlined_button_theme": {
+        "@": "OutlinedButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "scaffold_bgcolor": "#130F26",
+       "text_button_theme": {
+        "@": "TextButtonTheme",
+        "style": {
+         "@": "ButtonStyle",
+         "bgcolor": {
+          "ControlState.DEFAULT": "#2B2356",
+          "ControlState.DISABLED": "#2B2356",
+          "ControlState.FOCUSED": "#1F1840",
+          "ControlState.HOVERED": "#1F1840"
+         },
+         "color": {
+          "ControlState.DEFAULT": "#F5F2FF",
+          "ControlState.DISABLED": "#B7AFDA"
+         },
+         "elevation": 0,
+         "icon_size": 20,
+         "overlay_color": "transparent",
+         "padding": {
+          "@": "Padding",
+          "bottom": 8,
+          "left": 12,
+          "right": 12,
+          "top": 8
+         },
+         "shape": {
+          "@": "RoundedRectangleBorder",
+          "radius": 8
+         },
+         "side": {
+          "ControlState.DEFAULT": {
+           "@": "BorderSide",
+           "color": "#8E86B8"
+          },
+          "ControlState.FOCUSED": {
+           "@": "BorderSide",
+           "color": "#A98BFF",
+           "width": 2
+          }
+         },
+         "text_style": {
+          "@": "TextStyle",
+          "font_family_fallback": [
+           "Noto Sans Symbols 2",
+           "Noto Sans Symbols"
+          ],
+          "size": 14,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w500"
+          }
+         }
+        }
+       },
+       "text_theme": {
+        "@": "TextTheme",
+        "body_large": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 16
+        },
+        "body_medium": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 14
+        },
+        "body_small": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 12
+        },
+        "label_large": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 14
+        },
+        "label_medium": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 12
+        },
+        "label_small": {
+         "@": "TextStyle",
+         "color": "#B7AFDA",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 12
+        },
+        "title_large": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 22,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w600"
+         }
+        },
+        "title_medium": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 15,
+         "weight": {
+          "enum": "FontWeight",
+          "value": "w600"
+         }
+        },
+        "title_small": {
+         "@": "TextStyle",
+         "color": "#F5F2FF",
+         "font_family_fallback": [
+          "Noto Sans Symbols 2",
+          "Noto Sans Symbols"
+         ],
+         "size": 14
+        }
+       },
+       "use_material3": true
+      },
+      "theme_mode": {
+       "enum": "ThemeMode",
+       "value": "dark"
+      },
+      "width": 1440
+     },
+     "slot": "body",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Component:Preview"
+  }
+ ]
+}

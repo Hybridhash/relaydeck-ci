@@ -1,19 +1,5 @@
-"""Same-root session metadata for the event-usage reader.
-
-The fixed leaf `session-index.db` beside `sessions/` maps session ids to
-their model and working folder. Reads are live read-only snapshots: `mode=ro`
-(a WAL database stays consistent; `immutable` would hide the WAL and is never
-used), `query_only`, in-memory temp store, one `BEGIN` snapshot, no copies,
-no sidecars, a short busy timeout.
-
-A missing, oversized, over-rowed, corrupt or locked index yields no
-enrichment (None), never an error: events are still stored, unverified.
-Field allowlist: `session_id`, `model_id`, `workspace_root` only; title,
-prompt and search columns are never selected.
-
-Retrieval is bounded: at most MAX_INDEX_ROWS + 1 rows stream in chunks (one
-past the cap proves over-rowed), every text field arrives capped at its own
-validation limit, and an optional deadline aborts the statement.
+"""Read bounded same-root session model/folder enrichment in one live SQLite snapshot. Missing
+or unsafe index evidence leaves events unenriched without exposing transcript columns.
 """
 
 from __future__ import annotations
@@ -27,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from relaydeck.usage.contracts import MAX_KEY_CHARS, MAX_MODEL_CHARS
-from relaydeck.usage.link_digests import MAX_PATH_CHARS
+from relaydeck.usage.linking.digests import MAX_PATH_CHARS
 
 INDEX_FILENAME = "session-index.db"
 MAX_INDEX_BYTES = 64 * 1024 * 1024
@@ -38,10 +24,9 @@ _PROGRESS_OPS = 1000
 
 
 def _capped(column: str, cap: int) -> str:
-    """Bounded retrieval of a text column at its validation limit. Text longer
-    than the cap arrives truncated one past it (the caller applies the same
-    validation as before, so outcomes are unchanged); every other type passes
-    through untouched. Column names are module constants, never input."""
+    """Build SQL that caps text at its validation limit plus one while preserving nontext
+    values. Column names are fixed module constants.
+    """
     return (
         f"CASE WHEN typeof({column}) = 'text' THEN substr({column}, 1, {cap + 1}) ELSE {column} END"
     )

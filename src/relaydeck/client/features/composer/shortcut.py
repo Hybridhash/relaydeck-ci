@@ -1,13 +1,11 @@
-"""Ctrl/Cmd+Enter sends the agent draft through the same entry point as the Send button.
-
-Plain Enter and Shift+Enter keep inserting a newline. The page reports a key press (with the
-modifier flags) before the text field reacts, and the field still inserts a newline for it, so
-the one newline that press adds is swallowed instead of reaching the draft.
+"""Ctrl/Cmd+Enter sends the agent draft through the same entry point as the Send button. The
+page has one keyboard handler.
 """
 
 from __future__ import annotations
 
 import inspect
+import logging
 import time
 from collections.abc import Callable
 from typing import Any
@@ -15,14 +13,16 @@ from typing import Any
 import flet as ft
 from flet.controls.context import context
 
-from relaydeck.client.features.terminal.events import spawn
+from relaydeck.client.platform.flet.events import spawn
 
 
 async def _await(awaitable: Any) -> None:
     await awaitable
 
 
+LOG = logging.getLogger("relaydeck.client.composer")
 _REGISTRY_ATTR = "_relaydeck_send_shortcuts"
+_LISTENERS_ATTR = "_relaydeck_key_listeners"
 _ENTER_KEYS = ("Enter", "Numpad Enter")
 _SWALLOW_WINDOW_S = 1.0
 
@@ -47,15 +47,52 @@ def inserted_one_newline(before: str, after: str) -> bool:
 
 
 def _dispatch(event: Any) -> None:
+    page = context.page
+    for listener in tuple(getattr(page, _LISTENERS_ATTR, ())):
+        try:
+            listener(event)
+        except Exception:  # noqa: BLE001 - a listener never stops the composer's own shortcut
+            LOG.warning("key_listener_failed")
     if getattr(event, "key", "") not in _ENTER_KEYS:
         return
     if not (getattr(event, "ctrl", False) or getattr(event, "meta", False)):
         return
     if getattr(event, "shift", False) or getattr(event, "alt", False):
         return
-    page = context.page
     for entry in tuple(getattr(page, _REGISTRY_ATTR, ())):
         entry()
+
+
+def _release(page: Any) -> None:
+    """Remove the page handler once nothing is registered with it."""
+    idle = not getattr(page, _REGISTRY_ATTR, None) and not getattr(page, _LISTENERS_ATTR, None)
+    if idle and page.on_keyboard_event is _dispatch:
+        page.on_keyboard_event = None
+
+
+def add_key_listener(listener: Callable[[Any], None]) -> Callable[[], None]:
+    """Receive every page key press until the returned function is called.
+
+    Returns a no-op when there is no page (nothing is registered then).
+    """
+    try:
+        page = context.page
+    except RuntimeError:
+        return lambda: None
+    listeners: list[Callable[[Any], None]] | None = getattr(page, _LISTENERS_ATTR, None)
+    if listeners is None:
+        listeners = []
+        setattr(page, _LISTENERS_ATTR, listeners)
+    listeners.append(listener)
+    if page.on_keyboard_event is not _dispatch:
+        page.on_keyboard_event = _dispatch
+
+    def remove() -> None:
+        if listener in listeners:
+            listeners.remove(listener)
+        _release(page)
+
+    return remove
 
 
 class SendShortcut:
@@ -115,8 +152,7 @@ def use_send_shortcut(
         def detach() -> None:
             if shortcut.fire in registry:
                 registry.remove(shortcut.fire)
-            if not registry and page.on_keyboard_event is _dispatch:
-                page.on_keyboard_event = None
+            _release(page)
 
         detach_ref.current = detach
 

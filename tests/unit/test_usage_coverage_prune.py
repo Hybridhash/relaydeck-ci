@@ -11,8 +11,11 @@ from pathlib import Path
 from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
-from relaydeck.companion.config import CompanionConfig, UsageConfig, UsageSourceConfig
-from relaydeck.companion.runtime import CompanionRuntime
+import pytest
+
+from relaydeck.companion.app.runtime import CompanionRuntime
+from relaydeck.companion.config import CompanionConfig
+from relaydeck.usage.config import UsageConfig, UsageSourceConfig
 from relaydeck.usage.contracts import (
     Basis,
     Batch,
@@ -26,6 +29,14 @@ from relaydeck.usage.contracts import (
     UsageReport,
 )
 from relaydeck.usage.store import SqliteUsageStore
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
+
+pytestmark = pytest.mark.usefixtures("hosted_web_bundle")
 
 HOST = "h1"
 ZONE = "UTC"
@@ -181,11 +192,11 @@ def test_runtime_prepare_usage_retires_on_startup(tmp_path: Path) -> None:
     )
     runtime = CompanionRuntime(config)
     runtime.gateway = SimpleNamespace(now_ms=lambda: NOW, usage=None)
-    runtime._prepare_usage()
+    runtime.usage._prepare_usage()
     try:
-        assert runtime.usage_store is not None
-        report = runtime.usage_store.query(UsageQuery(HOST, DAY, DAY), NOW)
+        assert runtime.usage.usage_store is not None
+        report = runtime.usage.usage_store.query(UsageQuery(HOST, DAY, DAY), NOW)
         assert _cov(report, "kind-a").coverage == Coverage.COMPLETE
     finally:
-        if runtime.usage_store is not None:
-            runtime.usage_store.close()
+        if runtime.usage.usage_store is not None:
+            runtime.usage.usage_store.close()

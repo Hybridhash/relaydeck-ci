@@ -1,0 +1,1494 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#3FB950",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "A",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#3FB950,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-0",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Added, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F59E0B",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "M",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#F59E0B,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-1",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Modified, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#FF7B72",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "D",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#FF7B72,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "style": {
+             "@": "TextStyle",
+             "decoration": 4
+            },
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-2",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Deleted, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#A98BFF",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "R",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#A98BFF,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-3",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Renamed, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#3FB950",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "U",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#3FB950,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-4",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Untracked, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#FF8A3D",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "!",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#FF8A3D,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-5",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Conflict, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "B",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#B7AFDA,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-6",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Binary, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "S",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#B7AFDA,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-7",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Submodule, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "T",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#B7AFDA,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-8",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Mode changed, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    },
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "size": 12,
+            "value": "L",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "content",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": 0.0,
+           "y": 0.0
+          },
+          "bgcolor": "#B7AFDA,0.18",
+          "border_radius": 5,
+          "height": 22,
+          "width": 22
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "color": "#F5F2FF",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 13,
+            "value": "example.py",
+            "weight": {
+             "enum": "FontWeight",
+             "value": "w700"
+            }
+           },
+           "slot": "controls",
+           "type": "Text"
+          },
+          {
+           "props": {
+            "color": "#B7AFDA",
+            "font_family": "JetBrains Mono",
+            "max_lines": 1,
+            "overflow": {
+             "enum": "TextOverflow",
+             "value": "ellipsis"
+            },
+            "size": 11,
+            "value": "unstaged"
+           },
+           "slot": "controls",
+           "type": "Text"
+          }
+         ],
+         "props": {
+          "alignment": {
+           "enum": "MainAxisAlignment",
+           "value": "center"
+          },
+          "expand": true,
+          "spacing": 0
+         },
+         "slot": "controls",
+         "type": "Column"
+        },
+        {
+         "children": [
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#3FB950"
+            },
+            "text": "+1"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          },
+          {
+           "props": {
+            "style": {
+             "@": "TextStyle",
+             "color": "#FF7B72"
+            },
+            "text": " −2"
+           },
+           "slot": "spans",
+           "type": "TextSpan"
+          }
+         ],
+         "props": {
+          "color": "#D9D3F2",
+          "font_family": "JetBrains Mono",
+          "size": 12,
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w700"
+          }
+         },
+         "slot": "controls",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "spacing": 12
+       },
+       "slot": "content",
+       "type": "Row"
+      }
+     ],
+     "key": "file-9",
+     "props": {
+      "border": {
+       "@": "Border",
+       "bottom": {
+        "@": "BorderSide",
+        "color": "#3B3270"
+       }
+      },
+      "height": 56,
+      "padding": {
+       "@": "Padding",
+       "left": 16,
+       "right": 16
+      },
+      "tooltip": "example.py, Symbolic link, unstaged, +1 −2"
+     },
+     "slot": "controls",
+     "type": "Container"
+    }
+   ],
+   "slot": "root",
+   "type": "Column"
+  }
+ ]
+}

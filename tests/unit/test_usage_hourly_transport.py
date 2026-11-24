@@ -16,12 +16,14 @@ import httpx
 import pytest
 from starlette.datastructures import QueryParams
 
-from relaydeck.client.features.sync.transport import HttpxGatewayTransport
+from relaydeck.client.app.resources import gateway_usage_fetch
 from relaydeck.client.features.usage import loop, model
 from relaydeck.client.features.usage import selectors as s
 from relaydeck.client.features.usage.api import UsageFetchError, UsageQuery, fetch_usage
-from relaydeck.client.features.usage.source import gateway_usage_fetch
-from relaydeck.gateway.usage import UsageService, parse_query
+from relaydeck.client.features.usage.selectors import console_card as usage_console_card
+from relaydeck.client.platform.transport.transport import HttpxGatewayTransport
+from relaydeck.gateway.features.usage_read.api import UsageService
+from relaydeck.gateway.http.usage import parse_query
 from relaydeck.usage.contracts import (
     Basis,
     Batch,
@@ -261,7 +263,7 @@ def test_exceeded_reproduces_no_zero_usage_on_any_selector() -> None:
 
 
 def test_console_card_for_an_exceeded_report_is_unavailable_with_no_money_or_usage() -> None:
-    card = model.console_card(exceeded_page(), NOW)
+    card = usage_console_card(exceeded_page(), NOW)
     assert card.available is False
     assert card.has_today is False and card.cost_micro_usd is None and card.priced_micro_usd is None
     assert card.tokens == 0 and card.unpriced_tokens == 0

@@ -1,7 +1,7 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/src/wheel_queue.dart';
+import 'package:relaydeck_terminal/src/wheel_queue.dart';
 
 // Real SGR wheel reports (button 64/65), kept byte-exact through the queue.
 const _up = '\x1b[<65;80;24M';

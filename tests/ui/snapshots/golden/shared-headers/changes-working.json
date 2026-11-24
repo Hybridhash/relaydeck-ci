@@ -1,0 +1,261 @@
+{
+ "roots": [
+  {
+   "children": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "props": {
+              "color": "#F5F2FF",
+              "icon": 66893,
+              "size": 22
+             },
+             "slot": "controls",
+             "type": "Icon"
+            },
+            {
+             "props": {
+              "color": "#F5F2FF",
+              "size": 15,
+              "value": "Console",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w700"
+              }
+             },
+             "slot": "controls",
+             "type": "Text"
+            }
+           ],
+           "props": {
+            "spacing": 2,
+            "tight": true
+           },
+           "slot": "content",
+           "type": "Row"
+          }
+         ],
+         "key": "changes-back",
+         "props": {
+          "alignment": {
+           "@": "Alignment",
+           "x": -1.0,
+           "y": 0.0
+          },
+          "height": 48,
+          "padding": {
+           "@": "Padding",
+           "right": 12
+          },
+          "tooltip": "Back to Console"
+         },
+         "slot": "controls",
+         "type": "Container"
+        },
+        {
+         "props": {
+          "expand": true
+         },
+         "slot": "controls",
+         "type": "Container"
+        }
+       ],
+       "props": {
+        "spacing": 0
+       },
+       "slot": "controls",
+       "type": "Row"
+      },
+      {
+       "props": {
+        "color": "#B7AFDA",
+        "max_lines": 1,
+        "size": 13,
+        "value": "Example context"
+       },
+       "slot": "controls",
+       "type": "Text"
+      },
+      {
+       "children": [
+        {
+         "props": {
+          "color": "#F5F2FF",
+          "size": 26,
+          "value": "Changes",
+          "weight": {
+           "enum": "FontWeight",
+           "value": "w800"
+          }
+         },
+         "slot": "content",
+         "type": "Text"
+        }
+       ],
+       "props": {
+        "header": true
+       },
+       "slot": "controls",
+       "type": "Semantics"
+      },
+      {
+       "props": {
+        "scroll": {
+         "enum": "ScrollMode",
+         "value": "hidden"
+        },
+        "spacing": 6
+       },
+       "slot": "controls",
+       "type": "Row"
+      },
+      {
+       "children": [
+        {
+         "children": [
+          {
+           "children": [
+            {
+             "props": {
+              "color": "#FFFFFF",
+              "max_lines": 1,
+              "no_wrap": true,
+              "overflow": {
+               "enum": "TextOverflow",
+               "value": "ellipsis"
+              },
+              "size": 14,
+              "value": "Working",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w700"
+              }
+             },
+             "slot": "content",
+             "type": "Text"
+            }
+           ],
+           "key": "changes-scope-working",
+           "props": {
+            "alignment": {
+             "@": "Alignment",
+             "x": 0.0,
+             "y": 0.0
+            },
+            "bgcolor": "#7443F5",
+            "border_radius": 9,
+            "expand": true,
+            "height": 48
+           },
+           "slot": "controls",
+           "type": "Container"
+          },
+          {
+           "children": [
+            {
+             "props": {
+              "color": "#D9D3F2",
+              "max_lines": 1,
+              "no_wrap": true,
+              "overflow": {
+               "enum": "TextOverflow",
+               "value": "ellipsis"
+              },
+              "size": 14,
+              "value": "Choose base",
+              "weight": {
+               "enum": "FontWeight",
+               "value": "w600"
+              }
+             },
+             "slot": "content",
+             "type": "Text"
+            }
+           ],
+           "key": "changes-choose-base-tab",
+           "props": {
+            "alignment": {
+             "@": "Alignment",
+             "x": 0.0,
+             "y": 0.0
+            },
+            "border_radius": 9,
+            "expand": true,
+            "height": 48
+           },
+           "slot": "controls",
+           "type": "Container"
+          }
+         ],
+         "props": {
+          "spacing": 4
+         },
+         "slot": "content",
+         "type": "Row"
+        }
+       ],
+       "key": "changes-tabs",
+       "props": {
+        "bgcolor": "#1F1840",
+        "border": {
+         "@": "Border",
+         "bottom": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "left": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "right": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         },
+         "top": {
+          "@": "BorderSide",
+          "color": "#3B3270"
+         }
+        },
+        "border_radius": 12,
+        "padding": 4
+       },
+       "slot": "controls",
+       "type": "Container"
+      }
+     ],
+     "props": {
+      "spacing": 8,
+      "tight": true
+     },
+     "slot": "content",
+     "type": "Column"
+    }
+   ],
+   "key": "changes-header",
+   "props": {
+    "border": {
+     "@": "Border",
+     "bottom": {
+      "@": "BorderSide",
+      "color": "#3B3270"
+     }
+    },
+    "padding": {
+     "@": "Padding",
+     "bottom": 10,
+     "left": 16,
+     "right": 16,
+     "top": 4
+    }
+   },
+   "slot": "root",
+   "type": "Container"
+  }
+ ]
+}

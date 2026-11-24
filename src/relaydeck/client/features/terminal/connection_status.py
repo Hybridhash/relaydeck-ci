@@ -1,9 +1,4 @@
-"""Connection status for the terminal dot (STATUS-DOT).
-
-Metadata liveness alone never reports a live connection. The terminal is live only when its native
-viewer is verified (`terminal_live`). An unverified terminal shows its recovery notice, or its
-checking state, instead.
-"""
+"""Derive terminal connection status from stream evidence rather than metadata liveness alone."""
 
 from __future__ import annotations
 

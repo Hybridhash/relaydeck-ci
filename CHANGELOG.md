@@ -3,6 +3,78 @@
 User-visible changes by release. Versions follow the package version
 (`relaydeck --version`).
 
+## 0.3.0
+
+- **Install**: download, check and install RelayDeck with one installer script from the release; it installs uv first if yours is missing, then hands you to setup.
+- **Changes**: each agent card shows what its working folder changed, and opens a Changes screen
+  with a file list, a directory tree, diffs with word marks, and search. Choose Working, Branch
+  against a base you pick, or Graph. Wide layouts show the list and the diff side by side, and
+  j, k and v move through files and mark them viewed. Large files load in pages, and secrets in a
+  diff stay masked.
+- **Branch graph**: a newest-first graph of the branch replaces the Commits tab. Opening a commit
+  shows its files and diffs in the same reader as Working, and Back returns to the commit.
+- **Copy**: copy a path, a whole file, or a hunk either as a diff with its signs or as the new code.
+- **Ask from Changes**: ask the agent that opened Changes about a file, a hunk or a line. The
+  question goes to that agent once, after its terminal is ready, and the strip shows whether it
+  was delivered, not sent, or not confirmed. Nothing is resent on its own, and Back returns to
+  where you were reading.
+- **Stuck prompts**: a command whose answer can no longer be confirmed can be dismissed, so it
+  never blocks new prompts to that agent.
+- **Long lists**: agent, terminal, file and graph lists place every row exactly and only build what
+  is on screen, so their cost follows the screen, not the size of the repository.
+- **Agents**: an agent kind is offered only when the program Herdr starts for it is installed, so a
+  new Kiro opens as an agent instead of a plain terminal.
+- **Usage**: Kiro reads its limits in RelayDeck's own trusted folder on the current CLI, and resumed
+  sessions are given time to load. Setup offers to trust these folders. The Claude limits hook is
+  kept up to date when RelayDeck is reached through a linked folder. An oversized usage page stops
+  refreshing on its own until you tap Refresh.
+- **Setup**: `relaydeck setup` now does the whole install: it makes the private config, secrets,
+  connector key and enrollment (no `openssl`, copied key or invitation code), downloads the signed
+  web bundle for the installed version, offers a login service, waits until RelayDeck is running,
+  and ends with "Pair a device now?". `relaydeck pair` pairs later devices by typing the code the
+  device shows. When Herdr is missing, setup asks and installs it with Herdr's own installer; it
+  opens Tailscale to connect or sign in and waits, and warns when git is too old for the Changes
+  screen. The companion connects to Herdr whenever Herdr starts, also after a restart.
+  `relaydeck setup --re-enroll` replaces this Mac's enrollment on purpose. After
+  upgrading from 0.2.x, run `relaydeck web fetch` once: the companion now serves only the signed web
+  bundle for its own version unless `FLET_WEB_PATH` names another, and `relaydeck start` stops with
+  `csp_metadata_required` and that hint when it has neither, or when the bundle lacks its matching
+  `csp.json`.
+- **Config folder**: setup now refuses to write the companion config when the home folder or any folder above the config folder can be written by group or others, with the existing refusal message.
+- **Updates**: the Mac checks about once a day for a newer signed release and Settings and
+  `relaydeck setup --check` show it with the commands to update; turn it off with
+  `[updates] check = false`. A config written before 0.3.0 has no `[updates]` table and checks by
+  default, and a config that has one does not load on 0.2.x.
+- **Pairing**: a pairing window stays open for five minutes by default.
+- **Reliability**: a removed or unreadable worktree shows as unavailable. Special or oversized
+  files in RelayDeck's stores are refused at once instead of stalling start or setup, and shutdown
+  waits at most two seconds for Changes work.
+- **Privacy**: connector and background logs carry codes, type names and counts only, never
+  upstream text, paths or entries.
+- **Logs**: server logs record an error's category only, with UTC times, and pairing, grant and
+  revocation events appear under fixed names.
+- **Login service**: it runs `relaydeck service-run`, which keeps each log stream to 5 MiB and
+  three archives. An existing login service keeps its old command and unrotated logs until
+  you run `relaydeck setup`, which offers to replace it.
+- **Web bundles**: a web bundle needs its matching `csp.json`; `relaydeck start`, `web install` and
+  `web fetch` refuse one without it and print `csp_metadata_required`.
+- **API errors**: token routes answer 401 with `WWW-Authenticate: Bearer`, and an unknown API path
+  answers 404 in the standard error body.
+- **Rate limits**: a refused request says how long to wait, in `retry_after_s` and `Retry-After`.
+- **Request size**: an oversized body is refused with reason `body_size`, and a malformed
+  `Content-Length` with reason `body_framing`.
+- **Browser sign-in**: HTTPS sessions use the `__Host-rd_session` cookie, and the old `rd_session`
+  cookie is accepted for 24 hours from the first start. A session cookie with non-ASCII text counts
+  as signed out.
+- **Page titles**: the browser tab names the screen: Console, Changes, Terminals, Terminal, Usage,
+  Hosts or Settings.
+- **Page errors**: an unexpected page error shows a dismissible "Something went wrong." notice.
+- **Screen readers**: headings are announced as headings, and attached pictures are labelled
+  "Attached picture N".
+- **Phone typing row**: the keyboard button is 48 px and the row is 8 px taller.
+- **Settings**: leaving Settings cancels a notifications Turn off or choice save still in flight;
+  reopen Settings to see what the server kept.
+
 ## 0.2.5
 
 - **Dictation in Direct input**: on phones and narrow iPads, dictated text reaches the terminal as it

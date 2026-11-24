@@ -7,10 +7,14 @@ from collections import deque
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-from relaydeck.client.features.shell import ScriptedShellGatewayOps, ShellSession
-from relaydeck.client.features.sync.transport import TerminalSocket, TransportError
 from relaydeck.client.features.terminal.agent_session import AgentSession
+from relaydeck.client.features.terminal.shell_session import ShellSession
+from relaydeck.client.platform.transport.terminal_stream import (
+    TerminalStreamClient as _terminal_stream_factory,
+)
+from relaydeck.client.ports.transport import TerminalSocket, TransportError
 from tests.support.fakes import FakeClipboard
+from tests.support.terminal.shell_ops import ScriptedShellGatewayOps
 
 
 class _ScriptedSocket(TerminalSocket):
@@ -70,6 +74,7 @@ def _session(
     ops = ops or ScriptedShellGatewayOps()
     factory = factory or _SocketFactory()
     session = ShellSession(
+        stream_factory=_terminal_stream_factory,
         ops=ops,
         host_id="home-mac",
         device_id=ops.device_id,
@@ -98,6 +103,7 @@ def _agent_session(
         return {"ok": True, "target": target, "text": text}
 
     session = AgentSession(
+        stream_factory=_terminal_stream_factory,
         ops=ops,
         host_id="home-mac",
         device_id=ops.device_id,

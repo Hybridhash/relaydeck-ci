@@ -18,9 +18,10 @@ import pytest
 from starlette.websockets import WebSocketDisconnect
 
 from relaydeck.contracts.wire import terminal as terminal_wire
-from relaydeck.gateway.app import GatewayState, create_app
-from relaydeck.gateway.production import JournalBackend
-from relaydeck.journal import CommandJournal
+from relaydeck.gateway.app.backend import JournalBackend
+from relaydeck.gateway.app.bootstrap import create_app
+from relaydeck.gateway.app.state import GatewayState
+from relaydeck.host.persistence.command_journal import CommandJournal
 from tests.security.helpers import (
     ALL_CAPS,
     attach,
@@ -31,6 +32,12 @@ from tests.security.helpers import (
     mint_token,
     snapshot_doc,
     ticket,
+)
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
 )
 
 
@@ -322,7 +329,7 @@ def test_extension_protocol_bounds() -> None:
         encode_write,
     )
 
-    from relaydeck.gateway.ring import VIEWER_QUEUE_MAX_BYTES
+    from relaydeck.gateway.features.terminals.ring import VIEWER_QUEUE_MAX_BYTES
 
     assert MAX_WRITE_CHUNK == 64 * 1024
     assert VIEWER_QUEUE_LIMIT == VIEWER_QUEUE_MAX_BYTES == 1024 * 1024
@@ -339,8 +346,8 @@ def test_body_cap_holds_on_combined_web_app() -> None:
     64 KiB cap travels with them (no middleware gap)."""
     from fastapi.testclient import TestClient
 
-    from relaydeck.client.serve import build_web_app
-    from relaydeck.gateway.app import create_app
+    from relaydeck.companion.app.hosted_web.serve import build_web_app
+    from relaydeck.gateway.app.bootstrap import create_app
     from tests.security.helpers import NOW, make_state
 
     gw_state, _ = make_state(NOW)

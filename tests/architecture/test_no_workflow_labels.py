@@ -19,7 +19,10 @@ SKIP_SUFFIXES = {".lock", ".json"}
 SELF = Path(__file__).resolve().relative_to(ROOT).as_posix()
 
 LABELS = re.compile(
-    r"\bRD-[A-Z]*[0-9]+[A-Z]?\b"
+    r"(?i:(?<![A-Za-z])stage[ _-]+"
+    r"(?:[0-9]+|one|two|three|four|five|six|seven|eight|nine|ten)(?![A-Za-z0-9]))"
+    r"|(?i:\brestructur(?:e|ing)\b|\bstructure[ -]page\b)"
+    r"|\bRD-[A-Z]*[0-9]+[A-Z]?\b"
     r"|\bR[0-9]-T\b"
     r"|\bR[0-9][A-Z]\b"
     r"|\b[Aa]ddendum [0-9]+"
@@ -62,7 +65,16 @@ LABELS = re.compile(
     # Short round/check tags only where a label can start: line start or after
     # whitespace or an opening quote/paren/bracket. `code=C1` and `1.4.6-R6000.1`
     # stay out because `=` and `-` never start a label.
-    r"|(?:^|[\s\"'#(\[])(?P<tok>[RC][0-9]+)(?![A-Za-z0-9])"
+    r"|(?:^|[\s\"'#(\[])(?P<tok>[RCQ][0-9]+)(?![A-Za-z0-9])"
+    # Numbered work items in comments and docstrings: "(B2 item 3)", "(spec item 1)" and
+    # "# item 7:". Product text such as "fix item 2 first" stays out.
+    r"|\b[A-Z][0-9] item [0-9]+"
+    r"|\(spec item [0-9]+\)"
+    r"|(?:\#|\"\"\")\s*(?:-+\s*)?item [0-9]+\b"
+    # Lowercase task codes inside identifiers and values: des010, uh5.
+    r"|(?<![A-Za-z0-9])(?:des|uh)[0-9]+(?![A-Za-z0-9])"
+    # A short tag that opens a docstring or comment, such as "F1:" or "Q5a:".
+    r"|(?:\"\"\"|# )[A-Z][0-9]{1,2}[a-z]?: "
 )
 COMMENT_DATE = re.compile(r"#.*\b20[0-9]{2}-[01][0-9]-[0-3][0-9]\b")
 
@@ -101,7 +113,7 @@ ALLOWED: dict[tuple[str, str], str] = {
         "C0 pairing fixture",
     ): "ASCII C0 control range; not a work label",
     (
-        "tests/ui/test_hosts_connect_design.py",
+        "tests/ui/client/widgets/hosts/test_hosts_connect_design.py",
         "ABC-123",
     ): "synthetic pairing-code fixture",
     (
@@ -125,7 +137,7 @@ ALLOWED: dict[tuple[str, str], str] = {
         "SYNTHETIC-SECRET-MARKER-9f3c",
     ): "log-redaction probe marker",
     (
-        "tests/unit/test_webpush_logging.py",
+        "tests/unit/gateway/notifications/test_webpush_logging.py",
         "SECRET-7f3a",
     ): "push-URL redaction probe marker",
 }
@@ -202,6 +214,10 @@ def test_no_workflow_labels_or_comment_dates_in_tracked_files() -> None:
 
 def test_the_detector_finds_labels_and_leaves_ordinary_words() -> None:
     for text in (
+        "stage 99 exception",
+        "stage_seven integration",
+        "the restructure moves modules",
+        "the structure page",
         "see RD-R3A for details",
         "addendum 4 repro",
         "Review 45 finding",
@@ -229,9 +245,22 @@ def test_the_detector_finds_labels_and_leaves_ordinary_words() -> None:
         "bounds. Also covers m2 here",
         "the untracked scratch launcher",
         "the maintainers' working copy",
+        '"""F1: a dead attach session is reaped',
+        "# Q5g: merged into the base",
+        "(B2 item 3)",
+        "Q2 additions",
+        "the page falls back (spec item 1).",
+        "# item 7: cancelling the picker",
+        "# -- item 3: capacity keeps the inventory",
+        '"""B2 item 1 covers the id',
+        "def test_resume_runs_des010_order()",
+        'LINK_KEY = b"uh5-test-link-key"',
     ):
         assert LABELS.search(text), text
     for text in (
+        "staged working-tree changes",
+        "the write stage fails atomically",
+        "stage_root holds packaged files",
         "a = items[1:3]  # array slice",
         "the selection slice changes",
         "time slice per tick",
@@ -248,6 +277,10 @@ def test_the_detector_finds_labels_and_leaves_ordinary_words() -> None:
         "message ids m1 and m2",
         "FROM mappings m2 WHERE m2.rank",
         "builds from a scratch copy",
+        "fix item 2 first",
+        "the item 3 row is selected",
+        "a description and a hash5 value",
+        "ABCQ2 hash",
     ):
         assert not LABELS.search(text), text
     assert COMMENT_DATE.search("x = 1  # fixed 2026-10-12")

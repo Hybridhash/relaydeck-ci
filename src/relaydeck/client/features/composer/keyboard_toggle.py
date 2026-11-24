@@ -7,9 +7,9 @@ from typing import Any
 
 import flet as ft
 
-from relaydeck.client.components.design_system import tokens as console_tokens
-from relaydeck.client.features.terminal.diagnostics import diagnostics_logger
-from relaydeck.client.features.terminal.events import click
+from relaydeck.client.design_system import tokens as console_tokens
+from relaydeck.client.platform.diagnostics.terminal import diagnostics_logger
+from relaydeck.client.platform.flet.events import click
 
 
 def keep_focus(_event: Any) -> None:
@@ -19,11 +19,8 @@ def keep_focus(_event: Any) -> None:
 def keyboard_toggle(
     state: str, compact: bool, on_hide: Callable[[], Any], on_show: Callable[[], Any]
 ) -> Any | None:
-    """Hide keyboard while the field is focused, Show keyboard otherwise.
-
-    The toggle sits inside the field's decoration. Showing the keyboard must happen inside the
-    user's tap on iOS, so the Show icon ignores pointers and the tap reaches the text field
-    natively; a server-side focus request would arrive after the gesture has ended.
+    """Hide keyboard while the field is focused, Show keyboard otherwise. The toggle sits inside
+    the field's decoration.
     """
     if state not in ("hide", "show"):
         return None

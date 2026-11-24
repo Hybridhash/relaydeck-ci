@@ -17,10 +17,18 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from relaydeck.companion.runtime import CompanionRuntime
-from relaydeck.gateway import webpush, webpush_routes
-from relaydeck.gateway.push import ProviderOutcome, PushStore
-from relaydeck.gateway.webpush_store import WebPushStore, pump
+from relaydeck.companion.app.bindings import WebPushBinding
+from relaydeck.gateway.features.notifications.adapters import webpush
+from relaydeck.gateway.features.notifications.adapters.sqlite_store import PushStore
+from relaydeck.gateway.features.notifications.adapters.webpush_store import WebPushStore, pump
+from relaydeck.gateway.features.notifications.service import ProviderOutcome
+from relaydeck.gateway.http import webpush as webpush_routes
+from tests.support.client.defaults import (
+    _open_hold_released_unless_opted_in as _open_hold_released_unless_opted_in,
+)
+from tests.support.client.defaults import (
+    _watch_first_unless_opted_in as _watch_first_unless_opted_in,
+)
 
 ORIGIN = "https://mac.example-tailnet.ts.net"
 ACCOUNT = "acct-one"
@@ -67,19 +75,23 @@ def test_the_web_enqueue_skips_a_category_the_device_turned_off(state: Path) -> 
     _subscribe(store, PHONE)
     push = PushStore()
     push.set_preferences(ACCOUNT, PHONE, {"completion"}, NOW)
+    wakes: list[None] = []
     fake = SimpleNamespace(
         webpush_store=store,
         gateway=SimpleNamespace(now_ms=lambda: NOW, push=push),
+        _webpush_wake=SimpleNamespace(wake=lambda: wakes.append(None)),
     )
-    CompanionRuntime._webpush_enqueue(
+    WebPushBinding._webpush_enqueue(
         fake, ACCOUNT, frozenset({PHONE}), "ev-1", "attention", "h", "s"
     )
     assert store.due(NOW) == []  # blocked is off on this device: nothing queued
-    CompanionRuntime._webpush_enqueue(
+    assert wakes == []  # and the sender is not woken for it
+    WebPushBinding._webpush_enqueue(
         fake, ACCOUNT, frozenset({PHONE}), "ev-2", "completion", "h", "s"
     )
     queued = store.due(NOW)
     assert [row["category"] for row in queued] == ["completion"]
+    assert len(wakes) == 1
     store.close()
 
 

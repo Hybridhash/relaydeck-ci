@@ -21,10 +21,7 @@ from relaydeck.usage.contracts import (
 )
 
 MAX_CACHE_BYTES = 64 * 1024
-# The status-line hook keeps its lock file as "<receipt_ms>:<confirm_ms>:<generation>" (see
-# statusline_limits_hook.read_lock). The installed hook is a standalone script and cannot import
-# this module, so the name and format are mirrored here. tests/unit/test_usage_hook_freshness.py
-# drives the real hook and checks that both sides agree.
+# Standalone hook lock format: receipt_ms:confirm_ms:generation; both readers must agree.
 LOCK_NAME = ".statusline-limits.lock"
 MAX_WATERMARK_BYTES = 64
 WATERMARK_RE = re.compile(rb"[0-9]{1,16}:([0-9]{1,16})?:(?:[0-9a-f]{32})?")
@@ -35,9 +32,6 @@ FUTURE_SKEW_MS = 60 * 1000
 def receipt_watermark(cache_path: Path, now_ms: int) -> int | None:
     """The hook's confirm time (last API-generation change), or None when it is absent, unsafe,
     malformed or in the future. Its receipt field is not used here.
-
-    Read-only: the lock is never taken or waited on, and nothing is written. Anything that does not
-    match the strict format falls back to the cache's own captured time.
     """
     try:
         fd = os.open(cache_path.parent / LOCK_NAME, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)

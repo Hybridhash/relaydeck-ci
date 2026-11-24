@@ -1,17 +1,5 @@
-"""Headless VT projection oracle. Flet-free.
-
-A small incremental screen model used ONLY to assert byte-stream
-behavior headlessly: ordering, split-sequence buffering, parser-state
-preservation, and fixture rendering as expected screen cells/text. It is
-deliberately not a full emulator: the display path stays xterm2.
-Anything outside the documented subset below is ignored
-(never misrendered as content), and the subset is pinned by the VT
-fixtures plus these explicit limits:
-
-- colors/SGR tracked nowhere (colors never alter text)
-- no scroll regions (DECSTBM ignored), no insert/delete line/char
-- no mouse, clipboard, or device-report replies
-- unknown CSI/ESC sequences are skipped, never emitted as text
+"""Model a pinned subset of terminal output for headless screen checks. Unknown sequences are
+skipped rather than rendered as text; native snapshots supply authoritative emulator text.
 """
 
 from __future__ import annotations

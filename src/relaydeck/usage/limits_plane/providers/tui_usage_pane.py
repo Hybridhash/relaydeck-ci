@@ -1,21 +1,5 @@
-"""On-demand TUI usage reads through Herdr panes.
-
-Format id: `tui-usage-pane-v1`. One fetch opens a fresh `<kind>-relaydeck`
-tab, starts the tool (resuming a proven session id when one is saved),
-sends `/usage`, parses the allowance numbers from the screen, quits, captures
-the quit hint when the recipe tracks sessions, and closes the tab. Every step
-is bounded; every write is verified; every tab is journaled and closed.
-
-Trust model:
-- A session id is saved ONLY from the tool's own quit hint read live from our
-  verified pane, corroborated per recipe (existence under the tool's session
-  root plus birth time at or after our attempt start). Recipes without a hint
-  pattern never track sessions. File mtimes are never a source.
-- Every write targets the pane id from the create response and is preceded by
-  a foreground-process check; screen text alone never authorizes a write.
-- On unexpected state no quit text is sent: the verified owned tab is closed.
-- Tab ids are never reused across attempts; at most two tabs exist per attempt
-  (one definite dead-id retry), both journaled.
+"""Read configured allowance panels through temporary, journaled Herdr tabs. Verify foreground
+authority and expected output around each bounded write, then close only proven-owned tabs.
 """
 
 from __future__ import annotations
@@ -94,7 +78,10 @@ _SHELL_SETTLE_S = 2.0  # a prompt hook (git status and the like) briefly holds t
 _START_S = 30.0
 _USAGE_S = 15.0
 _QUIT_S = 15.0
-_IDLE_RECHECK_S = 5.0  # the tool may not have finished signing in when /usage first ran
+# A resumed tool can take well over five seconds to finish signing in and
+# fetch its subscription numbers after the first panel renders.
+_IDLE_RECHECK_S = 15.0
+_PANEL_SETTLE_S = 2.0  # a panel can render its header a beat before its numbers land
 _ENTER_RETRIES = 3
 _TYPED_SETTLE_S = 0.8  # an Enter right behind typed text reads as part of a paste (Muse 1.4.10)
 _ENTER_WAIT_MS = 6000
@@ -322,6 +309,20 @@ class _Run:
             if workspace is not None:
                 home = os.path.expanduser("~")
                 return workspace, home if is_trusted(home, trusted) else str(trusted[0])
+        probe = probe_folder(self.recipe.probe_dir, self.bundle.state_path.parent)
+        if probe is not None:
+            # Probe recipes use their own empty folder; tool trust prompts abort the read without an
+            # answer.
+            workspace = spots[0][0] if spots else linked
+            if workspace is None:
+                for pane in panes:
+                    found = pane.get("workspace_id") if isinstance(pane, dict) else None
+                    if isinstance(found, str) and found and "\x00" not in found:
+                        workspace = found
+                        break
+            if workspace is not None and probe.is_dir():
+                return workspace, str(probe.resolve())
+            raise _Abort(LimitError.UNAVAILABLE, NOTE_NO_SPACE)
         if spots:
             return spots[0]
         if linked is not None:
@@ -456,14 +457,23 @@ class _Run:
     # -- the interactive flow ----------------------------------------------------------
 
     def send_and_confirm(
-        self, pane_id: str, text: str | None, marker: str, wait_ms: int, enters: int = 1
+        self,
+        pane_id: str,
+        text: str | None,
+        marker: str,
+        wait_ms: int,
+        enters: int = 1,
+        *,
+        resend_text: bool = True,
     ) -> None:
         """Send text/enter, retrying Enter until the marker shows (every
-        write is verified; screen text plus the pre-write foreground check)."""
+        write is verified; screen text plus the pre-write foreground check).
+        With `resend_text=False` the text is typed exactly once: Enter is
+        retried only while that typed text is still pending submission."""
         self.require_foreground(pane_id, frozenset({self.recipe.binary}))
         for attempt in range(_ENTER_RETRIES):
             self.require_foreground(pane_id, frozenset({self.recipe.binary}))
-            if text is not None and (attempt == 0 or self.input_empty(pane_id)):
+            if text is not None and (attempt == 0 or (resend_text and self.input_empty(pane_id))):
                 # A command run before the tool finished loading prints a panel without the
                 # marker; once the input is empty again, a fresh run prints the full one.
                 self.seam.send_text(pane_id, text, self.budget(_CALL_S))
@@ -471,6 +481,8 @@ class _Run:
             for press in range(enters):
                 if press:
                     time.sleep(_TYPED_SETTLE_S)
+                    if not resend_text and not self._submission_pending(pane_id):
+                        break  # a final answer may already show; never submit past it
                 self.seam.send_keys(pane_id, ("enter",), self.budget(_CALL_S))
             if self.seam.wait_output(
                 pane_id,
@@ -480,6 +492,8 @@ class _Run:
                 self.budget(_ENTER_WAIT_MS / 1000 + 5.0),
             ):
                 return
+            if not resend_text and not self._submission_pending(pane_id):
+                break  # the one send already ran; nothing is pending to submit
         if not self.seam.wait_output(
             pane_id,
             marker,
@@ -495,6 +509,21 @@ class _Run:
         if not marks or self.is_refusal(screen):  # a refusal answered it; never ask twice
             return False
         return not screen[marks[-1].end() :].split("\n", 1)[0].strip()
+
+    def _submission_pending(self, pane_id: str) -> bool:
+        """Positive evidence the typed command still waits in the input: a
+        prompt line holding text, with no final refusal/not-reported answer
+        already on screen. Anything else means the one send has run (or was
+        answered) and no further Enter may follow it."""
+        screen = self.seam.pane_read(pane_id, self.recipe.max_lines, self.budget(_CALL_S))
+        if self.is_refusal(screen):
+            return False
+        if any(re.search(pattern, screen) for pattern in self.recipe.not_reported):
+            return False
+        marks = list(re.finditer(self.recipe.prompt_marker, screen))
+        if not marks:
+            return False
+        return bool(screen[marks[-1].end() :].split("\n", 1)[0].strip())
 
     def scope(self, workspace: str) -> str:
         root = self.recipe.session_root or ""
@@ -716,6 +745,55 @@ class _Run:
             raise _Abort(LimitError.TIMEOUT, NOTE_NO_WARMUP)
         time.sleep(_TYPED_SETTLE_S)
 
+    def _parse_with_panel_settle(self, tab: _Tab, screen: str) -> tuple[list[LimitWindow], str]:
+        """Parse a panel that may still be filling in: a transient shape
+        (idle wording, or numbers not rendered yet) gets one settled
+        re-read of the same panel — no resend — before it is believed."""
+        try:
+            return self.parse_windows(screen), screen
+        except _Idle:
+            pass
+        except _Abort as abort:
+            if abort.note != NOTE_PARSE_NO_WINDOW:
+                raise
+        time.sleep(_PANEL_SETTLE_S)
+        screen = self.seam.pane_read(tab.pane_id, self.recipe.max_lines, self.budget(_CALL_S))
+        try:
+            return self.parse_windows(screen), screen
+        except _Idle:
+            self.idle = True
+            return self.idle_windows(), screen
+
+    def _parse_after_settle(self, tab: _Tab) -> tuple[list[LimitWindow], str]:
+        """Second look after a settle: right after start the panel can render before the tool
+        has its subscription numbers, showing none at all. Ask exactly once more once the
+        tool has had time to catch up.
+        """
+        if self.deadline - time.monotonic() < _IDLE_RECHECK_S + _QUIT_S:
+            raise _Abort(LimitError.TIMEOUT, NOTE_DEADLINE)  # leave time to quit and close
+        time.sleep(_IDLE_RECHECK_S)
+        try:
+            self.send_and_confirm(
+                tab.pane_id,
+                "/usage",
+                self.recipe.usage_marker,
+                int(_USAGE_S * 1000),
+                self.recipe.usage_enters,
+                resend_text=False,
+            )
+        except _Abort as abort:
+            if abort.note != NOTE_NO_USAGE_MARKER:
+                raise
+            screen = self.seam.pane_read(tab.pane_id, self.recipe.max_lines, self.budget(_CALL_S))
+            try:
+                return self._parse_with_panel_settle(tab, screen)
+            except _Abort as parse_abort:
+                if parse_abort.note == NOTE_PARSE_NO_WINDOW:
+                    raise abort from None
+                raise
+        screen = self.seam.pane_read(tab.pane_id, self.recipe.max_lines, self.budget(_CALL_S))
+        return self._parse_with_panel_settle(tab, screen)
+
     def run_in_tab(self, tab: _Tab, resume_id: str | None) -> list[LimitWindow]:
         launched = self.launch(tab, resume_id)
         if self.recipe.warmup_marker is not None and launched is None:
@@ -742,23 +820,11 @@ class _Run:
             try:
                 windows = self.parse_windows(screen)
             except _Idle:
-                # One more look before believing it: right after start the screen can lag.
-                time.sleep(_IDLE_RECHECK_S)
-                self.send_and_confirm(
-                    tab.pane_id,
-                    "/usage",
-                    self.recipe.usage_marker,
-                    int(_USAGE_S * 1000),
-                    self.recipe.usage_enters,
-                )
-                screen = self.seam.pane_read(
-                    tab.pane_id, self.recipe.max_lines, self.budget(_CALL_S)
-                )
-                try:
-                    windows = self.parse_windows(screen)
-                except _Idle:
-                    windows = self.idle_windows()
-                    self.idle = True
+                windows, screen = self._parse_after_settle(tab)
+            except _Abort as abort:
+                if abort.note != NOTE_PARSE_NO_WINDOW:
+                    raise
+                windows, screen = self._parse_after_settle(tab)
         except _Abort:
             self.quit_cleanly(tab)
             raise
@@ -908,8 +974,9 @@ def recover_stale_tabs(
     now_ms: int = 0,
     max_entries: int = RECOVERY_MAX_ENTRIES,
 ) -> dict[str, int]:
-    """Close proven-ours leftover tabs (restart recovery). Never touches an
-    unverifiable tab. Returns outcome counts."""
+    """Close proven-owned leftover refresh tabs and return outcome counts. Leave unverifiable
+    tabs untouched.
+    """
     outcome = {"closed": 0, "recovered": 0, "replaced": 0, "left": 0}
     if seam is None:
         if not herdr or run is None:
