@@ -101,7 +101,7 @@ jobs:
           uvx pip-audit==2.9.0 -r requirements-audit.txt --no-deps --disable-pip
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sbom-${{ github.sha }}
           path: sbom.json
@@ -179,7 +179,7 @@ jobs:
         run: uv run flet build web --yes
 
       - name: Upload static web bundle
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: web-static-smoke-${{ github.sha }}
           path: build/web
@@ -237,7 +237,7 @@ jobs:
           cat build-manifest.json
 
       - name: Upload unsigned AAB + manifest
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: android-unsigned-aab-${{ github.sha }}
           path: |
